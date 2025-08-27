@@ -280,7 +280,8 @@ $(document).ready(function() {
         modal.find("input[name=_type]").val("update");
         modal.find("input[name=id]").val(selected.id);
         modal.find("input[name=nama_projek]").val(selected.nama_projek);
-        modal.find("input[name=nomor_pr]").val(selected.nomor_pr);
+        modal.find("input[name=nama_client]").val(selected.nama_client);
+        modal.find("select[name=jenis_pr]").val(selected.jenis_pr);
 
         // Sembunyikan field nomor_pr dan tombol generate saat mode edit
         $('.input-group:has(#nomor_pr)').hide();
