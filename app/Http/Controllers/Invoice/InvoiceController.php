@@ -1082,19 +1082,45 @@ class InvoiceController extends Controller
         $this->fpdf->SetLineWidth(0);
         $this->fpdf->Ln(1);
 
-        $this->fpdf->SetFont('Arial', 'B', 11);
-        $this->fpdf->Cell(12, 0, "Terbilang :", 0, 0, 'L');
-        $this->fpdf->Cell(3, 0, "Subtotal :", 0, 0, 'R');
-		$this->fpdf->Ln(0.3);
-        $this->fpdf->SetFont('Arial', 'B', 10);
-        $this->fpdf->Cell(5, 0.5, $data_result[0]['terbilang'], 0, 0, 'L');
-		$this->fpdf->Ln(2);
+            $this->fpdf->SetFont('Arial', 'B', 8);
+            $this->fpdf->Cell(14.6, 0, "Subtotal :", 0, 0, 'R');
+            $this->fpdf->Cell(3, 0,  number_format($data_result[0]['subtotal_price'], 0, ',', '.'), 0, 0, 'R');
+            $this->fpdf->Ln(1);
+            $this->fpdf->SetFont('Arial', 'B', 8);
+            $this->fpdf->Cell(14.7, 0, "PPN 11% :", 0, 0, 'R');
+            $this->fpdf->Cell(2.7, 0, number_format($data_result[0]['jumlah_ppn'], 0, ',', ','), 0, 0, 'R');
+            $this->fpdf->Ln(1);
+            $this->fpdf->SetFont('Arial', 'B', 8);
+            $this->fpdf->Cell(15.1, 0, "Grand Total :", 0, 0, 'R');
+            $this->fpdf->Cell(2.5, 0, number_format($data_result[0]['total_vat'], 0, ',', ','), 0, 0, 'R');
+            $this->fpdf->Ln(0.3);
+            $this->fpdf->SetFont('Arial', 'B', 10);
+            $this->fpdf->Cell(12, 0, "Terbilang :", 0, 0, 'L');
+            $this->fpdf->Ln(0.5);
+            $this->fpdf->SetFont('Arial', 'BI', 8);
+            $this->fpdf->Cell(5, 0.5, $data_result[0]['terbilang'], 0, 0, 'L');
+            $this->fpdf->Ln(1);
+            $this->fpdf->SetFont('Arial', 'B', 7);
+            $this->fpdf->Cell(5, 0.5, "Bank Mandiri Cab. BEC Purnawarman Bandung", 0, 0, 'L');
+            $this->fpdf->Ln(0.5);
+            $this->fpdf->SetFont('Arial', 'B',7);
+            $this->fpdf->Cell(5, 0.5, "A/C: 13000.91.333222", 0, 0, 'L');
+            $this->fpdf->Ln(0.5);
+            $this->fpdf->SetFont('Arial', 'B', 7);
+            $this->fpdf->Cell(5, 0.5, "Mitra Brata Sujana", 0, 0, 'L');
+            $this->fpdf->Ln(2);
 
 
         $this->fpdf->SetLineWidth(0.1);
-        $this->fpdf->Line(1, 21.5, 20, 21.5);
+        $this->fpdf->Line(1, 23.5, 20, 23.5);
         $this->fpdf->SetLineWidth(0);
-        $this->fpdf->Ln(2);
+        $this->fpdf->Ln(2.5);
+
+        $this->fpdf->SetFont('Arial', 'BU', 7);
+        $this->fpdf->Cell(17, 0.5, "Rika Aulia", 0, 0, 'R');
+        $this->fpdf->Ln(0.3);
+        $this->fpdf->SetFont('Arial', 'B', 7);
+        $this->fpdf->Cell(16.9, 0.5, "FInance", 0, 0, 'R');
 
         // Remove the commented out code since we've implemented the calculation above
         // $grand_total = 0;

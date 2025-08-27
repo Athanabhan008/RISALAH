@@ -22,7 +22,9 @@ use App\Http\Controllers\Invoice\InvoiceController;
 use App\Http\Controllers\pr\WapuController;
 use App\Http\Controllers\pr\SwastaController;
 use App\Http\Controllers\pr\NonppnController;
+use App\Http\Controllers\qc\QcController;
 use App\Http\Controllers\staff\StaffController as StaffStaffController;
+use App\Http\Controllers\user\UserController;
 use App\Http\Controllers\StokbarangController;
 use App\Models\Laundry;
 use App\Models\Paketlaundry;
@@ -158,14 +160,18 @@ Route::middleware(['UserAkses:manager,super_admin'])->group(function() {
 
 //STAFF
 Route::middleware(['UserAkses:staff,super_admin'])->group(function() {
-    Route::get('/staff',[StaffController::class, 'index']);
-    Route::get('/staff/datatable',                                   [StaffController::class, 'datatable'])->name('staff/datatable');
-    Route::post('/staff/datatable',                                  [StaffController::class, 'datatable'])->name('staff/datatable');
-    Route::post('/staff/datatable',                                  [StaffController::class, 'datatable'])->name('create');
-    Route::get('/staff/create',                                      [StaffController::class, 'create'])->name('create');
-    Route::post('/staff/create',                                     [StaffController::class, 'create'])->name('create');
-    Route::get('/staff/getshift',                                    [StaffController::class, 'getshift'])->name('sound/getshift');
-    Route::post('/staff/getshift',                                   [StaffController::class, 'getshift'])->name('sound/getshift');
+    Route::get('/user',                                             [UserController::class, 'index']);
+    Route::get('/user/datatable',                                   [UserController::class, 'datatable'])->name('user/datatable');
+    Route::post('/user/datatable',                                  [UserController::class, 'datatable'])->name('user/datatable');
+    Route::post('/user/datatable',                                  [UserController::class, 'datatable'])->name('create');
+    Route::get('/user/create',                                      [UserController::class, 'create'])->name('create');
+    Route::post('/user/create',                                     [UserController::class, 'create'])->name('create');
+    Route::get('/user/update/{id}',                                 [UserController::class, 'update'])->name('update');
+    Route::post('/user/update/{id}',                                [UserController::class, 'update'])->name('update');
+    Route::get('/user/updatepassword/{id}',                         [UserController::class, 'updatepassword'])->name('updatepassword');
+    Route::post('/user/updatepassword/{id}',                        [UserController::class, 'updatepassword'])->name('updatepassword');
+    Route::get('/user/getshift',                                    [UserController::class, 'getshift'])->name('sound/getshift');
+    Route::post('/user/getshift',                                   [UserController::class, 'getshift'])->name('sound/getshift');
 });
 
 //PRWAPU
@@ -305,8 +311,8 @@ Route::middleware(['UserAkses:staff,super_admin'])->group(function() {
     Route::get('/delivery_order/generate-nomor-do',                                   [DoController::class, 'generateNomorDO'])->name('delivery_order.generate_nomor_do');
     Route::get('/delivery_order/getSales',                                            [DoController::class, 'getSales'])->name('delivery_order/getSales');
     Route::post('/delivery_order/getSales',                                           [DoController::class, 'getSales'])->name('delivery_order/getSales');
-    Route::get('/delivery_order/getPr',                                               [DoController::class, 'getPr'])->name('delivery_order/getPr');
-    Route::post('/delivery_order/getPr',                                              [DoController::class, 'getPr'])->name('delivery_order/getPr');
+    Route::get('/delivery_order/getQc',                                               [DoController::class, 'getQc'])->name('delivery_order/getQc');
+    Route::post('/delivery_order/getQc',                                              [DoController::class, 'getQc'])->name('delivery_order/getQc');
     Route::get('/delivery_order/create',                                              [DoController::class, 'create'])->name('create');
     Route::post('/delivery_order/create',                                             [DoController::class, 'create'])->name('create');
     Route::get('/delivery_order/cetakCV',                                             [DoController::class, 'cetakCV'])->name('delivery_order/cetakCV');
@@ -334,6 +340,33 @@ Route::middleware(['UserAkses:staff,super_admin'])->group(function() {
     Route::post('/invoice/cetakCV',                                            [InvoiceController::class, 'cetakCV'])->name('invoice/cetakCV');
     Route::get('/invoice/cetakPT',                                             [InvoiceController::class, 'cetakPT'])->name('invoice/cetakPT');
     Route::post('/invoice/cetakPT',                                            [InvoiceController::class, 'cetakPT'])->name('invoice/cetakPT');
+
+});
+
+//QUALITY CONTROL
+Route::middleware(['UserAkses:staff,super_admin'])->group(function() {
+    // Route::get('/manager',[ManagerController::class, 'index']);
+    Route::get('/qc',                                                          [QcController::class, 'index']);
+    Route::get('/qc/datatable',                                                [QcController::class, 'datatable'])->name('qc/datatable');
+    Route::post('/qc/datatable',                                               [QcController::class, 'datatable'])->name('create');
+    Route::get('/qc/create',                                                   [QcController::class, 'create'])->name('create');
+    Route::post('/qc/create',                                                  [QcController::class, 'create'])->name('create');
+    Route::get('/qc/getSales',                                                 [QcController::class, 'getSales'])->name('qc/getSales');
+    Route::post('/qc/getSales',                                                [QcController::class, 'getSales'])->name('qc/getSales');
+    Route::get('/qc/getPr',                                                    [QcController::class, 'getPr'])->name('qc/getPr');
+    Route::post('/qc/getPr',                                                   [QcController::class, 'getPr'])->name('qc/getPr');
+    Route::get('/qc/detail_data_qc',                                           [QcController::class, 'detail_data_qc']);
+    Route::get('/qc/datatabledetail',                                          [QcController::class, 'datatabledetail'])->name('qc/datatabledetail');
+    Route::post('/qc/datatabledetail',                                         [QcController::class, 'datatabledetail'])->name('qc/datatabledetail');
+    Route::get('/qc/getbarang',                                                [QcController::class, 'getBarang'])->name('qc/getbarang');
+    Route::post('/qc/getbarang',                                               [QcController::class, 'getBarang'])->name('qc/getbarang');
+    Route::post('/qc/detailCreate',                                            [QcController::class, 'detailcreate'])->name('qc/detailCreate');
+    Route::post('/qc/detailCreate',                                            [QcController::class, 'detailcreate'])->name('qc/detailCreate');
+
+    // Route::get('/invoice/cetakCV',                                             [InvoiceController::class, 'cetakCV'])->name('invoice/cetakCV');
+    // Route::post('/invoice/cetakCV',                                            [InvoiceController::class, 'cetakCV'])->name('invoice/cetakCV');
+    // Route::get('/invoice/cetakPT',                                             [InvoiceController::class, 'cetakPT'])->name('invoice/cetakPT');
+    // Route::post('/invoice/cetakPT',                                            [InvoiceController::class, 'cetakPT'])->name('invoice/cetakPT');
 
 });
 

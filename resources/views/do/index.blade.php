@@ -5,6 +5,8 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/css/select2.min.css" integrity="sha512-xrbX64SIXOxo5cMQEDUQ3UyKsCreOEq1Im90z3B7KPoxLJ2ol/tCT0aBhuIzASfmBVdODioUdUPbt5EDEXmD9g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+<link rel="stylesheet" href="../../admin/assets/css/bootstrap-datepicker3.min.css">
 
 <style>
     table.dataTable tbody tr.selected {
@@ -23,15 +25,6 @@
 
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
     <!-- Navbar -->
-    <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl" id="navbarBlur" navbar-scroll="true">
-      <div class="container-fluid py-1 px-3">
-        <nav aria-label="breadcrumb">
-          <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
-            <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="javascript:;">Pages</a></li>
-            <li class="breadcrumb-item text-sm text-dark active" aria-current="page">Tables</li>
-          </ol>
-          <h6 class="font-weight-bolder mb-0">Tables</h6>
-        </nav>
         <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
         </div>
       </div>
@@ -42,7 +35,7 @@
         <div class="col-12">
           <div class="card mb-4">
             <div class="card-header pb-0">
-                <h6>Data Delivery Order</h6>
+                <h6>Delivery Order</h6>
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div class="ml-auto d-flex align-items-center gap-2">
                         <button type="button" class="btn btn-success mr-2" data-toggle="modal" data-target="#formModal">
@@ -54,8 +47,8 @@
                                 <i class="fa-solid fa-file-invoice"></i> Export
                             </button>
                             <div class="dropdown-menu">
-                                <a onclick="cetakPT()" class="dropdown-item" href="#">Purchase Order PT</a>
-                                <a onclick="cetakCV()" class="dropdown-item" href="#">Purchase Order CV</a>
+                                <a onclick="cetakPT()" class="dropdown-item" href="#">Delivery Order PT</a>
+                                <a onclick="cetakCV()" class="dropdown-item" href="#">Delivery Order CV</a>
                             </div>
                         </div>
 
@@ -78,9 +71,8 @@
                         <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nama sales</th>
                         <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nama Client</th>
                         <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nama Projek</th>
+                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">TGL Pengiriman</th>
                         <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Alamat</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Part No</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Serial No</th>
                       </tr>
                     </thead>
                     <tbody></tbody>
@@ -139,8 +131,10 @@
                           <select name="cmb_sales" id="cmb_sales" class="bg-danger"></select>
                     </div>
 
-                    <div class="input-group-prepend">
-                        <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Nomor PR</span>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Nomor PR</span>
+                        </div>
                         <select name="cmb_pr" id="cmb_pr" class="bg-danger"></select>
                     </div>
 
@@ -160,27 +154,16 @@
 
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
+                          <span class="input-group-text date" style="width: 155px; height: 35px; background-color: rgb(222, 222, 222);">Tanggal Pengiriman</span>
+                        </div>
+                        <input type="date" name="tgl_pengiriman" id="tgl_pengiriman" class="form-control" style="border: 1px solid black;" value="{{ old('tgl_pengiriman', $data->tgl_pengiriman ?? date('Y-m-d')) }}">
+                    </div>
+
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
                           <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Alamat</span>
                         </div>
                         <input type="text" name="alamat" id="alamat" class="form-control" style="border: 1px solid black;">
-                    </div>
-
-                    <div class="input-group mb-3">
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                              <span class="input-group-text" style="background-color: rgb(222, 222, 222);">Part No</span>
-                            </div>
-                            <textarea class="form-control" name="part_no" id="part_no" aria-label="With textarea"></textarea>
-                          </div>
-                    </div>
-
-                    <div class="input-group mb-3">
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                              <span class="input-group-text" style="background-color: rgb(222, 222, 222);">Serial No</span>
-                            </div>
-                            <textarea class="form-control" name="serial_no" id="serial_no" aria-label="With textarea"></textarea>
-                          </div>
                     </div>
 
                 </div>
@@ -197,12 +180,23 @@
   @push('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+  <script src="../../admin/assets/js/plugins/bootstrap-datepicker.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap4.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/js/select2.min.js" defer></script>
+
+  <script>
+     $('.date').datepicker({
+        format: 'yyyy-mm-dd',
+        autoclose: true,
+     });
+</script>
+
+
 <script>
 
 console.log("kipak");
@@ -521,6 +515,16 @@ function viewDatatable() {
                 }
             },
             {
+                data: "tgl_pengiriman",
+                render: function (data, type, row, meta) {
+                    if (data == '' || data == null) {
+                        return '-';
+                    } else {
+                        return data;
+                    }
+                }
+            },
+            {
                 data: "alamat",
                 render: function (data, type, row, meta) {
                     if (data == '' || data == null) {
@@ -529,27 +533,7 @@ function viewDatatable() {
                         return data;
                     }
                 }
-            },
-            {
-                data: "part_no",
-                render: function (data, type, row, meta) {
-                    if (data == '' || data == null) {
-                        return '-';
-                    } else {
-                        return data;
-                    }
-                }
-            },
-            {
-                data: "serial_no",
-                render: function (data, type, row, meta) {
-                    if (data == '' || data == null) {
-                        return '-';
-                    } else {
-                        return data;
-                    }
-                }
-            },
+            }
         ],
             createdRow: function (row, data, index) {
                 $(row).attr("data-value", encodeURIComponent(JSON.stringify(data)));
@@ -706,7 +690,7 @@ function collectionS2Search() {
         width: '83.9%',
         placeholder: '',
         ajax: {
-            url: "{{ url('/delivery_order/getPr') }}",
+            url: "{{ url('/delivery_order/getQc') }}",
             dataType: 'json',
             data: function (params) {
                 return {

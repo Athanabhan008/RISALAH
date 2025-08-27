@@ -13,6 +13,7 @@ class Wapu extends Model
     protected $fillable = [
         'angka',
         'persentase_incentive',
+        'incentive_sales',
         'incentive_fe001a',
         'persentase_fe001a',
         'approval',

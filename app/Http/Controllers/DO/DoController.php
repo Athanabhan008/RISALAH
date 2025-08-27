@@ -26,6 +26,7 @@ use App\Libraries\easyTables;
 use App\Libraries\exFPDF;
 use App\Models\Delivery;
 use App\Models\vwExportDoCv;
+use App\Models\VWQc;
 
 class DoController extends Controller
 {
@@ -88,21 +89,15 @@ class DoController extends Controller
         ]);
     }
 
-    public function getPr()
+    public function getQc(Request $request)
     {
-        $id_sales = request()->get('id_sales');
+        $id_sales = $request->input('id_sales');
+        $data = DB::table('VwQc')
+            ->where('id_sales', $id_sales)
+            ->select('id_qc as id', 'nomor_pr', 'nama_client', 'nama_projek')
+            ->get();
 
-        $query = VwPr::query();
-        $query->where('id_sales', $id_sales);
-
-        // Apply pagination
-        $result = $query->get();
-
-        return response()->json([
-            'error' => 0,
-            'message' => 'Success',
-            'data'=> $result
-        ]);
+        return response()->json(['data' => $data]);
     }
 
 
@@ -141,9 +136,8 @@ class DoController extends Controller
             $po->nomor_do = $request->nomor_do;
             $po->id_sales = $request->cmb_sales;
             $po->id_pr = $request->cmb_pr;
+            $po->tgl_pengiriman = $request->tgl_pengiriman;
             $po->alamat = $request->alamat;
-            $po->part_no = $request->part_no;
-            $po->serial_no = $request->serial_no;
             $po->updated_at = null;
             $po->save();
 
@@ -1027,8 +1021,35 @@ class DoController extends Controller
         $this->fpdf->Cell(2.6, 0.5, ":", 0, 0, 'R');
 		$this->fpdf->Ln(1.4);
 
-        $table = new easyTables($this->fpdf, "{2, 17, 2.5, 12, 15}", 'border:1;font-size:9;');
+        // Hitung ruang yang tersedia untuk tabel
+        $currentY = $this->fpdf->GetY();
+        $pageHeight = $this->fpdf->GetPageHeight();
+        $marginBottom = 2.5; // Margin bawah dalam cm
+        $signatureHeight = 4; // Tinggi area signature dalam cm
+        $shipToHeight = 3; // Tinggi area Ship To dalam cm
 
+        // Ruang yang tersedia untuk tabel
+        $availableHeight = $pageHeight - $currentY - $marginBottom - $signatureHeight - $shipToHeight;
+
+        // Hitung tinggi per baris tabel (header + data)
+        $rowHeight = 0.6; // Tinggi per baris dalam cm
+        $headerHeight = 0.6; // Tinggi header tabel
+
+        // Jumlah baris yang bisa ditampung
+        $maxRows = floor($availableHeight / $rowHeight);
+
+        // Jika data terlalu banyak, kurangi spacing dan ukuran font
+        $fontSize = 9;
+        $lineSpacing = 0.4;
+
+        if (count($data_result) > $maxRows) {
+            $fontSize = 8;
+            $lineSpacing = 0.3;
+            $rowHeight = 0.5;
+            $maxRows = floor($availableHeight / $rowHeight);
+        }
+
+        $table = new easyTables($this->fpdf, "{2, 17, 2.5, 12, 15}", 'border:1;font-size:' . $fontSize . ';');
 
         $table->rowStyle('font-style:B;');
         $table->easyCell('NO', 'valign:M;align:C;');
@@ -1039,76 +1060,97 @@ class DoController extends Controller
         $table->printRow();
 
         $i = 1;
-        $grand_total = 0; // Initialize grand total
-        foreach ($data_result as $value) {
-            // Calculate grand total by summing total_price
-            // Remove any currency formatting and convert to numeric value
-            $total_price_numeric = (float) preg_replace('/[^\d]/', '', $value['total_price']);
-            $grand_total += $total_price_numeric;
+        $grand_total = 0;
 
+        // Batasi jumlah baris yang ditampilkan jika terlalu banyak
+        $displayData = array_slice($data_result, 0, $maxRows - 1); // Kurangi 1 untuk header
+
+        foreach ($displayData as $value) {
             $table->easyCell($i++, 'valign:M;align:C;');
             $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
             $table->easyCell($value['qty'], 'valign:M;align:C;');
-            $table->easyCell($value['unit_price'], 'valign:M;align:L;');
-            $table->easyCell($value['total_price'], 'valign:M;align:L;');
-
+            $table->easyCell($value['part_number'], 'valign:M;align:L;');
+            $table->easyCell($value['serial_number'], 'valign:M;align:L;');
             $table->printRow();
         }
-        $this->fpdf->Ln(2);
 
-        $this->fpdf->Ln(2.4);
-        $this->fpdf->Line(1, 15.4, 20, 15.4);
-        $this->fpdf->SetLineWidth(0);
-        $this->fpdf->Line(1, 15.5, 20, 15.5);
-        $this->fpdf->SetLineWidth(0);
+        // Jika ada data yang tidak ditampilkan, tambahkan catatan
+        if (count($data_result) > count($displayData)) {
+            $remainingCount = count($data_result) - count($displayData);
+            $table->rowStyle('font-style:I;font-size:' . ($fontSize - 1) . ';');
+            $table->easyCell('...', 'colspan:5;valign:M;align:C;');
+            $table->printRow();
+            $table->easyCell('Dan ' . $remainingCount . ' item lainnya', 'colspan:5;valign:M;align:C;');
+            $table->printRow();
+        }
 
+        // Simpan posisi Y setelah tabel selesai
+        $currentY = $this->fpdf->GetY();
+
+        // Tambahkan jarak minimal setelah tabel (dikurangi untuk menghemat ruang)
+        $minSpaceAfterTable = 1; // dikurangi dari 2 menjadi 1
+        $shipToY = $currentY + $minSpaceAfterTable;
+
+        // Pindah ke posisi Ship To yang dinamis
+        $this->fpdf->SetY($shipToY);
+
+        // Gambar garis pemisah
         $this->fpdf->SetLineWidth(0.1);
-        $this->fpdf->Line(1, 16.2, 20, 16.2);
+        $this->fpdf->Line(1, $shipToY, 20, $shipToY);
         $this->fpdf->SetLineWidth(0);
-        $this->fpdf->Ln(0);
+        $this->fpdf->Ln(0.3); // dikurangi dari 0.5
 
-        $this->fpdf->SetFont('Arial', 'B', 11);
+        // Konten Ship To (dikompresi)
+        $this->fpdf->SetFont('Arial', 'B', 10); // dikurangi dari 11
         $this->fpdf->Cell(12, 0, "Ship To :", 0, 0, 'L');
-		$this->fpdf->Ln(1);
-        $this->fpdf->SetFont('Arial', 'B', 13);
-        $this->fpdf->Cell(5, 0.5, $data_result[0]['nama_client'], 0, 0, 'R');
-		$this->fpdf->Ln(1);
+        $this->fpdf->Ln(0.6); // dikurangi dari 1
+        $this->fpdf->SetFont('Arial', 'B', 11); // dikurangi dari 13
+        $this->fpdf->Cell(5, 0.4, $data_result[0]['nama_client'], 0, 0, 'R'); // dikurangi tinggi dari 0.5
+        $this->fpdf->Ln(0.6); // dikurangi dari 1
 
+        // Simpan posisi Y setelah Ship To
+        $afterShipToY = $this->fpdf->GetY();
 
+        // Cek apakah ada ruang cukup untuk signature di halaman ini
+        $signatureHeight = 4.5; // Tinggi yang dibutuhkan untuk section signature
+        $pageHeight = 27.7; // Tinggi halaman A4 dalam cm
+        $currentY = $this->fpdf->GetY();
+        $availableSpace = $pageHeight - $currentY;
+
+        // Jika tidak ada ruang cukup, buat halaman baru
+        if ($availableSpace < $signatureHeight) {
+            $this->fpdf->AddPage('P', 'A4');
+        }
+
+        // Tambahkan jarak minimal sebelum signature (dikurangi)
+        $minSpaceBeforeSignature = 0.8; // dikurangi dari 1.5
+        $signatureY = $this->fpdf->GetY() + $minSpaceBeforeSignature;
+
+        // Pindah ke posisi signature yang dinamis
+        $this->fpdf->SetY($signatureY);
+
+        // Gambar garis pemisah untuk signature
         $this->fpdf->SetLineWidth(0.1);
-        $this->fpdf->Line(1, 21.5, 20, 21.5);
+        $this->fpdf->Line(1, $signatureY, 20, $signatureY);
         $this->fpdf->SetLineWidth(0);
-        $this->fpdf->Ln(2);
+        $this->fpdf->Ln(1.5); // dikurangi dari 2.4
 
-        $this->fpdf->SetFont('Arial', '', 11);
-        $this->fpdf->Cell(8, 0.5, "Received By,", 0, 0, 'L');
-        $this->fpdf->Cell(0, 0.5, "Shipped By,", 0, 0, 'L');
-        $this->fpdf->Cell(0, 0.5, "Approved By,", 0, 0, 'R');
-        $this->fpdf->SetFont('Arial', '', 11);
+        // Konten signature (dikompresi)
+        $this->fpdf->SetFont('Arial', '', 9); // dikurangi dari 11
+        $this->fpdf->Cell(8, 0.4, "Received By,", 0, 0, 'L'); // dikurangi tinggi dari 0.5
+        $this->fpdf->Cell(0, 0.4, "Shipped By,", 0, 0, 'L');
+        $this->fpdf->Cell(0, 0.4, "Approved By,", 0, 0, 'R');
+        $this->fpdf->SetFont('Arial', '', 9);
 
-        $this->fpdf->Ln(3.5);
-        $this->fpdf->SetFont('Arial', '', 11);
-        $this->fpdf->Cell(8, 0.5, "Date : " . $this->formatDateIndonesian(), 0, 0, 'L');
-        $this->fpdf->Cell(0, 0.5, "Date : " . $this->formatDateIndonesian(), 0, 0, 'L');
-        $this->fpdf->Cell(0, 0.5, "Date : " . $this->formatDateIndonesian(), 0, 0, 'R');
-        $this->fpdf->SetFont('Arial', '', 11);
-		$this->fpdf->Ln(1);
+        $this->fpdf->Ln(2.5); // dikurangi dari 3.5
+        $this->fpdf->SetFont('Arial', '', 9);
+        $this->fpdf->Cell(8, 0.4, "Date : " . $this->formatDateIndonesian($data_result[0]['tgl_pengiriman']), 0, 0, 'L');
+        $this->fpdf->Cell(0, 0.4, "Date : " . $this->formatDateIndonesian($data_result[0]['tgl_pengiriman']), 0, 0, 'L');
+        $this->fpdf->Cell(0, 0.4, "Date : " . $this->formatDateIndonesian($data_result[0]['tgl_pengiriman']), 0, 0, 'R');
+        $this->fpdf->SetFont('Arial', '', 9);
+        $this->fpdf->Ln(0.5); // dikurangi dari 1
 
-        // Remove the commented out code since we've implemented the calculation above
-        // $grand_total = 0;
-        // // foreach ($data_result as $value) {
-        // //     foreach ($value as $key => $data) {
-        // //         $grand_total += $data->harga;
-        // //     }
-        // // }
-
-        // // $table->rowStyle('font-style:B');
-        // // $table->easyCell('TOTAL KESELURUHAN', 'colspan:5;valign:M;align:L;');
-        // // $table->easyCell('Rp ' . number_format($grand_total, 0, ',', '.'), 'valign:M;align:R;');
-        // // $table->printRow();
-
-
-		$table->endTable(0);
+        $table->endTable(0);
 
         $this->fpdf->Output();
         exit;
@@ -1214,8 +1256,35 @@ class DoController extends Controller
         $this->fpdf->Cell(2.6, 0.5, ":", 0, 0, 'R');
 		$this->fpdf->Ln(1.4);
 
-        $table = new easyTables($this->fpdf, "{2, 17, 2.5, 12, 15}", 'border:1;font-size:9;');
+        // Hitung ruang yang tersedia untuk tabel
+        $currentY = $this->fpdf->GetY();
+        $pageHeight = $this->fpdf->GetPageHeight();
+        $marginBottom = 2.5; // Margin bawah dalam cm
+        $signatureHeight = 4; // Tinggi area signature dalam cm
+        $shipToHeight = 3; // Tinggi area Ship To dalam cm
 
+        // Ruang yang tersedia untuk tabel
+        $availableHeight = $pageHeight - $currentY - $marginBottom - $signatureHeight - $shipToHeight;
+
+        // Hitung tinggi per baris tabel (header + data)
+        $rowHeight = 0.6; // Tinggi per baris dalam cm
+        $headerHeight = 0.6; // Tinggi header tabel
+
+        // Jumlah baris yang bisa ditampung
+        $maxRows = floor($availableHeight / $rowHeight);
+
+        // Jika data terlalu banyak, kurangi spacing dan ukuran font
+        $fontSize = 9;
+        $lineSpacing = 0.4;
+
+        if (count($data_result) > $maxRows) {
+            $fontSize = 8;
+            $lineSpacing = 0.3;
+            $rowHeight = 0.5;
+            $maxRows = floor($availableHeight / $rowHeight);
+        }
+
+        $table = new easyTables($this->fpdf, "{2, 17, 2.5, 12, 15}", 'border:1;font-size:' . $fontSize . ';');
 
         $table->rowStyle('font-style:B;');
         $table->easyCell('NO', 'valign:M;align:C;');
@@ -1226,76 +1295,97 @@ class DoController extends Controller
         $table->printRow();
 
         $i = 1;
-        $grand_total = 0; // Initialize grand total
-        foreach ($data_result as $value) {
-            // Calculate grand total by summing total_price
-            // Remove any currency formatting and convert to numeric value
-            $total_price_numeric = (float) preg_replace('/[^\d]/', '', $value['total_price']);
-            $grand_total += $total_price_numeric;
+        $grand_total = 0;
 
+        // Batasi jumlah baris yang ditampilkan jika terlalu banyak
+        $displayData = array_slice($data_result, 0, $maxRows - 1); // Kurangi 1 untuk header
+
+        foreach ($displayData as $value) {
             $table->easyCell($i++, 'valign:M;align:C;');
             $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
             $table->easyCell($value['qty'], 'valign:M;align:C;');
-            $table->easyCell($value['unit_price'], 'valign:M;align:L;');
-            $table->easyCell($value['total_price'], 'valign:M;align:L;');
-
+            $table->easyCell($value['part_number'], 'valign:M;align:L;');
+            $table->easyCell($value['serial_number'], 'valign:M;align:L;');
             $table->printRow();
         }
-        $this->fpdf->Ln(2);
 
-        $this->fpdf->Ln(2.4);
-        $this->fpdf->Line(1, 15.4, 20, 15.4);
-        $this->fpdf->SetLineWidth(0);
-        $this->fpdf->Line(1, 15.5, 20, 15.5);
-        $this->fpdf->SetLineWidth(0);
+        // Jika ada data yang tidak ditampilkan, tambahkan catatan
+        if (count($data_result) > count($displayData)) {
+            $remainingCount = count($data_result) - count($displayData);
+            $table->rowStyle('font-style:I;font-size:' . ($fontSize - 1) . ';');
+            $table->easyCell('...', 'colspan:5;valign:M;align:C;');
+            $table->printRow();
+            $table->easyCell('Dan ' . $remainingCount . ' item lainnya', 'colspan:5;valign:M;align:C;');
+            $table->printRow();
+        }
 
+        // Simpan posisi Y setelah tabel selesai
+        $currentY = $this->fpdf->GetY();
+
+         // Tambahkan jarak minimal setelah tabel (dikurangi untuk menghemat ruang)
+        $minSpaceAfterTable = 1; // dikurangi dari 2 menjadi 1
+        $shipToY = $currentY + $minSpaceAfterTable;
+
+        // Pindah ke posisi Ship To yang dinamis
+        $this->fpdf->SetY($shipToY);
+
+        // Gambar garis pemisah
         $this->fpdf->SetLineWidth(0.1);
-        $this->fpdf->Line(1, 16.2, 20, 16.2);
+        $this->fpdf->Line(1, $shipToY, 20, $shipToY);
         $this->fpdf->SetLineWidth(0);
-        $this->fpdf->Ln(0);
+        $this->fpdf->Ln(0.3); // dikurangi dari 0.5
 
-        $this->fpdf->SetFont('Arial', 'B', 11);
+        // Konten Ship To (dikompresi)
+        $this->fpdf->SetFont('Arial', 'B', 10); // dikurangi dari 11
         $this->fpdf->Cell(12, 0, "Ship To :", 0, 0, 'L');
-		$this->fpdf->Ln(1);
-        $this->fpdf->SetFont('Arial', 'B', 13);
-        $this->fpdf->Cell(5, 0.5, $data_result[0]['nama_client'], 0, 0, 'R');
-		$this->fpdf->Ln(1);
+        $this->fpdf->Ln(0.6); // dikurangi dari 1
+        $this->fpdf->SetFont('Arial', 'B', 11); // dikurangi dari 13
+        $this->fpdf->Cell(5, 0.4, $data_result[0]['nama_client'], 0, 0, 'R'); // dikurangi tinggi dari 0.5
+        $this->fpdf->Ln(0.6); // dikurangi dari 1
 
+        // Simpan posisi Y setelah Ship To
+        $afterShipToY = $this->fpdf->GetY();
 
+        // Cek apakah ada ruang cukup untuk signature di halaman ini
+        $signatureHeight = 4.5; // Tinggi yang dibutuhkan untuk section signature
+        $pageHeight = 27.7; // Tinggi halaman A4 dalam cm
+        $currentY = $this->fpdf->GetY();
+        $availableSpace = $pageHeight - $currentY;
+
+        // Jika tidak ada ruang cukup, buat halaman baru
+        if ($availableSpace < $signatureHeight) {
+            $this->fpdf->AddPage('P', 'A4');
+        }
+
+        // Tambahkan jarak minimal sebelum signature (dikurangi)
+        $minSpaceBeforeSignature = 0.8; // dikurangi dari 1.5
+        $signatureY = $this->fpdf->GetY() + $minSpaceBeforeSignature;
+
+        // Pindah ke posisi signature yang dinamis
+        $this->fpdf->SetY($signatureY);
+
+        // Gambar garis pemisah untuk signature
         $this->fpdf->SetLineWidth(0.1);
-        $this->fpdf->Line(1, 21.5, 20, 21.5);
+        $this->fpdf->Line(1, $signatureY, 20, $signatureY);
         $this->fpdf->SetLineWidth(0);
-        $this->fpdf->Ln(2);
+        $this->fpdf->Ln(1.5); // dikurangi dari 2.4
 
-        $this->fpdf->SetFont('Arial', '', 11);
-        $this->fpdf->Cell(8, 0.5, "Received By,", 0, 0, 'L');
-        $this->fpdf->Cell(0, 0.5, "Shipped By,", 0, 0, 'L');
-        $this->fpdf->Cell(0, 0.5, "Approved By,", 0, 0, 'R');
-        $this->fpdf->SetFont('Arial', '', 11);
+        // Konten signature (dikompresi)
+        $this->fpdf->SetFont('Arial', '', 9); // dikurangi dari 11
+        $this->fpdf->Cell(8, 0.4, "Received By,", 0, 0, 'L'); // dikurangi tinggi dari 0.5
+        $this->fpdf->Cell(0, 0.4, "Shipped By,", 0, 0, 'L');
+        $this->fpdf->Cell(0, 0.4, "Approved By,", 0, 0, 'R');
+        $this->fpdf->SetFont('Arial', '', 9);
 
-        $this->fpdf->Ln(3.5);
-        $this->fpdf->SetFont('Arial', '', 11);
-        $this->fpdf->Cell(8, 0.5, "Date : " . $this->formatDateIndonesian(), 0, 0, 'L');
-        $this->fpdf->Cell(0, 0.5, "Date : " . $this->formatDateIndonesian(), 0, 0, 'L');
-        $this->fpdf->Cell(0, 0.5, "Date : " . $this->formatDateIndonesian(), 0, 0, 'R');
-        $this->fpdf->SetFont('Arial', '', 11);
-		$this->fpdf->Ln(1);
+        $this->fpdf->Ln(2.5); // dikurangi dari 3.5
+        $this->fpdf->SetFont('Arial', '', 9);
+        $this->fpdf->Cell(8, 0.4, "Date : " . $this->formatDateIndonesian($data_result[0]['tgl_pengiriman']), 0, 0, 'L');
+        $this->fpdf->Cell(0, 0.4, "Date : " . $this->formatDateIndonesian($data_result[0]['tgl_pengiriman']), 0, 0, 'L');
+        $this->fpdf->Cell(0, 0.4, "Date : " . $this->formatDateIndonesian($data_result[0]['tgl_pengiriman']), 0, 0, 'R');
+        $this->fpdf->SetFont('Arial', '', 9);
+        $this->fpdf->Ln(0.5); // dikurangi dari 1
 
-        // Remove the commented out code since we've implemented the calculation above
-        // $grand_total = 0;
-        // // foreach ($data_result as $value) {
-        // //     foreach ($value as $key => $data) {
-        // //         $grand_total += $data->harga;
-        // //     }
-        // // }
-
-        // // $table->rowStyle('font-style:B');
-        // // $table->easyCell('TOTAL KESELURUHAN', 'colspan:5;valign:M;align:L;');
-        // // $table->easyCell('Rp ' . number_format($grand_total, 0, ',', '.'), 'valign:M;align:R;');
-        // // $table->printRow();
-
-
-		$table->endTable(0);
+        $table->endTable(0);
 
         $this->fpdf->Output();
         exit;

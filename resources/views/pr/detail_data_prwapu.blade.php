@@ -397,7 +397,7 @@
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Incentive Sales</span>
                                             </div>
-                                            <input type="text" name="angka" id="incentive_sales" class="form-control pl-2" style="border: 1px solid black;" value="{{ isset($incentive_sales) && $incentive_sales !== '' ? 'Rp ' . number_format($incentive_sales, 0, ',', '.') : 'Rp 0' }}" readonly>
+                                            <input type="text" name="incentive_sales" id="incentive_sales" class="form-control pl-2" style="border: 1px solid black;" value="{{ isset($incentive_sales) && $incentive_sales !== '' ? 'Rp ' . number_format($incentive_sales, 0, ',', '.') : 'Rp 0' }}" readonly>
                                         </div>
                                     </div>
 

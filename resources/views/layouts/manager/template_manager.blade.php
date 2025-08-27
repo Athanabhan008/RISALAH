@@ -20,7 +20,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <link rel="apple-touch-icon" sizes="76x76" href="../../admin/assets/img/apple-icon.png">
-  <link rel="icon" type="image/png" href="../../admin/assets/img/favicon.png">
+  <link rel="icon" type="image/png" href="../../admin/assets/img/logos/Logo MBS Corp.png">
   <title>
     SIM MBS
   </title>
@@ -71,7 +71,7 @@
     <div class="sidenav-header">
       <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
       <a class="navbar-brand m-0" href=" https://demos.creative-tim.com/soft-ui-dashboard/pages/dashboard.html " target="_blank">
-        <img src="../../admin/assets/img/logo-ct-dark.png" class="navbar-brand-img h-100" alt="main_logo">
+        <img src="../../admin/assets/img/logos/Logo MBS Corp.png" class="navbar-brand-img h-800" alt="main_logo">
         <span class="ms-1 font-weight-bold">SIM MBS</span>
       </a>
     </div>
@@ -121,6 +121,24 @@
                     <i class="fa-solid fa-file-invoice-dollar" style="color: {{ ($active === "invoice") ? 'white' : 'black' }};"></i>
                   </div>
                   <span class="nav-link-text ms-1">Invoice</span>
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link {{ ($active === "qc") ? 'active' : '' }}" href="{{ url('/qc') }}">
+                  <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                    <i class="fa-solid fa-screwdriver-wrench" style="color: {{ ($active === "qc") ? 'white' : 'black' }};"></i>
+                  </div>
+                  <span class="nav-link-text ms-1">Quality Control</span>
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link {{ ($active === "user") ? 'active' : '' }}" href="{{ url('/user') }}">
+                  <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                    <i class="fa-solid fa-users" style="color: {{ ($active === "user") ? 'white' : 'black' }};"></i>
+                  </div>
+                  <span class="nav-link-text ms-1">User</span>
                 </a>
               </li>
 

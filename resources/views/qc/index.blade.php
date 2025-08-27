@@ -19,6 +19,53 @@
     .select2-dropdown {
         z-index: 9999;
     }
+
+    /* Custom styling untuk datepicker yang lebih besar */
+    .datepicker {
+        font-size: 16px !important;
+    }
+
+    .datepicker table {
+        font-size: 16px !important;
+    }
+
+    .datepicker table tr td,
+    .datepicker table tr th {
+        padding: 8px 12px !important;
+        font-size: 16px !important;
+    }
+
+    .datepicker table tr td.day {
+        width: 40px !important;
+        height: 40px !important;
+        line-height: 10px !important;
+    }
+
+    .datepicker table tr td.day:hover {
+        background-color: #e9ecef !important;
+    }
+
+    .datepicker table tr td.active {
+        background-color: #007bff !important;
+        border-color: #007bff !important;
+    }
+
+    .datepicker table tr td.active:hover {
+        background-color: #0056b3 !important;
+        border-color: #0056b3 !important;
+    }
+
+    .datepicker table tr td.today {
+        background-color: #ffc107 !important;
+        border-color: #ffc107 !important;
+        color: #212529 !important;
+    }
+
+    .datepicker-dropdown {
+        padding: 10px !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+    }
 </style>
 
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
@@ -35,29 +82,21 @@
         <div class="col-12">
           <div class="card mb-4">
             <div class="card-header pb-0">
-                <h6>Purchase Order</h6>
+                <h6>Quality Control</h6>
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div class="ml-auto d-flex align-items-center gap-2">
-                        <button type="button" class="btn btn-success mr-2" data-toggle="modal" data-target="#formModal">
+                    <div class="ml-auto">
+                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#formModal">
                             <i class="fa-solid fa-plus fa-lg" style="margin-right: 10px"></i>Tambah Data
-                        </button>
-
-                        <div class="dropdown mr-2">
-                            <button class="btn btn-danger dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
-                                <i class="fa-solid fa-file-invoice"></i> Export
-                            </button>
-                            <div class="dropdown-menu">
-                                <a onclick="cetakPT()" class="dropdown-item" href="#">Purchase Order PT</a>
-                                <a onclick="cetakCV()" class="dropdown-item" href="#">Purchase Order CV</a>
-                            </div>
-                        </div>
-
-                        <button type="button" class="btn btn-warning mr-2" id="btn-edit" data-toggle="modal" data-target="#formModal">
+                          </button>
+                          <button type="button" class="btn btn-warning" id="btn-edit" data-toggle="modal" data-target="#formModal">
                             <i class="fa-solid fa-pencil" style="margin-right: 10px;"></i> Ubah Data
-                        </button>
-                        <button type="button" class="btn btn-danger" id="btn-delete">
+                          </button>
+                          <button type="button" class="btn btn-danger" id="btn-delete">
                             <i class="fa-solid fa-trash" style="margin-right: 10px;"></i> Hapus Data
-                        </button>
+                          </button>
+                          <button type="button" class="btn btn-info" id="btn-detail">
+                            <i class="fa-solid fa-arrow-right" style="margin-right: 10px;"></i> Tambah Barang
+                          </button>
                     </div>
                 </div>
               </div>
@@ -67,14 +106,9 @@
                     <thead style="background-color: #1E3135; color: white;">
                       <tr>
                         <th style="color: white;" class="text-uppercase text-xxs font-weight-bolder opacity-7">No</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nomor PO</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nama sales</th>
                         <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nama Client</th>
                         <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nama Projek</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nama Vendor</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Lampiran</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Sales Vendor</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Note</th>
+                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Tanggal QC</th>
                       </tr>
                     </thead>
                     <tbody></tbody>
@@ -107,13 +141,13 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Form - Data Projek</h5>
+          <h5 class="modal-title" id="exampleModalLabel">Form - QC</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <div class="modal-body">
-            <form id="form_sound">
+            <form id="form_qc">
                 @csrf
                 <div class="modal-body">
                     <input type="hidden" name="_type" value="create">
@@ -121,9 +155,9 @@
 
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
-                          <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Nomor PO</span>
-                        </div>
-                        <input type="text" name="nomor_po" id="nomor_po" class="form-control" style="border: 1px solid black;" readonly>
+                            <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Tanggal QC</span>
+                          </div>
+                          <input id="datepicker" type="text" class="form-control" name="tgl_qc" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
                     </div>
 
                     <div class="input-group mb-3">
@@ -152,34 +186,6 @@
 
                     </div>
 
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                          <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Vendor</span>
-                        </div>
-                        <select name="cmb_vendor" id="cmb_vendor" class="form-control"></select>
-                    </div>
-
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                          <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Lampiran</span>
-                        </div>
-                        <input type="text" name="lampiran" id="lampiran" class="form-control" style="border: 1px solid black;">
-                    </div>
-
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                          <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Sales Vendor</span>
-                        </div>
-                        <input type="text" name="sales_vendor" id="sales_vendor" class="form-control" style="border: 1px solid black;">
-                    </div>
-
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                          <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Note</span>
-                        </div>
-                        <input type="text" name="note" id="note" class="form-control" style="border: 1px solid black;">
-                    </div>
-
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
@@ -193,6 +199,7 @@
 
   @push('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
@@ -200,22 +207,35 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap4.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/js/select2.min.js" defer></script>
+  <script src="../../admin/assets/js/plugins/bootstrap-datepicker.js"></script>
+
+<script>
+    $('#datepicker').datepicker({
+    format: 'yyyy-mm-dd',
+    viewMode: 'date',
+    minViewMode: 'date',
+    autoclose: true,
+    startView: 'date'
+  });
+</script>
+
+
 <script>
 
 console.log("kipak");
 
-window.defaultUrl = "{{ url('/po/') }}/";
+window.defaultUrl = '{{ url('/qc/') }}/';
 
 let modal = $("#formModal");
+let table;
 
 $(document).ready(function() {
     viewDatatable();
-    collectionS2Search();
 
     // Auto generate nomor PR saat modal dibuka
     $('button[data-target="#formModal"]').on('click', function() {
         // Reset form
-        $('#form_sound')[0].reset();
+        $('#form_qc')[0].reset();
 
         $('select[name=cmb_sales]').val(null).trigger('change');
         $('select[name=cmb_pr]').val(null).trigger('change');
@@ -229,7 +249,6 @@ $(document).ready(function() {
 
         // Clear hidden fields
         $('#id').val('');
-        $('#nama_client').val('');
         $('#nama_projek').val('');
 
         // Tampilkan kembali field nomor_pr dan tombol generate saat mode create
@@ -240,18 +259,19 @@ $(document).ready(function() {
         generateNomorPR();
     });
 
-    // Event handler untuk tombol generate PR
+    $('.submit-filter').on('click', function() {
+        viewDatatable();
+    });
+
     $('#btn-generate-pr').on('click', function() {
         generateNomorPR();
     });
 
-    $('.submit-filter').on('click', function() {
-        if ($.fn.DataTable.isDataTable('#datatable')) {
-            $('#datatable').DataTable().destroy();
-        }
-        viewDatatable();
+    $('select[name=cmb_laundry').on('select2:select', function (e) {
+        var data = e.params.data;
+        // alert(data)
+        $('#harga').val(data.harga);
     });
-
 
     $("#btn-edit").on("click", function () {
         let selected = table.row('.selected').data();
@@ -278,7 +298,6 @@ $(document).ready(function() {
         });
         $('select[name=cmb_pr]').val(null).trigger('change');
 
-        modal.find("input[name=nama_client]").val(selected.nama_client);
         modal.find("input[name=nama_projek]").val(selected.nama_projek);
         modal.find("input[name=nomor_pr]").val(selected.nomor_pr);
 
@@ -315,7 +334,7 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 // Reset form terlebih dahulu
-                $('#form_sound')[0].reset();
+                $('#form_qc')[0].reset();
 
                 // Reload table
                 table.ajax.reload();
@@ -402,7 +421,7 @@ $(document).ready(function() {
                             alert(response.message);
                             table.ajax.reload();
                         }
-                        $('#form_sound')[0].reset();
+                        $('#form_qc')[0].reset();
                     },
                     error: function(jqXHR) {
                         let message = 'Terjadi kesalahan saat menghapus data';
@@ -417,6 +436,25 @@ $(document).ready(function() {
     });
 
 
+    $("#btn-detail").on("click", function () {
+        let selected = table.row('.selected').data();
+
+        if (_.isEmpty(selected) ||  selected == undefined) {
+            Swal.fire({
+                title: 'Peringatan',
+                text: 'Pilih Data Terlebih Dahulu',
+                icon: 'warning',
+                confirmButtonText: 'OK'
+            });
+            return false;
+        }
+
+        window.location.href = defaultUrl + "detail_data_qc?id_qc=" + selected.id_qc;
+
+    });
+
+
+
     // Tambahkan event handler untuk tombol close
     $('.close, .btn-secondary').click(function() {
         closeModal();
@@ -427,26 +465,44 @@ $(document).ready(function() {
         closeModal();
     });
 
+
+    $('select[name=cmb_laundry]').on('select2:select', function (e) {
+        var data = e.params.data;
+        var perkalian = $('#harga').val(data.harga);
+        $('#harga').val(toRp(data.harga));
+        $('#total_harga').val(toRp(data.harga));
+    });
+
+    $('#berat').on('input', function (e) {
+        var perkalian = $(this).val();
+        var harga = $('#harga').val().replace(/\./g, '');
+
+        // Set default value to 1 if input is empty or less than 1
+        if (!perkalian || parseInt(perkalian) < 1) {
+            $(this).val(1);
+            perkalian = 1;
+        }
+
+        $('#total_harga').val(toRp(parseInt(harga) * parseInt(perkalian)));
+    });
+
+    // Add blur event to handle when input loses focus
+    $('#berat').on('blur', function() {
+        if (!$(this).val()) {
+            $(this).val(1);
+            var harga = $('#harga').val();
+            $('#total_harga').val(parseInt(harga) * 1);
+        }
+    });
+
+    collectionS2Search();
+
 });
 
-function cetakCV() {
-    let selected = table.row('.selected').data();
-
-    window.open(defaultUrl + "cetakCV?id_po=" + selected.id_po);
-}
-
-function cetakPT() {
-    let selected = table.row('.selected').data();
-
-    window.open(defaultUrl + "cetakPT?id_po=" + selected.id_po);
-}
-
-
-
 function viewDatatable() {
-    table = $(".basic-datatables").DataTable({
+    table = $('.basic-datatables').DataTable({
         ajax: {
-            url: "{{ route('po/datatable') }}",
+            url: "{{ route('qc/datatable') }}",
             "type": "post",
             "data": function (d) {
                 var formData = $("#form_filter").serializeArray();
@@ -478,26 +534,6 @@ function viewDatatable() {
                 }
             },
             {
-                data: "nomor_po",
-                render: function (data, type, row, meta) {
-                    if (data == '' || data == null) {
-                        return '-';
-                    } else {
-                        return data;
-                    }
-                }
-            },
-            {
-                data: "name",
-                render: function (data, type, row, meta) {
-                    if (data == '' || data == null) {
-                        return '-';
-                    } else {
-                        return data;
-                    }
-                }
-            },
-            {
                 data: "nama_client",
                 render: function (data, type, row, meta) {
                     if (data == '' || data == null) {
@@ -518,7 +554,7 @@ function viewDatatable() {
                 }
             },
             {
-                data: "nama_vendor",
+                data: "tgl_qc",
                 render: function (data, type, row, meta) {
                     if (data == '' || data == null) {
                         return '-';
@@ -526,37 +562,7 @@ function viewDatatable() {
                         return data;
                     }
                 }
-            },
-            {
-                data: "lampiran",
-                render: function (data, type, row, meta) {
-                    if (data == '' || data == null) {
-                        return '-';
-                    } else {
-                        return data;
-                    }
-                }
-            },
-            {
-                data: "sales_vendor",
-                render: function (data, type, row, meta) {
-                    if (data == '' || data == null) {
-                        return '-';
-                    } else {
-                        return data;
-                    }
-                }
-            },
-            {
-                data: "note",
-                render: function (data, type, row, meta) {
-                    if (data == '' || data == null) {
-                        return '-';
-                    } else {
-                        return data;
-                    }
-                }
-            },
+            }
         ],
             createdRow: function (row, data, index) {
                 $(row).attr("data-value", encodeURIComponent(JSON.stringify(data)));
@@ -602,6 +608,7 @@ function viewDatatable() {
             alert('0');
         });
 
+            // Handle row selection
     // Pindahkan event handler ini ke sini, dan gunakan .off() untuk mencegah duplikasi
     $('.basic-datatables tbody').off('click', 'tr').on('click', 'tr', function () {
         if ($(this).hasClass('selected')) {
@@ -631,37 +638,6 @@ function showNotification(type, message) {
         text: message,
         icon: type, // 'success', 'error', 'warning', 'info'
         confirmButtonText: 'OK'
-    });
-}
-
-// Event handler for when a barang is selected
-
-// Fungsi untuk generate nomor PR
-function generateNomorPR() {
-    $.ajax({
-        url: '{{ route("po.generate_nomor_po") }}',
-        type: 'GET',
-        dataType: 'json',
-        success: function(response) {
-            if (response.success) {
-                $('#nomor_po').val(response.nomor_po);
-            } else {
-                Swal.fire({
-                    title: 'Error',
-                    text: response.message || 'Gagal generate nomor PO',
-                    icon: 'error',
-                    confirmButtonText: 'OK'
-                });
-            }
-        },
-        error: function(xhr, status, error) {
-            Swal.fire({
-                title: 'Error',
-                text: 'Terjadi kesalahan saat generate nomor PR',
-                icon: 'error',
-                confirmButtonText: 'OK'
-            });
-        }
     });
 }
 

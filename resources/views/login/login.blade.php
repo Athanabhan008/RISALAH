@@ -1,187 +1,282 @@
-<!--
-=========================================================
-* Soft UI Dashboard 3 - v1.1.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/soft-ui-dashboard
-* Copyright 2024 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://www.creative-tim.com/license)
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
--->
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <link rel="apple-touch-icon" sizes="76x76" href="admin/assets/img/apple-icon.png">
-  <link rel="icon" type="image/png" href="admin/assets/img/favicon.png">
-  <title>
-    SIM MBS
-  </title>
-  <!--     Fonts and icons     -->
-  <link href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,800" rel="stylesheet" />
-  <!-- Nucleo Icons -->
-  <link href="https://demos.creative-tim.com/soft-ui-dashboard/assets/css/nucleo-icons.css" rel="stylesheet" />
-  <link href="https://demos.creative-tim.com/soft-ui-dashboard/assets/css/nucleo-svg.css" rel="stylesheet" />
-  <!-- Font Awesome Icons -->
-  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
-  <!-- CSS Files -->
-  <link id="pagestyle" href="admin/assets/css/soft-ui-dashboard.css?v=1.1.0" rel="stylesheet" />
-  <!-- Nepcha Analytics (nepcha.com) -->
-  <!-- Nepcha is a easy-to-use web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. -->
-  <script defer data-site="YOUR_DOMAIN_HERE" src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="apple-touch-icon" sizes="76x76" href="admin/assets/img/apple-icon.png">
+    <link rel="icon" type="image/png" href="admin/assets/img/logos/Logo MBS Corp.png">
+    <title>Login - Office Management System</title>
+    <style>
+        /* CSS Reset dan Variabel */
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #2980b9;
+            --light-color: #ecf0f1;
+            --error-color: #e74c3c;
+            --success-color: #2ecc71;
+            --box-shadow: 0 8px 90px rgba(0, 0, 0, 0.15);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #e2e2e2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        /* Container Utama */
+        .login-container {
+            display: flex;
+            width: 85%;
+            max-width: 1000px;
+            height: 550px;
+            background: white;
+
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+        }
+
+        /* Bagian Kiri (Gambar) */
+        .login-left {
+            flex: 1;
+
+            background: linear-gradient(#003d8de9, #5ce1e69f),
+                        url('admin/assets/img/building.jpeg');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+
+        .brand {
+            position: absolute;
+            top: 30px;
+            left: 40px;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .welcome-text h1 {
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+
+        .welcome-text p {
+            font-size: 16px;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        /* Bagian Kanan (Form) */
+        .login-right {
+            flex: 1;
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .login-header h2 {
+            color:
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .login-header p {
+            color: #777;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 15px;
+            transition: var(--transition);
+        }
+
+        .form-group input:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+            outline: none;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 42px;
+            cursor: pointer;
+            color: #777;
+        }
+
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+        }
+
+        .remember-me input {
+            margin-right: 8px;
+        }
+
+        .forgot-password {
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .forgot-password:hover {
+            color: var(--accent-color);
+            text-decoration: underline;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .login-button:hover {
+            background-color: var(--accent-color);
+        }
+
+        .error-message {
+            color: var(--error-color);
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        /* Responsivitas */
+        @media (max-width: 900px) {
+            .login-container {
+                flex-direction: column;
+                height: auto;
+                width: 90%;
+                margin: 30px 0;
+            }
+
+            .login-left {
+                padding: 30px;
+                text-align: center;
+            }
+
+            .brand {
+                position: relative;
+                top: 0;
+                left: 0;
+                margin-bottom: 20px;
+            }
+
+            .login-right {
+                padding: 30px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                width: 95%;
+            }
+
+            .login-left, .login-right {
+                padding: 20px;
+            }
+
+            .remember-forgot {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .forgot-password {
+                margin-top: 10px;
+            }
+        }
+    </style>
 </head>
+<body>
+    <div class="login-container">
+        <!-- Bagian Kiri dengan Gambar dan Teks -->
+        <div class="login-left">
+            <div class="brand">SIM MBS</div>
+            <div class="welcome-text">
+                <h1>Selamat Datang</h1>
+                <p>Sistem Manajemen Perkantoran yang membantu Anda mengelola operasional kantor dengan lebih efisien dan terintegrasi.</p>
+            </div>
+        </div>
 
-<body class="">
-  <div class="container position-sticky z-index-sticky top-0">
-    <div class="row">
-      <div class="col-12">
-        <!-- Navbar -->
-        <nav class="navbar navbar-expand-lg blur blur-rounded top-0 z-index-3 shadow position-absolute my-3 py-2 start-0 end-0 mx-4">
-          <div class="container-fluid pe-0">
-            <a class="navbar-brand font-weight-bolder ms-lg-0 ms-3 " href="admin/pages/dashboard.html">
-              SIM MBS
-            </a>
-            <button class="navbar-toggler shadow-none ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#navigation" aria-controls="navigation" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon mt-2">
-                <span class="navbar-toggler-bar bar1"></span>
-                <span class="navbar-toggler-bar bar2"></span>
-                <span class="navbar-toggler-bar bar3"></span>
-              </span>
-            </button>
-            <div class="collapse navbar-collapse" id="navigation">
+        <!-- Bagian Kanan dengan Form Login -->
+        <div class="login-right">
+            <div class="login-header">
+                <h2>Masuk ke Akun Anda</h2>
+                <p>Silahkan masukkan Username & Password Anda untuk mengakses sistem</p>
             </div>
-          </div>
-        </nav>
-        <!-- End Navbar -->
-      </div>
-    </div>
-  </div>
-  <main class="main-content  mt-0">
-    <section>
-      <div class="page-header min-vh-75">
-        <div class="container">
-          <div class="row">
-            <div class="col-xl-4 col-lg-5 col-md-6 d-flex flex-column mx-auto">
-              <div class="card card-plain mt-8">
-                <div class="card-header pb-0 text-left bg-transparent">
-                  <h3 class="font-weight-bolder text-info text-gradient">Welcome back</h3>
-                  <p class="mb-0">Enter your email and password to sign in</p>
-                  @if ($errors->any())
-                    <div class="alert alert-danger">
-                        <ul>
-                            @foreach ($errors->all() as $item)
-                            <li>{{ $item }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                  @endif
+
+            <form role="form" id="loginForm" method="POST" action="">
+                @csrf
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="name" value="{{ old('name') }}" placeholder="Masukkan username Anda" required>
+                    <div class="error-message" id="usernameError">Username harus diisi</div>
                 </div>
-                <div class="card-body">
-                  <form role="form" action="" method="POST">
-                    @csrf
-                    <label>Username</label>
-                    <div class="mb-3">
-                      <input type="text" name="name" value="{{ old('name') }}" class="form-control" placeholder="Username" aria-label="Email" aria-describedby="email-addon">
-                    </div>
-                    <label>Password</label>
-                    <div class="mb-3">
-                      <input type="password" name="password" class="form-control" placeholder="Password" aria-label="Password" aria-describedby="password-addon">
-                    </div>
-                    <div class="text-center">
-                      <button type="submit" class="btn bg-gradient-info w-100 mt-4 mb-0">Sign in</button>
-                    </div>
-                  </form>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Masukkan password Anda" required>
+                    <span class="password-toggle" id="passwordToggle">👁️</span>
+                    <div class="error-message" id="passwordError">Password harus diisi</div>
                 </div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="oblique position-absolute top-0 h-100 d-md-block d-none me-n8">
-                <div class="oblique-image bg-cover position-absolute fixed-top ms-auto h-100 z-index-0 ms-n6" style="background-image:url('admin/assets/img/curved-images/curved6.jpg')"></div>
-              </div>
-            </div>
-          </div>
+
+                <button type="submit" class="login-button">Masuk</button>
+            </form>
         </div>
-      </div>
-    </section>
-  </main>
-  <!-- -------- START FOOTER 3 w/ COMPANY DESCRIPTION WITH LINKS & SOCIAL ICONS & COPYRIGHT ------- -->
-  <footer class="footer py-5">
-    <div class="container">
-      <div class="row">
-        <div class="col-lg-8 mb-4 mx-auto text-center">
-          <a href="javascript:;" target="_blank" class="text-secondary me-xl-5 me-3 mb-sm-0 mb-2">
-            Company
-          </a>
-          <a href="javascript:;" target="_blank" class="text-secondary me-xl-5 me-3 mb-sm-0 mb-2">
-            About Us
-          </a>
-          <a href="javascript:;" target="_blank" class="text-secondary me-xl-5 me-3 mb-sm-0 mb-2">
-            Team
-          </a>
-          <a href="javascript:;" target="_blank" class="text-secondary me-xl-5 me-3 mb-sm-0 mb-2">
-            Products
-          </a>
-          <a href="javascript:;" target="_blank" class="text-secondary me-xl-5 me-3 mb-sm-0 mb-2">
-            Blog
-          </a>
-          <a href="javascript:;" target="_blank" class="text-secondary me-xl-5 me-3 mb-sm-0 mb-2">
-            Pricing
-          </a>
-        </div>
-        <div class="col-lg-8 mx-auto text-center mb-4 mt-2">
-          <a href="javascript:;" target="_blank" class="text-secondary me-xl-4 me-4">
-            <span class="text-lg fab fa-dribbble"></span>
-          </a>
-          <a href="javascript:;" target="_blank" class="text-secondary me-xl-4 me-4">
-            <span class="text-lg fab fa-twitter"></span>
-          </a>
-          <a href="javascript:;" target="_blank" class="text-secondary me-xl-4 me-4">
-            <span class="text-lg fab fa-instagram"></span>
-          </a>
-          <a href="javascript:;" target="_blank" class="text-secondary me-xl-4 me-4">
-            <span class="text-lg fab fa-pinterest"></span>
-          </a>
-          <a href="javascript:;" target="_blank" class="text-secondary me-xl-4 me-4">
-            <span class="text-lg fab fa-github"></span>
-          </a>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-8 mx-auto text-center mt-1">
-          <p class="mb-0 text-secondary">
-            Copyright © <script>
-              document.write(new Date().getFullYear())
-            </script> Soft by Creative Tim.
-          </p>
-        </div>
-      </div>
     </div>
-  </footer>
-  <!-- -------- END FOOTER 3 w/ COMPANY DESCRIPTION WITH LINKS & SOCIAL ICONS & COPYRIGHT ------- -->
-  <!--   Core JS Files   -->
-  <script src="admin/assets/js/core/popper.min.js"></script>
-  <script src="admin/assets/js/core/bootstrap.min.js"></script>
-  <script src="admin/assets/js/plugins/perfect-scrollbar.min.js"></script>
-  <script src="admin/assets/js/plugins/smooth-scrollbar.min.js"></script>
-  <script>
-    var win = navigator.platform.indexOf('Win') > -1;
-    if (win && document.querySelector('#sidenav-scrollbar')) {
-      var options = {
-        damping: '0.5'
-      }
-      Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
-    }
-  </script>
-  <!-- Github buttons -->
-  <script async defer src="https://buttons.github.io/buttons.js"></script>
-  <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
-  <script src="admin/assets/js/soft-ui-dashboard.min.js?v=1.1.0"></script>
+
 </body>
-
 </html>

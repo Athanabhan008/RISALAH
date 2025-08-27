@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #eef2ff;
+            --secondary: #3f37c9;
+            --dark: #1e1e1e;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fb;
+            color: var(--dark);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-header img {
+            width: 40px;
+            margin-right: 12px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .sidebar-menu {
+            margin-top: 2rem;
+        }
+
+        .menu-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--gray);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 1rem;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            color: var(--gray);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .menu-item i {
+            margin-right: 12px;
+            font-size: 1.1rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .menu-item:hover {
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .menu-item.active {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        /* Top Navigation */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .search-bar {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .notification-icon, .user-profile {
+            margin-left: 1.5rem;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification-icon i {
+            font-size: 1.25rem;
+            color: var(--gray);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            font-weight: 600;
+        }
+
+        .user-profile img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        /* Dashboard Cards */
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .card-icon.blue {
+            background-color: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+        }
+
+        .card-icon.green {
+            background-color: rgba(76, 201, 240, 0.1);
+            color: var(--success);
+        }
+
+        .card-icon.orange {
+            background-color: rgba(248, 150, 30, 0.1);
+            color: var(--warning);
+        }
+
+        .card-icon.pink {
+            background-color: rgba(247, 37, 133, 0.1);
+            color: var(--danger);
+        }
+
+        .card-title {
+            font-size: 0.875rem;
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        .card-value {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin: 0.5rem 0;
+        }
+
+        .card-footer {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+
+        .card-footer.positive {
+            color: var(--success);
+        }
+
+        .card-footer.negative {
+            color: var(--danger);
+        }
+
+        /* Recent Orders Table */
+        .recent-orders {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .view-all {
+            color: var(--primary);
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .view-all i {
+            margin-left: 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--gray);
+            font-weight: 600;
+            background-color: #f9fafc;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.875rem;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status.completed {
+            background-color: rgba(76, 201, 240, 0.1);
+            color: var(--success);
+        }
+
+        .status.pending {
+            background-color: rgba(248, 150, 30, 0.1);
+            color: var(--warning);
+        }
+
+        .status.canceled {
+            background-color: rgba(247, 37, 133, 0.1);
+            color: var(--danger);
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 80px;
+                padding: 1rem 0.5rem;
+            }
+            .sidebar-header h2, .menu-title, .menu-item span {
+                display: none;
+            }
+            .menu-item {
+                justify-content: center;
+                padding: 0.75rem 0;
+            }
+            .menu-item i {
+                margin-right: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-cards {
+                grid-template-columns: 1fr 1fr;
+            }
+            .search-bar {
+                width: 200px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .dashboard-cards {
+                grid-template-columns: 1fr;
+            }
+            .search-bar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <img src="https://via.placeholder.com/40" alt="Logo">
+            <h2>AdminPanel</h2>
+        </div>
+
+        <div class="sidebar-menu">
+            <div class="menu-title">Main</div>
+            <a href="#" class="menu-item active">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Analytics</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Orders</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-users"></i>
+                <span>Customers</span>
+            </a>
+
+            <div class="menu-title">Management</div>
+            <a href="#" class="menu-item">
+                <i class="fas fa-box"></i>
+                <span>Products</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-tags"></i>
+                <span>Categories</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-file-invoice-dollar"></i>
+                <span>Inventory</span>
+            </a>
+
+            <div class="menu-title">Settings</div>
+            <a href="#" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-user-shield"></i>
+                <span>Admin Users</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Navigation -->
+        <div class="top-nav">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search...">
+            </div>
+
+            <div class="user-actions">
+                <div class="notification-icon">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">3</span>
+                </div>
+                <div class="user-profile">
+                    <img src="https://via.placeholder.com/36" alt="User">
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Cards -->
+        <div class="dashboard-cards">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Total Revenue</div>
+                    <div class="card-icon blue">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                </div>
+                <div class="card-value">$24,780</div>
+                <div class="card-footer positive">
+                    <i class="fas fa-arrow-up"></i> 12.5% from last month
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Total Orders</div>
+                    <div class="card-icon green">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                </div>
+                <div class="card-value">1,248</div>
+                <div class="card-footer positive">
+                    <i class="fas fa-arrow-up"></i> 8.3% from last month
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Active Users</div>
+                    <div class="card-icon orange">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+                <div class="card-value">5,421</div>
+                <div class="card-footer positive">
+                    <i class="fas fa-arrow-up"></i> 3.2% from last month
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Return Rate</div>
+                    <div class="card-icon pink">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                </div>
+                <div class="card-value">4.8%</div>
+                <div class="card-footer negative">
+                    <i class="fas fa-arrow-down"></i> 1.2% from last month
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="recent-orders">
+            <div class="section-header">
+                <h3 class="section-title">Recent Orders</h3>
+                <a href="#" class="view-all">View All <i class="fas fa-chevron-right"></i></a>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>#ORD-7841</td>
+                        <td>John Smith</td>
+                        <td>12 Jun 2023</td>
+                        <td>$128.50</td>
+                        <td><span class="status completed">Completed</span></td>
+                        <td><i class="fas fa-ellipsis-v"></i></td>
+                    </tr>
+                    <tr>
+                        <td>#ORD-7840</td>
+                        <td>Sarah Johnson</td>
+                        <td>11 Jun 2023</td>
+                        <td>$245.00</td>
+                        <td><span class="status pending">Pending</span></td>
+                        <td><i class="fas fa-ellipsis-v"></i></td>
+                    </tr>
+                    <tr>
+                        <td>#ORD-7839</td>
+                        <td>Michael Brown</td>
+                        <td>10 Jun 2023</td>
+                        <td>$87.25</td>
+                        <td><span class="status completed">Completed</span></td>
+                        <td><i class="fas fa-ellipsis-v"></i></td>
+                    </tr>
+                    <tr>
+                        <td>#ORD-7838</td>
+                        <td>Emily Davis</td>
+                        <td>09 Jun 2023</td>
+                        <td>$312.75</td>
+                        <td><span class="status canceled">Canceled</span></td>
+                        <td><i class="fas fa-ellipsis-v"></i></td>
+                    </tr>
+                    <tr>
+                        <td>#ORD-7837</td>
+                        <td>Robert Wilson</td>
+                        <td>08 Jun 2023</td>
+                        <td>$156.00</td>
+                        <td><span class="status completed">Completed</span></td>
+                        <td><i class="fas fa-ellipsis-v"></i></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

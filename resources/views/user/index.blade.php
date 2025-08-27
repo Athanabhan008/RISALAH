@@ -35,29 +35,21 @@
         <div class="col-12">
           <div class="card mb-4">
             <div class="card-header pb-0">
-                <h6>Purchase Order</h6>
+                <h6>Data Akun</h6>
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div class="ml-auto d-flex align-items-center gap-2">
-                        <button type="button" class="btn btn-success mr-2" data-toggle="modal" data-target="#formModal">
+                    <div class="ml-auto">
+                          <button type="button" class="btn btn-success" data-toggle="modal" data-target="#formModal">
                             <i class="fa-solid fa-plus fa-lg" style="margin-right: 10px"></i>Tambah Data
-                        </button>
-
-                        <div class="dropdown mr-2">
-                            <button class="btn btn-danger dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
-                                <i class="fa-solid fa-file-invoice"></i> Export
-                            </button>
-                            <div class="dropdown-menu">
-                                <a onclick="cetakPT()" class="dropdown-item" href="#">Purchase Order PT</a>
-                                <a onclick="cetakCV()" class="dropdown-item" href="#">Purchase Order CV</a>
-                            </div>
-                        </div>
-
-                        <button type="button" class="btn btn-warning mr-2" id="btn-edit" data-toggle="modal" data-target="#formModal">
+                          </button>
+                          <button type="button" class="btn btn-warning" id="btn-edit" data-toggle="modal" data-target="#formModal">
                             <i class="fa-solid fa-pencil" style="margin-right: 10px;"></i> Ubah Data
-                        </button>
-                        <button type="button" class="btn btn-danger" id="btn-delete">
+                          </button>
+                          <button type="button" class="btn btn-danger" id="btn-delete">
                             <i class="fa-solid fa-trash" style="margin-right: 10px;"></i> Hapus Data
-                        </button>
+                          </button>
+                          <button type="button" class="btn btn-info" id="btn-password" data-toggle="modal" data-target="#formPassword">
+                            <i class="fa-solid fa-key" style="margin-right: 10px;"></i> Ubah Password
+                          </button>
                     </div>
                 </div>
               </div>
@@ -67,14 +59,10 @@
                     <thead style="background-color: #1E3135; color: white;">
                       <tr>
                         <th style="color: white;" class="text-uppercase text-xxs font-weight-bolder opacity-7">No</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nomor PO</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nama sales</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nama Client</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nama Projek</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nama Vendor</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Lampiran</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Sales Vendor</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Note</th>
+                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">NIP</th>
+                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nama</th>
+                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Email</th>
+                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Role</th>
                       </tr>
                     </thead>
                     <tbody></tbody>
@@ -107,13 +95,13 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Form - Data Projek</h5>
+          <h5 class="modal-title" id="exampleModalLabel">Form User</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <div class="modal-body">
-            <form id="form_sound">
+            <form id="form_user">
                 @csrf
                 <div class="modal-body">
                     <input type="hidden" name="_type" value="create">
@@ -121,63 +109,76 @@
 
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
-                          <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Nomor PO</span>
+                          <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">NIP</span>
                         </div>
-                        <input type="text" name="nomor_po" id="nomor_po" class="form-control" style="border: 1px solid black;" readonly>
+                        <input type="text" name="nip" id="nip" class="form-control" style="border: 1px solid black;">
                     </div>
 
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
-                            <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Nama Sales</span>
-                          </div>
-                          <select name="cmb_sales" id="cmb_sales" class="bg-danger"></select>
-                    </div>
-
-                    <div class="input-group-prepend">
-                        <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Nomor PR</span>
-                        <select name="cmb_pr" id="cmb_pr" class="bg-danger"></select>
-                    </div>
-
-                    <div class="row mt-4">
-
-                        <div class="col-md-6 mb-3">
-                            <label for="Unit_price" class="form-label">Nama Client</label>
-                            <input type="text" class="form-control" id="nama_client" name="nama_client" style="border: 1px solid black;" readonly>
+                          <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Nama User</span>
                         </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label for="vendor" class="form-label">Nama Projek</label>
-                            <input type="text" class="form-control" id="nama_projek" name="nama_projek" style="border: 1px solid black;" readonly>
-                        </div>
-
+                        <input type="text" name="name" id="name" class="form-control" style="border: 1px solid black;">
                     </div>
 
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
-                          <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Vendor</span>
+                          <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Email</span>
                         </div>
-                        <select name="cmb_vendor" id="cmb_vendor" class="form-control"></select>
+                        <input type="email" name="email" id="email" class="form-control" style="border: 1px solid black;">
                     </div>
 
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
-                          <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Lampiran</span>
+                          <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Password</span>
                         </div>
-                        <input type="text" name="lampiran" id="lampiran" class="form-control" style="border: 1px solid black;">
+                        <input type="password" name="password" id="password" class="form-control" style="border: 1px solid black;">
                     </div>
 
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
-                          <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Sales Vendor</span>
+                          <label class="input-group-text" for="inputGroupSelect01">Role</label>
                         </div>
-                        <input type="text" name="sales_vendor" id="sales_vendor" class="form-control" style="border: 1px solid black;">
-                    </div>
+                        <select class="custom-select" id="inputGroupSelect01" name="role">
+                          <option selected>Choose...</option>
+                          <option value="super_admin">Super Admin</option>
+                          <option value="staff">Staff</option>
+                        </select>
+                      </div>
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                    <button type="submit" class="btn btn-success">Simpan</button>
+                </div>
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="formPassword" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Form User</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <form id="formPassword">
+                @csrf
+                <div class="modal-body">
+                    <input type="hidden" name="_type" value="create">
+                    <input type="hidden" name="id" id="id" value="">
 
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
-                          <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Note</span>
+                          <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Password</span>
                         </div>
-                        <input type="text" name="note" id="note" class="form-control" style="border: 1px solid black;">
+                        <input type="password" name="password" id="password" class="form-control" style="border: 1px solid black;">
                     </div>
 
                 </div>
@@ -204,21 +205,19 @@
 
 console.log("kipak");
 
-window.defaultUrl = "{{ url('/po/') }}/";
+window.defaultUrl = '{{ url('/user/') }}/';
 
-let modal = $("#formModal");
+let modalUser = $("#formModal");
+let modalPassword = $("#formPassword");
+let tableUser;
 
 $(document).ready(function() {
     viewDatatable();
     collectionS2Search();
 
-    // Auto generate nomor PR saat modal dibuka
     $('button[data-target="#formModal"]').on('click', function() {
         // Reset form
-        $('#form_sound')[0].reset();
-
-        $('select[name=cmb_sales]').val(null).trigger('change');
-        $('select[name=cmb_pr]').val(null).trigger('change');
+        $('#form_user')[0].reset();
 
         // Set form type to create
         $('input[name=_type]').val('create');
@@ -229,15 +228,11 @@ $(document).ready(function() {
 
         // Clear hidden fields
         $('#id').val('');
-        $('#nama_client').val('');
         $('#nama_projek').val('');
 
         // Tampilkan kembali field nomor_pr dan tombol generate saat mode create
         $('.input-group:has(#nomor_pr)').show();
         $('#btn-generate-pr').show();
-
-        // Auto generate nomor PR
-        generateNomorPR();
     });
 
     // Event handler untuk tombol generate PR
@@ -254,7 +249,7 @@ $(document).ready(function() {
 
 
     $("#btn-edit").on("click", function () {
-        let selected = table.row('.selected').data();
+        let selected = tableUser.row('.selected').data();
 
         console.log(selected);
         if (_.isEmpty(selected) ||  selected == undefined) {
@@ -267,28 +262,42 @@ $(document).ready(function() {
             return false;
         }
 
-        modal.find("input[name=_type]").val("update");
-        modal.find("input[name=id]").val(selected.id);
+        modalUser.find("input[name=_type]").val("update");
+        modalUser.find("input[name=id]").val(selected.id);
+        modalUser.find("input[name=nip]").val(selected.nip);
+        modalUser.find("input[name=name]").val(selected.name);
+        modalUser.find("input[name=email]").val(selected.email);
+        modalUser.find("select[name=role]").val(selected.role);
 
-        $("select[name=cmb_sales]").select2("trigger", "select", {
-            data: {
-                id: selected.id_sales,
-                text: selected.nama_sales
-            }
-        });
-        $('select[name=cmb_pr]').val(null).trigger('change');
-
-        modal.find("input[name=nama_client]").val(selected.nama_client);
-        modal.find("input[name=nama_projek]").val(selected.nama_projek);
-        modal.find("input[name=nomor_pr]").val(selected.nomor_pr);
-
-        // Sembunyikan field nomor_pr dan tombol generate saat mode edit
-        $('.input-group:has(#nomor_pr)').hide();
-        $('#btn-generate-pr').hide();
+        // Sembunyikan field password saat mode edit
+        $('.input-group:has(#password)').hide();
 
         resetErrors();
-        modal.modal("show");
+        modalUser.modal("show");
     });
+
+    $("#btn-password").on("click", function () {
+        let selected = tableUser.row('.selected').data();
+
+        console.log(selected);
+        if (_.isEmpty(selected) ||  selected == undefined) {
+            Swal.fire({
+                title: 'Peringatan',
+                text: 'Pilih Data Terlebih Dahulu',
+                icon: 'warning',
+                confirmButtonText: 'OK'
+            });
+            return false;
+        }
+
+        modalPassword.find("input[name=_type]").val("update");
+        modalPassword.find("input[name=id]").val(selected.id);
+        modalPassword.find("input[name=password]").val(selected.password);
+
+        resetErrors();
+        modalPassword.modal("show");
+    });
+
 
 
     $.ajaxSetup({
@@ -296,7 +305,7 @@ $(document).ready(function() {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
-    modal.find("form").on("submit", function(ev) {
+    modalUser.find("form").on("submit", function(ev) {
         ev.preventDefault();
 
         let submitButton = $(this).find("[type=submit]");
@@ -315,10 +324,10 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 // Reset form terlebih dahulu
-                $('#form_sound')[0].reset();
+                $('#form_user')[0].reset();
 
                 // Reload table
-                table.ajax.reload();
+                tableUser.ajax.reload();
 
                 // Tutup modal menggunakan helper function
                 closeModal();
@@ -331,9 +340,7 @@ $(document).ready(function() {
                     confirmButtonText: 'OK'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        $('#cmb_sales').val(null).trigger('change.select2');
-                        $('#cmb_pr').val(null).trigger('change.select2');
-                        table.ajax.reload();
+                        tableUser.ajax.reload();
                     }
                 });
             },
@@ -357,7 +364,7 @@ $(document).ready(function() {
 
     // Tambahkan event handler untuk tombol delete
     $("#btn-delete").on("click", function () {
-        let selected = table.row('.selected').data();
+        let selected = tableUser.row('.selected').data();
 
         if (_.isEmpty(selected) ||  selected == undefined) {
             Swal.fire({
@@ -395,14 +402,14 @@ $(document).ready(function() {
                                 confirmButtonText: 'OK'
                             }).then((result) => {
                                 if (result.isConfirmed) {
-                                    table.ajax.reload();
+                                    tableUser.ajax.reload();
                                 }
                             });
                         } else {
                             alert(response.message);
-                            table.ajax.reload();
+                            tableUser.ajax.reload();
                         }
-                        $('#form_sound')[0].reset();
+                        $('#form_user')[0].reset();
                     },
                     error: function(jqXHR) {
                         let message = 'Terjadi kesalahan saat menghapus data';
@@ -417,6 +424,23 @@ $(document).ready(function() {
     });
 
 
+    $("#btn-detail").on("click", function () {
+        let selected = tableUser.row('.selected').data();
+
+        if (_.isEmpty(selected) ||  selected == undefined) {
+            Swal.fire({
+                title: 'Peringatan',
+                text: 'Pilih Data Terlebih Dahulu',
+                icon: 'warning',
+                confirmButtonText: 'OK'
+            });
+            return false;
+        }
+
+        window.location.href = defaultUrl + "detail_data_swasta?id_swasta=" + selected.id;
+
+    });
+
     // Tambahkan event handler untuk tombol close
     $('.close, .btn-secondary').click(function() {
         closeModal();
@@ -429,24 +453,12 @@ $(document).ready(function() {
 
 });
 
-function cetakCV() {
-    let selected = table.row('.selected').data();
-
-    window.open(defaultUrl + "cetakCV?id_po=" + selected.id_po);
-}
-
-function cetakPT() {
-    let selected = table.row('.selected').data();
-
-    window.open(defaultUrl + "cetakPT?id_po=" + selected.id_po);
-}
-
 
 
 function viewDatatable() {
-    table = $(".basic-datatables").DataTable({
+    tableUser = $(".basic-datatables").DataTable({
         ajax: {
-            url: "{{ route('po/datatable') }}",
+            url: "{{ route('user/datatable') }}",
             "type": "post",
             "data": function (d) {
                 var formData = $("#form_filter").serializeArray();
@@ -478,7 +490,7 @@ function viewDatatable() {
                 }
             },
             {
-                data: "nomor_po",
+                data: "nip",
                 render: function (data, type, row, meta) {
                     if (data == '' || data == null) {
                         return '-';
@@ -498,7 +510,7 @@ function viewDatatable() {
                 }
             },
             {
-                data: "nama_client",
+                data: "email",
                 render: function (data, type, row, meta) {
                     if (data == '' || data == null) {
                         return '-';
@@ -508,7 +520,7 @@ function viewDatatable() {
                 }
             },
             {
-                data: "nama_projek",
+                data: "role",
                 render: function (data, type, row, meta) {
                     if (data == '' || data == null) {
                         return '-';
@@ -516,47 +528,7 @@ function viewDatatable() {
                         return data;
                     }
                 }
-            },
-            {
-                data: "nama_vendor",
-                render: function (data, type, row, meta) {
-                    if (data == '' || data == null) {
-                        return '-';
-                    } else {
-                        return data;
-                    }
-                }
-            },
-            {
-                data: "lampiran",
-                render: function (data, type, row, meta) {
-                    if (data == '' || data == null) {
-                        return '-';
-                    } else {
-                        return data;
-                    }
-                }
-            },
-            {
-                data: "sales_vendor",
-                render: function (data, type, row, meta) {
-                    if (data == '' || data == null) {
-                        return '-';
-                    } else {
-                        return data;
-                    }
-                }
-            },
-            {
-                data: "note",
-                render: function (data, type, row, meta) {
-                    if (data == '' || data == null) {
-                        return '-';
-                    } else {
-                        return data;
-                    }
-                }
-            },
+            }
         ],
             createdRow: function (row, data, index) {
                 $(row).attr("data-value", encodeURIComponent(JSON.stringify(data)));
@@ -591,13 +563,15 @@ function viewDatatable() {
             },
         })
         .on("select", function (e, dt, type, indexes) {
-            var rowData = table.row(indexes).data();
+            var rowData = tableUser.row(indexes).data();
             $("#btn-edit").removeClass("disabled");
+            $("#btn-password").removeClass("disabled");
             $("#btn-delete").removeClass("disabled");
             alert('1');
         })
         .on("deselect", function (e, dt, type, indexes) {
             $("#btn-edit").addClass("disabled");
+            $("#btn-password").addClass("disabled");
             $("#btn-delete").addClass("disabled");
             alert('0');
         });
@@ -608,10 +582,52 @@ function viewDatatable() {
             $(this).removeClass('selected');
             $('#btn-ubah').addClass('disabled');
         } else {
-            table.$('tr.selected').removeClass('selected');
+            tableUser.$('tr.selected').removeClass('selected');
             $(this).addClass('selected');
             $('#btn-ubah').removeClass('disabled');
         }
+    });
+}
+
+
+function collectionS2Search() {
+    $('select[name=cmb_nip]').select2({
+        dropdownParent: $('#formFilter'),
+        allowClear: true,
+        width: '72.5%',
+        placeholder: '',
+        ajax: {
+            url: "{{ url('/user/getSales') }}",
+            dataType: 'json',
+            data: function (params) {
+                return {
+                    q: params.term,
+                    page: params.page || 1
+                };
+            },
+            processResults: function (data) {
+                return {
+                    results: $.map(data.data, function (item) {
+                        return {
+                            text: item.nip,
+                            name: item.name,
+                            id: item.nip
+                        }
+                    }),
+                    pagination: {
+                        more: false
+                    }
+                };
+            },
+            cache: true
+        }
+    });
+
+     // Event handler for when kategori changes
+     $('select[name=cmb_nip]').on('select2:select', function (e) {
+        var data = e.params.data;
+
+        $('#name').val(data.name);
     });
 }
 
@@ -632,163 +648,6 @@ function showNotification(type, message) {
         icon: type, // 'success', 'error', 'warning', 'info'
         confirmButtonText: 'OK'
     });
-}
-
-// Event handler for when a barang is selected
-
-// Fungsi untuk generate nomor PR
-function generateNomorPR() {
-    $.ajax({
-        url: '{{ route("po.generate_nomor_po") }}',
-        type: 'GET',
-        dataType: 'json',
-        success: function(response) {
-            if (response.success) {
-                $('#nomor_po').val(response.nomor_po);
-            } else {
-                Swal.fire({
-                    title: 'Error',
-                    text: response.message || 'Gagal generate nomor PO',
-                    icon: 'error',
-                    confirmButtonText: 'OK'
-                });
-            }
-        },
-        error: function(xhr, status, error) {
-            Swal.fire({
-                title: 'Error',
-                text: 'Terjadi kesalahan saat generate nomor PR',
-                icon: 'error',
-                confirmButtonText: 'OK'
-            });
-        }
-    });
-}
-
-function collectionS2Search() {
-    $('select[name=cmb_sales]').select2({
-        dropdownParent: $('#formModal'),
-        allowClear: true,
-        width: '83.9%',
-        placeholder: '',
-        ajax: {
-            url: "{{ url('/po/getSales') }}",
-            dataType: 'json',
-            data: function (params) {
-                return {
-                    q: params.term,
-                    page: params.page || 1
-                };
-            },
-            processResults: function (data) {
-                return {
-                    results: $.map(data.data, function (item) {
-                        return {
-                            text: item.name,
-                            id: item.id
-                        }
-                    }),
-                    pagination: {
-                        more: false
-                    }
-                };
-            },
-            cache: true
-        }
-    });
-
-    // Event handler for when sales changes
-    $('select[name=cmb_sales]').on('select2:select', function (e) {
-        // Clear the barang dropdown and enable it
-        $('select[name=cmb_pr]').val(null).trigger('change');
-        $('select[name=cmb_pr]').prop('disabled', false);
-
-        // Clear the harga field
-        $('#harga').val('');
-    });
-
-    $('select[name=cmb_pr]').select2({
-        dropdownParent: $('#formModal'),
-        allowClear: true,
-        width: '83.9%',
-        placeholder: '',
-        ajax: {
-            url: "{{ url('/po/getPr') }}",
-            dataType: 'json',
-            data: function (params) {
-                return {
-                    id_sales: $('#cmb_sales').val(),
-                    q: params.term,
-                    page: params.page || 1
-                };
-            },
-            processResults: function (data) {
-                return {
-                    results: $.map(data.data, function (item) {
-                        return {
-                            text: item.nomor_pr,
-                            nama_client: item.nama_client,
-                            nama_projek: item.nama_projek,
-                            id: item.id,
-                        }
-                    }),
-                    pagination: {
-                        more: false
-                    }
-                };
-            },
-            cache: true
-        }
-    });
-
-    // Event handler for when a barang is selected
-    $('select[name=cmb_pr]').on('select2:select', function (e) {
-        var data = e.params.data;
-
-        $('#nama_client').val(data.nama_client);
-        $('#nama_projek').val(data.nama_projek);
-
-
-        $('select[name=cmb_vendor]').select2({
-            dropdownParent: $('#formModal'),
-            allowClear: true,
-            width: '83.9%',
-            placeholder: '',
-            ajax: {
-                url: "{{ url('/po/getVendor') }}",
-                dataType: 'json',
-                data: function (params) {
-                    return {
-                        id_pr: data.id,
-                        q: params.term,
-                        page: params.page || 1
-                    };
-                },
-                processResults: function (data) {
-                    return {
-                        results: $.map(data.data, function (item) {
-                            return {
-                                text: item.nama_vendor,
-                                id: item.id_vendor,
-                            }
-                        }),
-                        pagination: {
-                            more: false
-                        }
-                    };
-                },
-                cache: true
-            }
-        });
-
-    });
-
-    // $('#jumlah').on('input', function (e) {
-    //     var perkalian = $(this).val();
-    //     var harga = $('#harga_barang').val().replace(/[^0-9]/g, '');
-
-    //     $('#harga_total').val(formatRupiah(parseInt(harga) * parseInt(perkalian)));
-    // });
 }
 
 </script>
