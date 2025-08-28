@@ -216,68 +216,101 @@
                                 @csrf
                                 <input type="hidden" name="id_projek" value="{{ $id_projek ?? '' }}">
 
+                                <div class="row">
+                                    <div class="col-md-4">
+
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Subtotal</span>
+                                            </div>
+                                            <input type="text" class="form-control font-weight-bold text-right" id="subtotal-price" name="subtotal_price" value="@if(isset($subtotal[0]))Rp {{ number_format($subtotal[0]->subtotal_price ?? 0, 0, ',', '.') }}@else Rp 0 @endif" readonly>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-md-4">
+
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Subtotal Cost</span>
+                                            </div>
+                                            <input type="text" class="form-control font-weight-bold text-right" id="subtotal_cost" name="subtotal_cost" value="Rp 0" readonly>
+                                        </div>
+
+                                      </div>
+                                        <div class="col-md-4">
+
+                                            <div class="input-group mb-3">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Gross Provit</span>
+                                                </div>
+                                                <input type="text" class="form-control font-weight-bold text-right" id="subtotal_sp2d" name="subtotal_sp2d" value="Rp 0" readonly>
+                                            </div>
+
+                                        </div>
+                                </div>
+
+                                <div class="row mt-4">
+
+                                <div class="col-md-4">
+
+                                    <div class="input-group mb-3">
+                                        <div class="input-group-prepend">
+                                            <span hidden class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Persentase Margin</span>
+                                        </div>
+                                        <input hidden type="text" class="form-control font-weight-bold text-right" id="" name="" value="0%" disabled>
+                                    </div>
+
+                                </div>
+
+                                <div class="col-md-4">
+
+                                    <div class="input-group mb-3">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Persentase Margin</span>
+                                        </div>
+                                        <input type="text" class="form-control font-weight-bold text-right" id="total_margin" name="total_margin" value="0%" readonly>
+                                    </div>
+
+                                </div>
+
+
+
                       </div>
+
+                      <div class="row mt-4">
+                        <div class="col-md-4">
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Total Inc Vat</span>
+                                </div>
+                                <input type="text" class="form-control font-weight-bold text-right" id="total-vat" name="total_vat" value="Rp 0" readonly>
+                            </div>
+                        </div>
+
+
+
+                      </div>
+
+
+                    </div>
+                  </div>
+                </div>
+
+
                     </div>
                   </div>
                 </div>
 
                   <div class="row mt-3" style="margin-right: 100px;">
+
                     <div class="col-12">
                       <div class="card">
                         <div class="card-body">
 
-                          <div class="row">
-                            <div class="col-md-4">
-
-                                <div class="input-group mb-3">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Subtotal</span>
-                                    </div>
-                                    <input type="text" class="form-control font-weight-bold text-right" id="subtotal-price" name="subtotal_price" value="@if(isset($subtotal[0]))Rp {{ number_format($subtotal[0]->subtotal_price ?? 0, 0, ',', '.') }}@else Rp 0 @endif" readonly>
-                                </div>
-
-                            </div>
-                            <div class="col-md-4">
-
-                                <div class="input-group mb-3">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Subtotal Cost</span>
-                                    </div>
-                                    <input type="text" class="form-control font-weight-bold text-right" id="subtotal_cost" name="subtotal_cost" value="Rp 0" readonly>
-                                </div>
-
-                              </div>
-                                <div class="col-md-4">
-
-                                    <div class="input-group mb-3">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Subtotal SP2D</span>
-                                        </div>
-                                        <input type="text" class="form-control font-weight-bold text-right" id="subtotal_sp2d" name="subtotal_sp2d" value="Rp 0" readonly>
-                                    </div>
-
-                                </div>
-                        </div>
-
-                          <div class="row">
-
-                            <div class="col-md-4">
-
-                                <div class="input-group mb-3">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Total Margin</span>
-                                    </div>
-                                    <input type="text" class="form-control font-weight-bold text-right" id="total_margin" name="total_margin" value="0%" readonly>
-                                </div>
-
-                            </div>
-
                           </div>
 
 
-                        </div>
-                      </div>
-                    </div>
+
                     <div class="text-right">
                         <button type="submit" class="btn btn-primary btn-sm mt-2">Simpan Perubahan</button>
                       </div>
@@ -368,7 +401,7 @@
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Incentive Sales</span>
                                             </div>
-                                            <input type="text" name="angka" id="incentive_sales" class="form-control pl-2" style="border: 1px solid black;" value="{{ isset($incentive_sales) && $incentive_sales !== '' ? 'Rp ' . number_format($incentive_sales, 0, ',', '.') : 'Rp 0' }}" readonly>
+                                            <input type="text" name="incentive_sales" id="incentive_sales" class="form-control pl-2" style="border: 1px solid black;" value="{{ isset($incentive_sales) && $incentive_sales !== '' ? 'Rp ' . number_format($incentive_sales, 0, ',', '.') : 'Rp 0' }}" readonly>
                                         </div>
                                     </div>
 
@@ -445,6 +478,10 @@
             <div class="card-header pb-0">
                 <h6>Total PO Ke CV MBS</h6>
             </div>
+            <form id="form-update-po" method="POST" action="{{ url('/pr_wapu/updateTotalPO') }}">
+                @csrf
+                <input type="hidden" name="id_projek" value="{{ $id_projek ?? '' }}">
+
             <div class="row mt-5">
                 <div class="row">
                     <div class="col-md-4">
@@ -559,7 +596,12 @@
 
                 </div>
 
+                <div class="text-right">
+                    <button type="submit" class="btn btn-primary btn-sm mt-2">Simpan Perubahan</button>
+                  </div>
                 </div>
+
+            </form>
 
 
         </div>
@@ -835,6 +877,18 @@ $(document).ready(function() {
     viewDatatable();
     viewDatatableCogs();
     koleksiSelect2();
+
+    // Hapus titik pada semua field form COGS sebelum submit
+    $('#form_cogs').on('submit', function() {
+            $(this).find('input, textarea').each(function() {
+                if (this.type === 'hidden' || this.disabled) return;
+                const $el = $(this);
+                const v = $el.val();
+                if (typeof v === 'string') {
+                    $el.val(v.replace(/\./g, ''));
+                }
+            });
+        });
 
     // Initially disable edit button
     $('#btn-edit-cogs').prop('disabled', true);
@@ -1818,7 +1872,7 @@ function getNumberFromDotsFormat(str) {
 }
 
 // Event handler untuk semua input yang perlu format dengan titik (tanpa validasi_payment)
-$('#Unit_price, #total_price, #vendor_price, #unit_price_cv, #total_po_cv, #total_cost, #margin').on('input', function() {
+$('#Unit_price, #total_price, #vendor_price, #unit_price_cv, #total_po_cv, #total_cost, #margin, #expedittion, #add_insentif_fe001a, #instalasi_setting, #other').on('input', function() {
     let value = $(this).val();
     let numericValue = value.replace(/[^,\d]/g, '').replace(',', '.');
     if (numericValue) {
@@ -2341,6 +2395,21 @@ $('#form-update-ppn').on('submit', function(e) {
     });
 });
 
+$('#form-update-po').on('submit', function(e) {
+    e.preventDefault();
+    $.ajax({
+        url: $(this).attr('action'),
+        type: 'POST',
+        data: $(this).serialize(),
+        success: function(res) {
+            Swal.fire('Sukses', 'Data berhasil diupdate!', 'success');
+        },
+        error: function() {
+            Swal.fire('Error', 'Gagal update data', 'error');
+        }
+    });
+});
+
 $('#form_update_validasi_payment').on('submit', function(e) {
     e.preventDefault();
 
@@ -2518,12 +2587,14 @@ function updateIncentiveFe001a() {
         persentase = (addInsentif / subtotalMarginCV) * 100;
     }
 
-    // Update kolom persentase_fe001a sesuai kondisi
-    if (persentase > 25) {
-        $('#persentase_fe001a').val('need approve');
+    // Update kolom persentase_fe001a - tampilkan nilai minus jika ada
+    let persentaseFormatted = '';
+    if (persentase < 0) {
+        persentaseFormatted = '-' + Math.abs(persentase).toFixed(2) + ' %';
     } else {
-        $('#persentase_fe001a').val(persentase.toFixed(2) + ' %');
+        persentaseFormatted = persentase.toFixed(2) + ' %';
     }
+    $('#persentase_fe001a').val(persentaseFormatted);
 }
 
 // Jika ada input manual:

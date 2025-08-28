@@ -117,21 +117,21 @@
                         <div class="input-group-prepend">
                           <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Nama Client</span>
                         </div>
-                        <input type="text" name="nama_client" id="nama_client" class="form-control" style="border: 1px solid black;">
+                        <input type="text" name="nama_client" id="nama_client" class="form-control" style="border: 1px solid black;" required>
                     </div>
 
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
                           <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Nama Projek</span>
                         </div>
-                        <input type="text" name="nama_projek" id="nama_projek" class="form-control" style="border: 1px solid black;">
+                        <input type="text" name="nama_projek" id="nama_projek" class="form-control" style="border: 1px solid black;" required>
                     </div>
 
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
                           <label class="input-group-text" for="inputGroupSelect01">Jenis PR</label>
                         </div>
-                        <select class="custom-select" name="jenis_pr" id="inputGroupSelect01">
+                        <select class="custom-select" name="jenis_pr" id="inputGroupSelect01" required>
                           <option selected>Choose...</option>
                           <option value="pemerintah">Pemerintah</option>
                           <option value="swasta">Swasta</option>

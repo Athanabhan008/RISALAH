@@ -50,7 +50,7 @@
         <div class="col-12">
           <div class="row g-3">
 
-            <h4>Booking</h4>
+            <h4>Pemerintahan</h4>
             <div class="col-lg-6 col-md-6 col-12">
                 <div class="card">
                     <div class="card-body">
@@ -125,7 +125,7 @@
         <div class="col-12">
           <div class="row g-3">
 
-            <h4>Sound System</h4>
+            <h4>Swasta</h4>
             <div class="col-lg-6 col-md-6 col-12">
                 <div class="card">
                     <div class="card-body">
@@ -200,7 +200,7 @@
         <div class="col-12">
           <div class="row g-3">
 
-            <h4>Laundry</h4>
+            <h4>Non PPN</h4>
             <div class="col-lg-6 col-md-6 col-12">
                 <div class="card">
                     <div class="card-body">

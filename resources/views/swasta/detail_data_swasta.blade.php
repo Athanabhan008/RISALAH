@@ -391,7 +391,7 @@
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Incentive Sales</span>
                                             </div>
-                                            <input type="text" name="angka" id="angka" class="form-control pl-2" style="border: 1px solid black;" value="{{ isset($angka) && $angka !== '' ? 'Rp ' . number_format($angka, 0, ',', '.') : 'Rp 0' }}" readonly>
+                                            <input type="text" name="incentive_sales" id="incentive_sales" class="form-control pl-2" style="border: 1px solid black;" value="{{ isset($incentive_sales) && $incentive_sales !== '' ? 'Rp ' . number_format($incentive_sales, 0, ',', '.') : 'Rp 0' }}" readonly>
                                         </div>
                                     </div>
 
@@ -400,7 +400,7 @@
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Persentase Incentive</span>
                                             </div>
-                                            <input type="text" name="persentase_incentive" id="persentase_incentive" class="form-control pl-2" style="border: 1px solid black;" value="{{ isset($angka) && $angka !== '' && $angka !== 0 ? 'Rp ' . number_format($angka, 0, ',', '.') : 'Rp 0' }}" readonly>
+                                            <input type="text" name="persentase_incentive" id="persentase_incentive" class="form-control pl-2" style="border: 1px solid black;" value="{{ isset($incentive_sales) && $incentive_sales !== '' && $incentive_sales !== 0 ? 'Rp ' . number_format($incentive_sales, 0, ',', '.') : 'Rp 0' }}" readonly>
                                         </div>
                                     </div>
                                 </div>
@@ -862,30 +862,33 @@
   <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap4.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/js/select2.min.js" defer></script>
-<script>
-window.defaultUrl = `{{ url('/pr_wapu/') }}/`;
+  <script>
+    window.defaultUrl = `{{ url('/pr_wapu/') }}/`;
 
-let modal = $("#formModal");
-let modalCogs = $("#formCogs");
-let baseCostCogs = 0;
-let tableDetail; // untuk tabel utama
-let tableCogs;   // untuk tabel cogs
+    let modal = $("#formModal");
+    let modalCogs = $("#formCogs");
+    let baseCostCogs = 0;
+    let tableDetail; // untuk tabel utama
+    let tableCogs;   // untuk tabel cogs
 
-$(document).ready(function() {
-    viewDatatable();
-    viewDatatableCogs();
-    koleksiSelect2();
+    $(document).ready(function() {
+        viewDatatable();
+        viewDatatableCogs();
+        koleksiSelect2();
 
-    $('#btn-edit-cogs').prop('disabled', true);
+        // Hapus titik pada semua field form COGS sebelum submit
+        $('#form_cogs').on('submit', function() {
+            $(this).find('input, textarea').each(function() {
+                if (this.type === 'hidden' || this.disabled) return;
+                const $el = $(this);
+                const v = $el.val();
+                if (typeof v === 'string') {
+                    $el.val(v.replace(/\./g, ''));
+                }
+            });
+        });
 
-    // Event handler untuk perubahan data pada tabel utama
-    tableDetail.on('draw', function() {
-        // Update semua perhitungan secara berurutan
-        updateAllCalculations();
-    });
-
-    $('select[name=cmb_vendor]').val(null).trigger('change');
-
+        $('#btn-edit-cogs').prop('disabled', true);
 
     $('select[name=cmb_vendor').on('select2:select', function (e) {
         var data = e.params.data;
@@ -918,6 +921,18 @@ $(document).ready(function() {
     $('#expedittion, #add_insentif_fe001a, #instalasi_setting, #other').on('input', function() {
         updateCogsCalculations();
     });
+
+    // Tambahkan event handler untuk semua input COGS
+$('#add_insentif_fe001a, #instalasi_setting, #pph_bank_fee, #other').on('input', function() {
+    let expedittionValue = parseFloat($('#expedittion').val().replace(/[^,\d]/g, '').replace(',', '.')) || 0;
+    let addInsentifValue = parseFloat($('#add_insentif_fe001a').val()) || 0;
+    let instalasiValue = parseFloat($('#instalasi_setting').val().replace(/[^,\d]/g, '').replace(',', '.')) || 0;
+    let pphValue = parseFloat($('#pph_bank_fee').val().replace(/[^,\d]/g, '').replace(',', '.')) || 0;
+    let otherValue = parseFloat($('#other').val().replace(/[^,\d]/g, '').replace(',', '.')) || 0;
+
+    let total = baseCostCogs + expedittionValue + addInsentifValue + instalasiValue + pphValue + otherValue;
+    $('#total_cost_cogs').text('Rp ' + formatRupiahWithDots(total.toString(), ''));
+});
 
     $("#btn-back").on("click", function () {
         window.location.href = defaultUrl;
@@ -1648,12 +1663,12 @@ function updateIncentiveSales() {
         incentiveSales = subtotalSP2D * 0.20;
     }
 
-    $('#angka').val('Rp ' + formatRupiahWithDots(incentiveSales.toFixed(0), ''));
+    $('#incentive_sales').val('Rp ' + formatRupiahWithDots(incentiveSales.toFixed(0), ''));
 }
 
 // Optimasi fungsi updatePersentaseIncentive
 function updatePersentaseIncentive() {
-    let incentiveSalesText = $('#angka').val();
+    let incentiveSalesText = $('#incentive_sales').val();
     let subtotalSP2DText = $('#subtotal_sp2d').val();
 
     let incentiveSales = parseFloat((incentiveSalesText || '').replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
@@ -1755,8 +1770,19 @@ function autoSetJenisApprove() {
 
 // ... existing code ...
 
-$('#form-update-ppn').on('submit', function(e) {
+$('#form-update-ppn').off('submit').on('submit', function(e) {
     e.preventDefault();
+
+    // Prevent double submission
+    let submitButton = $(this).find("[type=submit]");
+    if (submitButton.prop('disabled')) {
+        return false;
+    }
+
+    submitButton.prop('disabled', true);
+    let originalText = submitButton.text();
+    submitButton.text('Menyimpan...');
+
     $.ajax({
         url: $(this).attr('action'),
         type: 'POST',
@@ -1766,6 +1792,10 @@ $('#form-update-ppn').on('submit', function(e) {
         },
         error: function() {
             Swal.fire('Error', 'Gagal update data', 'error');
+        },
+        complete: function() {
+            submitButton.prop('disabled', false);
+            submitButton.text(originalText);
         }
     });
 });
@@ -1813,7 +1843,7 @@ $('#form_update_validasi_payment').on('submit', function(e) {
 
             // Update kolom angka jika ada di response
             if (response.angka !== undefined && response.angka !== null) {
-                $('#angka').val('Rp ' + formatRupiahWithDots(response.angka, ''));
+                $('#incentive_sales').val('Rp ' + formatRupiahWithDots(response.angka, ''));
             }
 
             Swal.fire({
@@ -1846,20 +1876,20 @@ $('#form_update_validasi_payment').on('submit', function(e) {
     });
 });
 
-$('#form_update_incentive').on('submit', function(e) {
-    e.preventDefault();
-    $.ajax({
-        url: $(this).attr('action'),
-        type: 'POST',
-        data: $(this).serialize(),
-        success: function(res) {
-            viewDatatableCogs();
-            Swal.fire('Sukses', 'Data berhasil diupdate!', 'success');
-        },
-        error: function() {
-            Swal.fire('Error', 'Gagal update data', 'error');
-        }
-    });
+$('#form_update_incentive').off('submit').on('submit', function(e) {
+  e.preventDefault();
+  $.ajax({
+    url: $(this).attr('action'),
+    type: 'POST',
+    data: $(this).serialize(),
+    success: function(res) {
+      viewDatatableCogs();
+      Swal.fire('Sukses', 'Data berhasil diupdate!', 'success');
+    },
+    error: function() {
+      Swal.fire('Error', 'Gagal update data', 'error');
+    }
+  });
 });
 
 function koleksiSelect2() {
@@ -2444,7 +2474,7 @@ function getNumberFromDotsFormat(str) {
 }
 
 // Event handler untuk semua input yang perlu format dengan titik (tanpa validasi_payment)
-$('#Unit_price, #total_price, #vendor_price, #unit_price_cv, #total_po_cv, #total_cost, #margin').on('input', function() {
+$('#Unit_price, #total_price, #vendor_price, #unit_price_cv, #total_po_cv, #total_cost, #margin, #expedittion, #add_insentif_fe001a, #instalasi_setting, #other').on('input', function() {
     let value = $(this).val();
     let numericValue = value.replace(/[^,\d]/g, '').replace(',', '.');
     if (numericValue) {
@@ -2916,12 +2946,12 @@ function updateIncentiveSales() {
     }
 
     // Update elemen angka
-    $('#angka').val('Rp ' + formatRupiahWithDots(incentiveSales.toFixed(0), ''));
+    $('#incentive_sales').val('Rp ' + formatRupiahWithDots(incentiveSales.toFixed(0), ''));
     updatePersentaseIncentive(); // <--- Tambahkan ini
 }
 
 function updatePersentaseIncentive() {
-    let incentiveSalesText = $('#angka').val();
+    let incentiveSalesText = $('#incentive_sales').val();
     let subtotalSP2DText = $('#subtotal_sp2d').val();
 
     let incentiveSales = parseFloat((incentiveSalesText || '').replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
@@ -2954,113 +2984,6 @@ function updatePPHBankFee() {
         $('#pph_bank_fee').val('Rp ' + formatRupiahWithDots(result.toString(), ''));
     }
 }
-
-$('#form-update-ppn').on('submit', function(e) {
-    e.preventDefault();
-    $.ajax({
-        url: $(this).attr('action'),
-        type: 'POST',
-        data: $(this).serialize(),
-        success: function(res) {
-            Swal.fire('Sukses', 'Data berhasil diupdate!', 'success');
-        },
-        error: function() {
-            Swal.fire('Error', 'Gagal update data', 'error');
-        }
-    });
-});
-
-$('#form_update_po').on('submit', function(e) {
-    e.preventDefault();
-    $.ajax({
-        url: $(this).attr('action'),
-        type: 'POST',
-        data: $(this).serialize(),
-        success: function(res) {
-            Swal.fire('Sukses', 'Data berhasil diupdate!', 'success');
-        },
-        error: function() {
-            Swal.fire('Error', 'Gagal update data', 'error');
-        }
-    });
-});
-
-$('#form_update_validasi_payment').on('submit', function(e) {
-    e.preventDefault();
-
-    let submitButton = $(this).find("[type=submit]");
-    let originalContent = submitButton.html();
-    submitButton.html('<i class="fa fa-spin fa-spinner"></i> Menyimpan...');
-    submitButton.prop("disabled", true);
-
-    $.ajax({
-        url: $(this).attr('action'),
-        type: 'POST',
-        data: $(this).serialize(),
-        dataType: 'json',
-        success: function(response) {
-            // Update kolom validasi_payment dan pph_bank_fee jika ada di response
-            if (response.validasi_payment !== undefined && response.validasi_payment !== null) {
-                $('#validasi_payment').val('Rp ' + formatRupiahWithDots(response.validasi_payment, ''));
-            }
-            if (response.pph_bank_fee !== undefined) {
-                $('#pph_bank_fee').val(
-                    response.pph_bank_fee === 0 || response.pph_bank_fee === '-' || response.pph_bank_fee === null
-                    ? '-'
-                    : 'Rp ' + formatRupiahWithDots(response.pph_bank_fee, '')
-                );
-            }
-
-            // Update kolom angka jika ada di response
-            if (response.angka !== undefined && response.angka !== null) {
-                $('#angka').val('Rp ' + formatRupiahWithDots(response.angka, ''));
-            }
-
-            Swal.fire({
-                title: 'Sukses',
-                text: response.message,
-                icon: 'success',
-                confirmButtonText: 'OK'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    if (typeof tableDetail !== 'undefined') {
-                        tableDetail.ajax.reload();
-                    }
-                    if (typeof tableCogs !== 'undefined') {
-                        tableCogs.ajax.reload();
-                    }
-                }
-            });
-        },
-        error: function(jqXHR) {
-            let message = 'Terjadi kesalahan saat mengupdate data';
-            if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
-                message = jqXHR.responseJSON.message;
-            }
-            Swal.fire('Error!', message, 'error');
-        },
-        complete: function() {
-            submitButton.html(originalContent);
-            submitButton.prop("disabled", false);
-        }
-    });
-});
-
-$('#form_update_incentive').on('submit', function(e) {
-    e.preventDefault();
-    $.ajax({
-        url: $(this).attr('action'),
-        type: 'POST',
-        data: $(this).serialize(),
-        success: function(res) {
-            viewDatatableCogs();
-            Swal.fire('Sukses', 'Data berhasil diupdate!', 'success');
-        },
-        error: function() {
-            Swal.fire('Error', 'Gagal update data', 'error');
-        }
-    });
-});
 
 function updateTotalPersentaseMargin() {
     let subtotalPriceText = $('#subtotal-price').val();

@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\staff\StaffController;
+use App\Http\Controllers\StaffController;
 use App\Http\Controllers\booking\BookingController;
 use App\Http\Controllers\KategoribarangController;
 use App\Http\Controllers\laundry\LaundryController;
@@ -23,12 +23,8 @@ use App\Http\Controllers\pr\WapuController;
 use App\Http\Controllers\pr\SwastaController;
 use App\Http\Controllers\pr\NonppnController;
 use App\Http\Controllers\qc\QcController;
-use App\Http\Controllers\staff\StaffController as StaffStaffController;
 use App\Http\Controllers\user\UserController;
 use App\Http\Controllers\StokbarangController;
-use App\Models\Laundry;
-use App\Models\Paketlaundry;
-use App\Models\SoundSystem;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -51,6 +47,13 @@ Route::get('/home', function() {
 });
 
 Route::get('/error',[SesiController::class, 'error']);
+
+Route::middleware(['UserAkses:staff'])->group(function() {
+
+
+    Route::get('/staff',[StaffController::class, 'index']);
+
+});
 
 Route::middleware(['UserAkses:manager,super_admin'])->group(function() {
 

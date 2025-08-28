@@ -78,6 +78,7 @@
     <hr class="horizontal dark mt-0">
     <div class="collapse navbar-collapse h-100 w-auto" id="sidenav-collapse-main">
       <ul class="navbar-nav h-100">
+        @if(Auth::user()->role !== 'staff')
         <li class="nav-item">
             <a class="nav-link {{ ($active === "manager") ? 'active' : '' }}" href="{{ url('/manager') }}">
               <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
@@ -86,6 +87,7 @@
               <span class="nav-link-text ms-1">Dashboard</span>
             </a>
           </li>
+        @endif
 
 
           <li class="nav-item">
@@ -97,6 +99,7 @@
             </a>
           </li>
 
+          @if(Auth::user()->role !== 'staff')
             <li class="nav-item">
                 <a class="nav-link {{ ($active === "po") ? 'active' : '' }}" href="{{ url('/po_vendor') }}">
                   <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
@@ -141,6 +144,7 @@
                   <span class="nav-link-text ms-1">User</span>
                 </a>
               </li>
+              @endif
 
         <li class="nav-item">
           <a class="nav-link" href="#" onclick="confirmLogout()">

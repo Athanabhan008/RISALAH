@@ -372,6 +372,8 @@
           </div>
 
         </div>
+
+
         <div class="card mb-4 col-md-12">
           <div class="card-header pb-0">
             <h6>Date Of Approval</h6>
@@ -458,9 +460,11 @@
 
                                 </div>
 
+                                @if(auth()->check() && auth()->user()->role === 'super_admin')
                               <div class="text-center">
                                   <button type="submit" class="btn btn-primary btn-sm mt-2">Simpan Perubahan</button>
                               </div>
+                               @endif
                           </form>
 
                       </div>
@@ -988,8 +992,6 @@ $(document).ready(function() {
             data: $(this).serialize() + "&id_projek=" + "<?php echo $id_projek ?>",
             dataType: 'json',
             success: function(response) {
-                // Tampilkan SweetAlert
-                viewDatatable();
                 Swal.fire({
                     title: 'Sukses',
                     text: response.message,
@@ -1002,6 +1004,9 @@ $(document).ready(function() {
                         // Reset select2
                         $('#cmb_kategori').val(null).trigger('change.select2');
                         $('#cmb_barang').val(null).trigger('change.select2');
+                        $('#cmb_vendor').val(null).trigger('change.select2');
+                        // Reset pilihan Jenis PPN
+                        $('#inputGroupSelect01').val('').trigger('change');
                         // Kosongkan input readonly
                         $('#total_price').val('');
                         $('#unit_price_cv').val('');
@@ -1009,17 +1014,18 @@ $(document).ready(function() {
                         $('#total_cost').val('');
                         $('#margin').val('');
                         $('#persentase').val('');
-                        // Kembalikan _type ke create
+                        // Kembalikan _type ke create dan kosongkan id
                         $("input[name=_type]").val("create");
+                        $("[name=id]").val("");
                         // Reload datatable
                         tableDetail.ajax.reload();
-                        $('#formModal').modal('hide');
-                        setTimeout(function() {
-                            $('.modal-backdrop').remove();
-                            $('body').removeClass('modal-open');
-                            $('body').css('padding-right', '');
-                            $('#formModal').hide();
-                        }, 150);
+
+                        // Aktifkan kembali tombol submit
+                        submitButton.html(originalContent);
+                        submitButton.prop("disabled", false);
+
+                        // Fokus ke field pertama
+                        $('#part_number').focus();
                     }
                 });
             },
@@ -1033,6 +1039,10 @@ $(document).ready(function() {
                     }
                 }
                 alert('Terjadi kesalahan saat menyimpan data');
+
+                // Pastikan tombol submit diaktifkan kembali saat gagal
+                submitButton.html(originalContent);
+                submitButton.prop("disabled", false);
             },
             complete: function() {
                 submitButton.html(originalContent);
@@ -1224,6 +1234,18 @@ $(document).ready(function() {
         updateTotalPersentaseMargin();
     });
 
+    // Di dalam $(document).ready(...), setelah inisialisasi datatable:
+    updateIncentiveFe001a();
+
+    // Hitung ulang realtime ketika subtotal-margin-cv berubah
+    $(document).on('keyup change', '#subtotal-margin-cv', function() {
+        updateIncentiveFe001a();
+    });
+
+    // Hitung ulang realtime ketika nilai add_insentif_fe001a di modal diubah
+    $(document).on('keyup change', '#add_insentif_fe001a', function() {
+        updateIncentiveFe001a();
+    });
 });
 
 $('#formCogs').on('show.bs.modal', function () {
@@ -2449,12 +2471,19 @@ tableCogs.on('draw', function() {
 });
 
 function updateIncentiveFe001a() {
-    // Ambil data dari tabel COGS
-    let data = tableCogs.rows().data();
+    // Ambil dari input modal jika ada yang sedang diisi
+    let addInsentifFromInput = ( $('#add_insentif_fe001a').length ? $('#add_insentif_fe001a').val() : '' );
+    let addInsentifParsed = parseFloat((addInsentifFromInput || '').replace(/[^0-9\.\-]/g, ''));
     let addInsentif = 0;
 
-    if (data.length > 0) {
-        addInsentif = parseFloat(data[0].add_insentif_fe001a) || 0;
+    if (!isNaN(addInsentifParsed)) {
+        addInsentif = addInsentifParsed;
+    } else {
+        // Fallback: Ambil dari row pertama DataTable COGS
+        let data = tableCogs.rows().data();
+        if (data.length > 0) {
+            addInsentif = parseFloat(data[0].add_insentif_fe001a) || 0;
+        }
     }
 
     // Kurangi 10% untuk incentive fe001a

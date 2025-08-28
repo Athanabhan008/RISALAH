@@ -717,7 +717,7 @@ class SwastaController extends Controller
                 return (int) preg_replace('/[^\d]/', '', $val ?? '0');
             };
 
-            // $prwapu->angka = $parseRupiah($request->input('angka'));
+            $prwapu->incentive_sales = $parseRupiah($request->input('incentive_sales'));
             $prwapu->persentase_incentive = $request->input('persentase_incentive');
             $prwapu->incentive_fe001a = $parseRupiah($request->input('incentive_fe001a'));
             $prwapu->persentase_fe001a = $request->input('persentase_fe001a');
