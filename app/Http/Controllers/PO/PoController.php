@@ -1050,8 +1050,21 @@ class PoController extends Controller
         $this->fpdf->Ln(1);
 
         $this->fpdf->SetFont('Arial', 'I', 11);
-        $this->fpdf->Cell(12, 0.5, "Note : " . $data_result[0]['note'], 0, 0, 'L');
-		$this->fpdf->Ln(3);
+        $this->fpdf->Cell(12, 0.5, "Note : ", 0, 0, 'L');
+        $this->fpdf->Ln(0.5);
+
+        // Split note into lines and display as list
+        $notes = explode("\n", $data_result[0]['note']);
+        foreach ($notes as $note) {
+            $note = trim($note);
+            if (!empty($note)) {
+                $this->fpdf->Cell(1, 0.5, "• ", 0, 0, 'L');
+                $this->fpdf->Cell(11, 0.5, $note, 0, 0, 'L');
+                $this->fpdf->Ln(0.5);
+            }
+        }
+
+        $this->fpdf->Ln(2);
         $this->fpdf->SetFont('Arial', '', 11);
         $this->fpdf->Cell(12, 0.5, "Hormat Kami,", 0, 0, 'L');
 		$this->fpdf->Ln(3.5);

@@ -749,22 +749,37 @@ function formatRupiah(angka, prefix = '') {
 //     }
 // });
 
+function toTitleCase(str) {
+    return str
+        .trim()
+        .replace(/\s+/g, ' ')
+        .split(' ')
+        .map(w => w ? w.charAt(0).toUpperCase() + w.slice(1) : '')
+        .join(' ');
+}
+
 function angkaTerbilang(angka) {
-    var satuan = ["", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh", "sebelas"];
+    function core(n) {
+        var satuan = ["", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh", "sebelas"];
+        if (n < 12) return satuan[n];
+        if (n < 20) return core(n - 10) + " belas";
+        if (n < 100) return core(Math.floor(n / 10)) + " puluh " + core(n % 10);
+        if (n < 200) return "seratus " + core(n - 100);
+        if (n < 1000) return core(Math.floor(n / 100)) + " ratus " + core(n % 100);
+        if (n < 2000) return "seribu " + core(n - 1000);
+        if (n < 1000000) return core(Math.floor(n / 1000)) + " ribu " + core(n % 1000);
+        if (n < 1000000000) return core(Math.floor(n / 1000000)) + " juta " + core(n % 1000000);
+        if (n < 1000000000000) return core(Math.floor(n / 1000000000)) + " miliar " + core(n % 1000000000);
+        if (n < 1000000000000000) return core(Math.floor(n / 1000000000000)) + " triliun " + core(n % 1000000000000);
+        return "Angka terlalu besar";
+    }
+
     angka = angka.toString().replace(/[^0-9]/g, '');
     angka = parseInt(angka, 10);
     if (isNaN(angka) || angka === 0) return "";
-    if (angka < 12) return satuan[angka];
-    if (angka < 20) return angkaTerbilang(angka - 10) + " belas";
-    if (angka < 100) return angkaTerbilang(Math.floor(angka / 10)) + " puluh " + angkaTerbilang(angka % 10);
-    if (angka < 200) return "seratus " + angkaTerbilang(angka - 100);
-    if (angka < 1000) return angkaTerbilang(Math.floor(angka / 100)) + " ratus " + angkaTerbilang(angka % 100);
-    if (angka < 2000) return "seribu " + angkaTerbilang(angka - 1000);
-    if (angka < 1000000) return angkaTerbilang(Math.floor(angka / 1000)) + " ribu " + angkaTerbilang(angka % 1000);
-    if (angka < 1000000000) return angkaTerbilang(Math.floor(angka / 1000000)) + " juta " + angkaTerbilang(angka % 1000000);
-    if (angka < 1000000000000) return angkaTerbilang(Math.floor(angka / 1000000000)) + " miliar " + angkaTerbilang(angka % 1000000000);
-    if (angka < 1000000000000000) return angkaTerbilang(Math.floor(angka / 1000000000000)) + " triliun " + angkaTerbilang(angka % 1000000000000);
-    return "Angka terlalu besar";
+
+    var hasil = core(angka);
+    return toTitleCase(hasil);
 }
 
 </script>

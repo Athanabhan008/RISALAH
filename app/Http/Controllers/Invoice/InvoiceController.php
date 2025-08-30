@@ -988,7 +988,7 @@ class InvoiceController extends Controller
 
 
 		// $this->fpdf->Line(1, 2.8, 20, 2.8);
-		$this->fpdf->Ln(4.2);
+		$this->fpdf->Ln(3.5);
 
 
 
@@ -1003,29 +1003,26 @@ class InvoiceController extends Controller
         $this->fpdf->SetLineWidth(0);
 
 
-        $this->fpdf->SetFont('helvetica', '', 10);
+        $this->fpdf->SetFont('helvetica', 'B', 8);
         $this->fpdf->Cell(0.1, 0.7, '', 0, 0, 'L');
         $this->fpdf->Cell(6.4, 0.5,"Kepada Yth.", 0, 0, 'L');
         $this->fpdf->SetFont('helvetica', '', 11);
         $this->fpdf->Ln(0.4);
 
-        $this->fpdf->SetFont('helvetica', 'B', 10);
+        $this->fpdf->SetFont('helvetica', 'B', 7.5);
         $this->fpdf->Cell(0.1, 0.7, '', 0, 0, 'L');
         $this->fpdf->Cell(6.4, 0.5,$data_result[0]['nama_client'], 0, 0, 'L');
-        $this->fpdf->SetFont('helvetica', '', 11);
+        $this->fpdf->SetFont('helvetica', 'B', 7.5);
 
         $this->fpdf->Cell(4.7 , 0.5, "Invoice No", 0, 0, 'R');
         $this->fpdf->Cell(5 , 0.5, ": " . $data_result[0]['nomor_invoice'], 0, 0, 'R');
-		$this->fpdf->Ln(0.8);
-        $this->fpdf->Cell(10.2, 0.5, "Date", 0, 0, 'R');
-        $this->fpdf->Cell(4.6, 0.5, ": " . $this->formatDateIndonesian(), 0, 0, 'R');
-		$this->fpdf->Ln(1);
+		$this->fpdf->Ln(0.5);
+        $this->fpdf->Cell(10.4, 0.5, "Date", 0, 0, 'R');
+        $this->fpdf->Cell(5, 0.5, ": " . $this->formatDateIndonesian(), 0, 0, 'R');
+		$this->fpdf->Ln(0.7);
 
-        // $this->fpdf->Cell(4.7 , 0.5, "Invoice No", 0, 0, 'R');
-        // $this->fpdf->Cell(5 , 0.5, ": " . $data_result[0]['nomor_invoice'], 0, 0, 'R');
-		// $this->fpdf->Ln(0.8);
         $this->fpdf->Cell(10.7, 0.5, "PO No.", 0, 0, 'R');
-        $this->fpdf->Cell(1.4, 0.5, ": ", 0, 0, 'R');
+        $this->fpdf->Cell(2.6, 0.5, ": ", 0, 0, 'R');
 		$this->fpdf->Ln(0.4);
 
         // Move address closer to client name - right after the date
@@ -1039,12 +1036,17 @@ class InvoiceController extends Controller
 		// $this->fpdf->Ln(0.8);
         // $this->fpdf->Cell(10.2, 0.5, "Date", 0, 0, 'R');
         // $this->fpdf->Cell(2.6, 0.5, ":", 0, 0, 'R');
-		$this->fpdf->Ln(1.4);
+		$this->fpdf->Ln(0.5);
 
-        $table = new easyTables($this->fpdf, "{2, 17, 2.5, 12, 15}", 'border:1;font-size:9;');
+        // Hidtung tinggi konten sebelum tabel untuk menentukan posisi yang tepat
+        $header_height = 8.5; // Tinggi header (logo, informasi perusahaan, dll)
+        $client_info_height = 2.5; // Tinggi informasi client
+        $available_height = 29.7 - $header_height - $client_info_height - 2; // Tinggi A4 - header - client - margin
 
+        // Buat tabel dengan auto-sizing
+        $table = new easyTables($this->fpdf, "{2, 17, 2.5, 12, 15}", 'border:1;font-size:6.5;min-height:0.5;');
 
-        $table->rowStyle('font-style:B;');
+        $table->rowStyle('font-style:B;min-height:0.6;');
         $table->easyCell('NO', 'valign:M;align:C;');
         $table->easyCell('Description', 'valign:M;align:C;');
         $table->easyCell('QTY', 'valign:M;align:C;');
@@ -1060,83 +1062,87 @@ class InvoiceController extends Controller
             $total_price_numeric = (float) preg_replace('/[^\d]/', '', $value['total_price']);
             $grand_total += $total_price_numeric;
 
+            // Gunakan auto-sizing untuk setiap baris
+            $table->rowStyle('min-height:0.5;');
             $table->easyCell($i++, 'valign:M;align:C;');
             $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
             $table->easyCell($value['qty'], 'valign:M;align:C;');
-            $table->easyCell($value['unit_price'], 'valign:M;align:L;');
-            $table->easyCell($value['total_price'], 'valign:M;align:L;');
+            $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+            $table->easyCell($value['total_price'], 'valign:M;align:R;');
 
             $table->printRow();
         }
-        $this->fpdf->Ln(2);
 
-        // $table->rowStyle('font-style:B; border:0;');
-        // $table->easyCell('TOTAL', 'colspan:5;valign:M;align:R;');
-        // $table->rowStyle('font-style:B; border:1;');
-        // $table->easyCell(number_format($grand_total, 0, ',', '.'), 'valign:M;align:L;');
-        // $table->printRow();
-        // $this->fpdf->Ln(1);
+        // End table dan dapatkan posisi Y setelah tabel
+        $table->endTable(0);
+        $current_y = $this->fpdf->GetY();
 
+
+
+
+        // print_r($this->fpdf->GetY());die;
+        if ($this->fpdf->GetY() > 19.21) {
+            $this->fpdf->AddPage('P', 'A4');
+        }
+
+
+        // Hitung ruang yang tersisa untuk footer
+        $footer_start_y = $current_y + 1;
+        $page_height = 29.7; // Tinggi A4 dalam cm
+        $footer_height = $page_height - $footer_start_y;
+
+
+        $this->fpdf->SetY($footer_start_y);
+
+        // Footer content dengan posisi yang dinamis
         $this->fpdf->SetLineWidth(0.1);
-        $this->fpdf->Line(1, 16.2, 20, 16.2);
+        $this->fpdf->Line(1, $footer_start_y, 20, $footer_start_y);
         $this->fpdf->SetLineWidth(0);
         $this->fpdf->Ln(1);
 
-            $this->fpdf->SetFont('Arial', 'B', 8);
-            $this->fpdf->Cell(14.6, 0, "Subtotal :", 0, 0, 'R');
-            $this->fpdf->Cell(3, 0,  number_format($data_result[0]['subtotal_price'], 0, ',', '.'), 0, 0, 'R');
-            $this->fpdf->Ln(1);
-            $this->fpdf->SetFont('Arial', 'B', 8);
-            $this->fpdf->Cell(14.7, 0, "PPN 11% :", 0, 0, 'R');
-            $this->fpdf->Cell(2.7, 0, number_format($data_result[0]['jumlah_ppn'], 0, ',', ','), 0, 0, 'R');
-            $this->fpdf->Ln(1);
-            $this->fpdf->SetFont('Arial', 'B', 8);
-            $this->fpdf->Cell(15.1, 0, "Grand Total :", 0, 0, 'R');
-            $this->fpdf->Cell(2.5, 0, number_format($data_result[0]['total_vat'], 0, ',', ','), 0, 0, 'R');
-            $this->fpdf->Ln(0.3);
-            $this->fpdf->SetFont('Arial', 'B', 10);
-            $this->fpdf->Cell(12, 0, "Terbilang :", 0, 0, 'L');
-            $this->fpdf->Ln(0.5);
-            $this->fpdf->SetFont('Arial', 'BI', 8);
-            $this->fpdf->Cell(5, 0.5, $data_result[0]['terbilang'], 0, 0, 'L');
-            $this->fpdf->Ln(1);
-            $this->fpdf->SetFont('Arial', 'B', 7);
-            $this->fpdf->Cell(5, 0.5, "Bank Mandiri Cab. BEC Purnawarman Bandung", 0, 0, 'L');
-            $this->fpdf->Ln(0.5);
-            $this->fpdf->SetFont('Arial', 'B',7);
-            $this->fpdf->Cell(5, 0.5, "A/C: 13000.91.333222", 0, 0, 'L');
-            $this->fpdf->Ln(0.5);
-            $this->fpdf->SetFont('Arial', 'B', 7);
-            $this->fpdf->Cell(5, 0.5, "Mitra Brata Sujana", 0, 0, 'L');
-            $this->fpdf->Ln(2);
+        $this->fpdf->SetFont('Arial', 'B', 8);
+        $this->fpdf->Cell(14.6, 0, "Subtotal :", 0, 0, 'R');
+        $this->fpdf->Cell(3, 0,  number_format($data_result[0]['subtotal_price'], 0, ',', '.'), 0, 0, 'R');
+        $this->fpdf->Ln(0.8);
+
+        $this->fpdf->SetFont('Arial', 'B', 8);
+        $this->fpdf->Cell(14.6, 0, "PPN 11% :", 0, 0, 'R');
+        $this->fpdf->Cell(2.9, 0, number_format($data_result[0]['jumlah_ppn'], 0, ',', ','), 0, 0, 'R');
+        $this->fpdf->Ln(0.8);
+
+        $this->fpdf->SetFont('Arial', 'B', 8);
+        $this->fpdf->Cell(14.7, 0, "Grand Total :", 0, 0, 'R');
+        $this->fpdf->Cell(2.8, 0, number_format($data_result[0]['total_vat'], 0, ',', ','), 0, 0, 'R');
+        $this->fpdf->Ln(0.8);
 
 
-        $this->fpdf->SetLineWidth(0.1);
-        $this->fpdf->Line(1, 23.5, 20, 23.5);
-        $this->fpdf->SetLineWidth(0);
-        $this->fpdf->Ln(2.5);
+
+        $this->fpdf->SetFont('Arial', 'B', 10);
+        $this->fpdf->Cell(12, 0, "Terbilang :", 0, 0, 'L');
+        $this->fpdf->Ln(0.5);
+
+        $this->fpdf->SetFont('Arial', 'BI', 8);
+        $this->fpdf->Cell(5, 0.5, $data_result[0]['terbilang'], 0, 0, 'L');
+        $this->fpdf->Ln(1);
+
+        $this->fpdf->SetFont('Arial', 'B', 7);
+        $this->fpdf->Cell(5, 0.5, "Bank Mandiri Cab. BEC Purnawarman Bandung", 0, 0, 'L');
+        $this->fpdf->Ln(0.5);
+
+        $this->fpdf->SetFont('Arial', 'B',7);
+        $this->fpdf->Cell(5, 0.5, "A/C: 13000.91.333222", 0, 0, 'L');
+        $this->fpdf->Ln(1);
+
 
         $this->fpdf->SetFont('Arial', 'BU', 7);
         $this->fpdf->Cell(17, 0.5, "Rika Aulia", 0, 0, 'R');
-        $this->fpdf->Ln(0.3);
+        $this->fpdf->Ln(0.4); // Increased spacing between name and title
         $this->fpdf->SetFont('Arial', 'B', 7);
-        $this->fpdf->Cell(16.9, 0.5, "FInance", 0, 0, 'R');
-
-        // Remove the commented out code since we've implemented the calculation above
-        // $grand_total = 0;
-        // // foreach ($data_result as $value) {
-        // //     foreach ($value as $key => $data) {
-        // //         $grand_total += $data->harga;
-        // //     }
-        // // }
-
-        // // $table->rowStyle('font-style:B');
-        // // $table->easyCell('TOTAL KESELURUHAN', 'colspan:5;valign:M;align:L;');
-        // // $table->easyCell('Rp ' . number_format($grand_total, 0, ',', '.'), 'valign:M;align:R;');
-        // // $table->printRow();
+        $this->fpdf->Cell(16.9, 0.5, "Finance", 0, 0, 'R');
+        $this->fpdf->Ln(1); // Added spacing after signature
 
 
-		$table->endTable(0);
+
 
         $this->fpdf->Output();
         exit;
@@ -1227,20 +1233,17 @@ class InvoiceController extends Controller
         $this->fpdf->SetFont('helvetica', 'B', 10);
         $this->fpdf->Cell(0.1, 0.7, '', 0, 0, 'L');
         $this->fpdf->Cell(6.4, 0.5,$data_result[0]['nama_client'], 0, 0, 'L');
-        $this->fpdf->SetFont('helvetica', '', 11);
+        $this->fpdf->SetFont('helvetica', 'B', 9);
 
         $this->fpdf->Cell(4.7 , 0.5, "Invoice No", 0, 0, 'R');
         $this->fpdf->Cell(5 , 0.5, ": " . $data_result[0]['nomor_invoice'], 0, 0, 'R');
-		$this->fpdf->Ln(0.8);
-        $this->fpdf->Cell(10.2, 0.5, "Date", 0, 0, 'R');
-        $this->fpdf->Cell(4.6, 0.5, ": " . $this->formatDateIndonesian(), 0, 0, 'R');
-		$this->fpdf->Ln(1);
+		$this->fpdf->Ln(0.5);
+        $this->fpdf->Cell(10.3, 0.5, "Date", 0, 0, 'R');
+        $this->fpdf->Cell(5, 0.5, ": " . $this->formatDateIndonesian(), 0, 0, 'R');
+		$this->fpdf->Ln(0.7);
 
-        // $this->fpdf->Cell(4.7 , 0.5, "Invoice No", 0, 0, 'R');
-        // $this->fpdf->Cell(5 , 0.5, ": " . $data_result[0]['nomor_invoice'], 0, 0, 'R');
-		// $this->fpdf->Ln(0.8);
         $this->fpdf->Cell(10.7, 0.5, "PO No.", 0, 0, 'R');
-        $this->fpdf->Cell(1.4, 0.5, ": ", 0, 0, 'R');
+        $this->fpdf->Cell(2.1, 0.5, ": ", 0, 0, 'R');
 		$this->fpdf->Ln(0.4);
 
         // Move address closer to client name - right after the date
@@ -1256,10 +1259,15 @@ class InvoiceController extends Controller
         // $this->fpdf->Cell(2.6, 0.5, ":", 0, 0, 'R');
 		$this->fpdf->Ln(1.4);
 
-        $table = new easyTables($this->fpdf, "{2, 17, 2.5, 12, 15}", 'border:1;font-size:9;');
+        // Hitung tinggi konten sebelum tabel untuk menentukan posisi yang tepat
+        $header_height = 8.5; // Tinggi header (logo, informasi perusahaan, dll)
+        $client_info_height = 2.5; // Tinggi informasi client
+        $available_height = 29.7 - $header_height - $client_info_height - 2; // Tinggi A4 - header - client - margin
 
+        // Buat tabel dengan auto-sizing
+        $table = new easyTables($this->fpdf, "{2, 17, 2.5, 12, 15}", 'border:1;font-size:9;min-height:0.5;');
 
-        $table->rowStyle('font-style:B;');
+        $table->rowStyle('font-style:B;min-height:0.6;');
         $table->easyCell('NO', 'valign:M;align:C;');
         $table->easyCell('Description', 'valign:M;align:C;');
         $table->easyCell('QTY', 'valign:M;align:C;');
@@ -1275,6 +1283,8 @@ class InvoiceController extends Controller
             $total_price_numeric = (float) preg_replace('/[^\d]/', '', $value['total_price']);
             $grand_total += $total_price_numeric;
 
+            // Gunakan auto-sizing untuk setiap baris
+            $table->rowStyle('min-height:0.5;');
             $table->easyCell($i++, 'valign:M;align:C;');
             $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
             $table->easyCell($value['qty'], 'valign:M;align:C;');
@@ -1283,51 +1293,67 @@ class InvoiceController extends Controller
 
             $table->printRow();
         }
-        $this->fpdf->Ln(2);
 
-        // $table->rowStyle('font-style:B; border:0;');
-        // $table->easyCell('TOTAL', 'colspan:5;valign:M;align:R;');
-        // $table->rowStyle('font-style:B; border:1;');
-        // $table->easyCell(number_format($grand_total, 0, ',', '.'), 'valign:M;align:L;');
-        // $table->printRow();
-        // $this->fpdf->Ln(1);
+        // End table dan dapatkan posisi Y setelah tabel
+        $table->endTable(1);
+        $current_y = $this->fpdf->GetY();
 
+        // Hitung ruang yang tersisa untuk footer
+        $footer_start_y = $current_y + 1;
+        $page_height = 29.7; // Tinggi A4 dalam cm
+        $footer_height = $page_height - $footer_start_y;
+
+        // Jika footer terlalu dekat dengan tabel, tambah halaman baru
+        if ($footer_height < 6) {
+            $this->fpdf->AddPage('P', 'A4');
+            $footer_start_y = 2; // Mulai dari atas halaman baru
+        }
+
+        $this->fpdf->SetY($footer_start_y);
+
+        // Footer content dengan posisi yang dinamis
         $this->fpdf->SetLineWidth(0.1);
-        $this->fpdf->Line(1, 16.2, 20, 16.2);
+        $this->fpdf->Line(1, $footer_start_y, 20, $footer_start_y);
         $this->fpdf->SetLineWidth(0);
         $this->fpdf->Ln(1);
 
-            $this->fpdf->SetFont('Arial', 'B', 8);
-            $this->fpdf->Cell(14.6, 0, "Subtotal :", 0, 0, 'R');
-            $this->fpdf->Cell(3, 0,  number_format($data_result[0]['subtotal_price'], 0, ',', '.'), 0, 0, 'R');
-            $this->fpdf->Ln(1);
-            $this->fpdf->SetFont('Arial', 'B', 8);
-            $this->fpdf->Cell(14.7, 0, "PPN 11% :", 0, 0, 'R');
-            $this->fpdf->Cell(2.7, 0, number_format($data_result[0]['jumlah_ppn'], 0, ',', ','), 0, 0, 'R');
-            $this->fpdf->Ln(1);
-            $this->fpdf->SetFont('Arial', 'B', 8);
-            $this->fpdf->Cell(15.1, 0, "Grand Total :", 0, 0, 'R');
-            $this->fpdf->Cell(2.5, 0, number_format($data_result[0]['total_vat'], 0, ',', ','), 0, 0, 'R');
-            $this->fpdf->Ln(0.3);
-            $this->fpdf->SetFont('Arial', 'B', 10);
-            $this->fpdf->Cell(12, 0, "Terbilang :", 0, 0, 'L');
-            $this->fpdf->Ln(0.5);
-            $this->fpdf->SetFont('Arial', 'BI', 8);
-            $this->fpdf->Cell(5, 0.5, $data_result[0]['terbilang'], 0, 0, 'L');
-            $this->fpdf->Ln(1);
-            $this->fpdf->SetFont('Arial', 'B', 7);
-            $this->fpdf->Cell(5, 0.5, "Bank Mandiri Cab. BEC Purnawarman Bandung", 0, 0, 'L');
-            $this->fpdf->Ln(0.5);
-            $this->fpdf->SetFont('Arial', 'B',7);
-            $this->fpdf->Cell(5, 0.5, "A/C: 13000.91.333222", 0, 0, 'L');
-            $this->fpdf->Ln(0.5);
-            $this->fpdf->SetFont('Arial', 'B', 7);
-            $this->fpdf->Cell(5, 0.5, "Mitra Brata Sujana", 0, 0, 'L');
-            $this->fpdf->Ln(2);
+        $this->fpdf->SetFont('Arial', 'B', 8);
+        $this->fpdf->Cell(14.6, 0, "Subtotal :", 0, 0, 'R');
+        $this->fpdf->Cell(3, 0,  number_format($data_result[0]['subtotal_price'], 0, ',', '.'), 0, 0, 'R');
+        $this->fpdf->Ln(0.8);
 
+        $this->fpdf->SetFont('Arial', 'B', 8);
+        $this->fpdf->Cell(14.7, 0, "PPN 11% :", 0, 0, 'R');
+        $this->fpdf->Cell(2.7, 0, number_format($data_result[0]['jumlah_ppn'], 0, ',', ','), 0, 0, 'R');
+        $this->fpdf->Ln(0.8);
+
+        $this->fpdf->SetFont('Arial', 'B', 8);
+        $this->fpdf->Cell(14.7, 0, "Grand Total :", 0, 0, 'R');
+        $this->fpdf->Cell(2.5, 0, number_format($data_result[0]['total_vat'], 0, ',', ','), 0, 0, 'R');
+        $this->fpdf->Ln(0.8);
+
+        $this->fpdf->SetFont('Arial', 'B', 10);
+        $this->fpdf->Cell(12, 0, "Terbilang :", 0, 0, 'L');
+        $this->fpdf->Ln(0.5);
+
+        $this->fpdf->SetFont('Arial', 'BI', 8);
+        $this->fpdf->Cell(5, 0.5, $data_result[0]['terbilang'], 0, 0, 'L');
+        $this->fpdf->Ln(1);
+
+        $this->fpdf->SetFont('Arial', 'B', 7);
+        $this->fpdf->Cell(5, 0.5, "Bank Mandiri Cab. BEC Purnawarman Bandung", 0, 0, 'L');
+        $this->fpdf->Ln(0.5);
+
+        $this->fpdf->SetFont('Arial', 'B',7);
+        $this->fpdf->Cell(5, 0.5, "A/C: 13000.91.333222", 0, 0, 'L');
+        $this->fpdf->Ln(0.5);
+
+        $this->fpdf->SetFont('Arial', 'B', 7);
+        $this->fpdf->Cell(5, 0.5, "Mitra Brata Sujana", 0, 0, 'L');
+        $this->fpdf->Ln(2);
 
         $this->fpdf->SetLineWidth(0.1);
-        $this->fpdf->Line(1, 23.5, 20, 23.5);
+        $this->fpdf->Line(1, $this->fpdf->GetY(), 20, $this->fpdf->GetY());
         $this->fpdf->SetLineWidth(0);
         $this->fpdf->Ln(2.5);
 
@@ -1335,23 +1361,7 @@ class InvoiceController extends Controller
         $this->fpdf->Cell(17, 0.5, "Rika Aulia", 0, 0, 'R');
         $this->fpdf->Ln(0.3);
         $this->fpdf->SetFont('Arial', 'B', 7);
-        $this->fpdf->Cell(16.9, 0.5, "FInance", 0, 0, 'R');
-
-        // Remove the commented out code since we've implemented the calculation above
-        // $grand_total = 0;
-        // // foreach ($data_result as $value) {
-        // //     foreach ($value as $key => $data) {
-        // //         $grand_total += $data->harga;
-        // //     }
-        // // }
-
-        // // $table->rowStyle('font-style:B');
-        // // $table->easyCell('TOTAL KESELURUHAN', 'colspan:5;valign:M;align:L;');
-        // // $table->easyCell('Rp ' . number_format($grand_total, 0, ',', '.'), 'valign:M;align:R;');
-        // // $table->printRow();
-
-
-		$table->endTable(0);
+        $this->fpdf->Cell(16.9, 0.5, "Finance", 0, 0, 'R');
 
         $this->fpdf->Output();
         exit;
