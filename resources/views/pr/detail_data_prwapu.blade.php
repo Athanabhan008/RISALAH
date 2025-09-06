@@ -102,7 +102,7 @@
 
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
     <div class="container-fluid py-4">
-      <div class="row">
+      <div class="row" style="background-color: rgb(172, 172, 172)">
         <div class="col-12">
 
         <!-- BARANG/PRODUK -->
@@ -229,7 +229,7 @@
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Gross Provit</span>
                                                 </div>
-                                                <input type="text" class="form-control font-weight-bold text-right" id="subtotal_sp2d" name="subtotal_sp2d" value="Rp 0" readonly>
+                                                <input type="text" class="form-control font-weight-bold text-right" id="subtotal_sp2d" name="gross_provit" value="Rp 0" readonly>
                                             </div>
 
                                         </div>
@@ -264,7 +264,7 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Persentase Margin</span>
                                         </div>
-                                        <input type="text" class="form-control font-weight-bold text-right" id="total_margin" name="total_margin" value="0%" readonly>
+                                        <input type="text" class="form-control font-weight-bold text-right" id="total_margin" name="persentase_margin" value="0%" readonly>
                                     </div>
 
                                 </div>
@@ -576,6 +576,7 @@
                                     </div>
                                     <input type="text" class="form-control font-weight-bold text-right" id="subtotal-po-cost-cv" name="subtotal_po_cost_cv" value="Rp 0" readonly>
                                 </div>
+
                             </div>
 
                             <div class="col-md-4">
@@ -613,6 +614,110 @@
 
 
         </div>
+
+
+
+        <div class="row gx-3 gy-3">
+            <!-- VALIDASI PAYMENT -->
+            <div class="card mb-4 col-md-12">
+              <div class="card-header pb-0">
+                <h6 class="text-center font-weight-bold">SHARE MARGIN HOLDING, DIREKSI & INVESTOR</h6>
+              </div>
+              <div class="card-body px-0 pt-0 pb-2">
+                <form id="form-update-provit-sharing" method="POST" action="{{ url('/pr_wapu/updatesharingprovit') }}">
+                    @csrf
+                    <input type="hidden" name="id_projek" value="{{ $id_projek ?? '' }}">
+
+                <div class="row mt-5">
+
+                    <div class="row">
+                        <div class="col-md-4">
+
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Profit Sharing Ke Holding</span>
+                                </div>
+                                <input type="text" class="form-control font-weight-bold text-right" id="profit-sharing-holding" name="profit_sharing_holding" readonly value="{{ isset($incentive_sales) && $incentive_sales !== '' ? 'Rp ' . number_format($incentive_sales, 0, ',', '.') : '' }}">
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                  <span class="input-group-text" style="background-color: rgb(222, 222, 222);">Nama Leader</span>
+                                  <span class="input-group-text" style="background-color: rgb(222, 222, 222);">30.00%</span>
+                                </div>
+                                <input type="text" class="form-control" aria-label="Dollar amount (with dot and two decimal places)" name="profit_sharing_leader" id="leader_sales" readonly style="text-align: right;">
+                              </div>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                  <span class="input-group-text" style="background-color: rgb(222, 222, 222);">Dir. Utama</span>
+                                  <span class="input-group-text" style="background-color: rgb(222, 222, 222);">15.00%</span>
+                                </div>
+                                <input type="text" class="form-control" aria-label="Dollar amount (with dot and two decimal places)" name="profit_sharing_dirutama" id="provit-sharing-dirutama" readonly style="text-align: right;">
+                              </div>
+
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                  <span class="input-group-text" style="background-color: rgb(222, 222, 222);">Div. SIM</span>
+                                  <span class="input-group-text" style="background-color: rgb(222, 222, 222);">10.00%</span>
+                                </div>
+                                <input type="text" class="form-control" aria-label="Dollar amount (with dot and two decimal places)" name="profit_sharing_sim" id="provit-sharing-sim" readonly style="text-align: right;">
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                  <span class="input-group-text" style="background-color: rgb(222, 222, 222);">Man. Keuangan</span>
+                                  <span class="input-group-text" style="background-color: rgb(222, 222, 222);">05.00%</span>
+                                </div>
+                                <input type="text" class="form-control" aria-label="Dollar amount (with dot and two decimal places)" name="profit_sharing_keuangan" id="provit-sharing-keuangan" readonly style="text-align: right;">
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="row mt-5">
+
+                            <div class="col-md-4">
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Total Provit Sharing</span>
+                                    </div>
+                                    <input type="text" class="form-control font-weight-bold text-right" id="total-provit-sharing" name="total_sharing_profit" value="Rp 0" readonly style="width: 150px">
+                                </div>
+                            </div>
+
+                     </div>
+
+                    <div class="text-right">
+                        <button type="submit" class="btn btn-primary btn-sm mt-2">Simpan Perubahan</button>
+                      </div>
+
+                    </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
       <footer class="footer pt-3  ">
         <div class="container-fluid">
@@ -680,12 +785,12 @@
 
                     <div class="row">
                         <div class="col-12">
-                            <div class="input-group mb-3">
+                            <div class="input-group">
                                 <div class="input-group-prepend">
-                                    <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Item Description</span>
+                                  <span class="input-group-text" style="background-color: rgb(222, 222, 222);">Partnumber/Description</span>
                                 </div>
-                                <input type="text" name="partnumber_description" id="partnumber_description" class="form-control pl-2" style="border: 1px solid black;">
-                            </div>
+                                <textarea class="form-control" aria-label="With textarea" name="partnumber_description" id="partnumber_description" style="border: 1px solid black;"></textarea>
+                              </div>
                         </div>
                     </div>
 
@@ -885,6 +990,8 @@ $(document).ready(function() {
     koleksiSelect2();
 
     $('#btn-edit-cogs').prop('disabled', true);
+
+    updateTotalProvitSharing();
 
     $("#btn-back").on("click", function () {
         window.location.href = defaultUrl;
@@ -1362,7 +1469,19 @@ function viewDatatable() {
           { data: "id_projek", className: "text-center align-middle" },
           { data: "jenis_ppn", className: "text-center align-middle" },
           { data: "part_number", className: "text-left align-middle" },
-          { data: "partnumber_description", className: "text-left align-middle" },
+          {
+            data: "partnumber_description",
+            className: "text-left align-middle",
+            render: function(data, type, row) {
+              if (type === 'display') {
+                if (data && data.length > 50) {
+                  return '<span title="' + data + '">' + data.substring(0, 50) + '...</span>';
+                }
+                return data;
+              }
+              return data;
+            }
+          },
           { data: "nama_vendor", className: "text-left align-middle" },
           { data: "qty", className: "text-center align-middle" },
           { data: "unit_price", className: "text-right align-middle" },
@@ -2277,7 +2396,15 @@ function updateIncentiveSales() {
 
     // Update elemen incentive_sales
     $('#incentive_sales').val('Rp ' + formatRupiahWithDots(incentiveSales.toFixed(0), ''));
-    updatePersentaseIncentive(); // <--- Tambahkan ini
+
+    // Panggil fungsi untuk update leader sales
+    updateLeaderSales();
+    updateProvitSharingDirutama();
+    updateProvitSharingSim();
+    updateProvitSharingKeuangan();
+    updateTotalProvitSharing();
+
+    updatePersentaseIncentive();
 }
 
 function updatePersentaseIncentive() {
@@ -2332,6 +2459,21 @@ $('#form-update-ppn').on('submit', function(e) {
 });
 
 $('#form-update-po').on('submit', function(e) {
+    e.preventDefault();
+    $.ajax({
+        url: $(this).attr('action'),
+        type: 'POST',
+        data: $(this).serialize(),
+        success: function(res) {
+            Swal.fire('Sukses', 'Data berhasil diupdate!', 'success');
+        },
+        error: function() {
+            Swal.fire('Error', 'Gagal update data', 'error');
+        }
+    });
+});
+
+$('#form-update-provit-sharing').on('submit', function(e) {
     e.preventDefault();
     $.ajax({
         url: $(this).attr('action'),
@@ -2471,38 +2613,26 @@ tableCogs.on('draw', function() {
 });
 
 function updateIncentiveFe001a() {
-    // Ambil dari input modal jika ada yang sedang diisi
-    let addInsentifFromInput = ( $('#add_insentif_fe001a').length ? $('#add_insentif_fe001a').val() : '' );
-    let addInsentifParsed = parseFloat((addInsentifFromInput || '').replace(/[^0-9\.\-]/g, ''));
+    let data = tableCogs.rows().data();
     let addInsentif = 0;
 
-    if (!isNaN(addInsentifParsed)) {
-        addInsentif = addInsentifParsed;
-    } else {
-        // Fallback: Ambil dari row pertama DataTable COGS
-        let data = tableCogs.rows().data();
-        if (data.length > 0) {
-            addInsentif = parseFloat(data[0].add_insentif_fe001a) || 0;
-        }
+    if (data.length > 0) {
+        addInsentif = parseFloat(data[0].add_insentif_fe001a) || 0;
     }
 
-    // Kurangi 10% untuk incentive fe001a
     let incentiveFe001a = addInsentif - (addInsentif * 0.10);
     $('#incentive_fe001a').val('Rp ' + formatRupiahWithDots(incentiveFe001a.toFixed(0), ''));
 
-    // Ambil nilai subtotal-margin-cv
     let subtotalMarginCVText = $('#subtotal-margin-cv').val();
     let subtotalMarginCV = parseFloat((subtotalMarginCVText || '').replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
 
-    // Hitung persentase
     let persentase = 0;
     if (subtotalMarginCV !== 0) {
         persentase = (addInsentif / subtotalMarginCV) * 100;
     }
 
-    // Update kolom persentase_fe001a sesuai kondisi
     if (persentase > 25) {
-        $('#persentase_fe001a').val('need approve');
+        $('#persentase_fe001a').val('-');
     } else {
         $('#persentase_fe001a').val(persentase.toFixed(2) + ' %');
     }
@@ -2527,6 +2657,77 @@ function formatRupiah(angka, prefix){
     document.getElementById('expedittion').addEventListener('keyup', function(e){
         this.value = formatRupiah(this.value, 'Rp ');
     });
+
+// Tambahkan fungsi baru untuk menghitung leader sales (30% dari incentive_sales)
+function updateLeaderSales() {
+    // Ambil nilai incentive_sales
+    let incentiveSalesText = $('#incentive_sales').val();
+    let incentiveSales = parseFloat((incentiveSalesText || '').replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
+
+    // Hitung 30% dari incentive_sales
+    let leaderSales = incentiveSales * 0.30;
+
+    // Update elemen leader_sales
+    $('#leader_sales').val('Rp ' + formatRupiahWithDots(leaderSales.toFixed(0), ''));
+}
+
+function updateProvitSharingDirutama() {
+    // Ambil nilai incentive_sales
+    let incentiveSalesText = $('#incentive_sales').val();
+    let incentiveSales = parseFloat((incentiveSalesText || '').replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
+
+    // Hitung 30% dari incentive_sales
+    let sharingDirutama = incentiveSales * 0.15;
+
+    // Update elemen leader_sales
+    $('#provit-sharing-dirutama').val('Rp ' + formatRupiahWithDots(sharingDirutama.toFixed(0), ''));
+}
+
+function updateProvitSharingSim() {
+    // Ambil nilai incentive_sales
+    let incentiveSalesText = $('#incentive_sales').val();
+    let incentiveSales = parseFloat((incentiveSalesText || '').replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
+
+    // Hitung 30% dari incentive_sales
+    let sharingSim = incentiveSales * 0.10;
+
+    // Update elemen leader_sales
+    $('#provit-sharing-sim').val('Rp ' + formatRupiahWithDots(sharingSim.toFixed(0), ''));
+}
+
+function updateProvitSharingKeuangan() {
+    // Ambil nilai incentive_sales
+    let incentiveSalesText = $('#incentive_sales').val();
+    let incentiveSales = parseFloat((incentiveSalesText || '').replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
+
+    // Hitung 30% dari incentive_sales
+    let sharingKeuangan = incentiveSales * 0.05;
+
+    // Update elemen leader_sales
+    $('#provit-sharing-keuangan').val('Rp ' + formatRupiahWithDots(sharingKeuangan.toFixed(0), ''));
+}
+
+function updateTotalProvitSharing() {
+    // Ambil nilai dari semua field profit sharing
+    let holdingText = $('#profit-sharing-holding').val();
+    let leaderText = $('#leader_sales').val();
+    let dirutamaText = $('#provit-sharing-dirutama').val();
+    let simText = $('#provit-sharing-sim').val();
+    let keuanganText = $('#provit-sharing-keuangan').val();
+
+    // Parse nilai numerik dari setiap field
+    let holding = parseFloat((holdingText || '').replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
+    let leader = parseFloat((leaderText || '').replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
+    let dirutama = parseFloat((dirutamaText || '').replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
+    let sim = parseFloat((simText || '').replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
+    let keuangan = parseFloat((keuanganText || '').replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
+
+    // Hitung total
+    let total = holding + leader + dirutama + sim + keuangan;
+
+    // Update field total provit sharing
+    $('#total-provit-sharing').val('Rp ' + formatRupiahWithDots(total.toFixed(0), ''));
+}
 
 </script>
   @endpush
