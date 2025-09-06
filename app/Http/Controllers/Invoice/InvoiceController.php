@@ -1038,15 +1038,10 @@ class InvoiceController extends Controller
         // $this->fpdf->Cell(2.6, 0.5, ":", 0, 0, 'R');
 		$this->fpdf->Ln(0.5);
 
-        // Hidtung tinggi konten sebelum tabel untuk menentukan posisi yang tepat
-        $header_height = 8.5; // Tinggi header (logo, informasi perusahaan, dll)
-        $client_info_height = 2.5; // Tinggi informasi client
-        $available_height = 29.7 - $header_height - $client_info_height - 2; // Tinggi A4 - header - client - margin
-
         // Buat tabel dengan auto-sizing
-        $table = new easyTables($this->fpdf, "{2, 17, 2.5, 12, 15}", 'border:1;font-size:6.5;min-height:0.5;');
+        $table = new easyTables($this->fpdf, "{2, 17, 2.5, 12, 15}", 'border:1;font-size:6.5;');
 
-        $table->rowStyle('font-style:B;min-height:0.6;');
+        $table->rowStyle('font-style:B;');
         $table->easyCell('NO', 'valign:M;align:C;');
         $table->easyCell('Description', 'valign:M;align:C;');
         $table->easyCell('QTY', 'valign:M;align:C;');
@@ -1057,19 +1052,41 @@ class InvoiceController extends Controller
         $i = 1;
         $grand_total = 0; // Initialize grand total
         foreach ($data_result as $value) {
-            // Calculate grand total by summing total_price
-            // Remove any currency formatting and convert to numeric value
+            // Hitung grand total
             $total_price_numeric = (float) preg_replace('/[^\d]/', '', $value['total_price']);
             $grand_total += $total_price_numeric;
-
-            // Gunakan auto-sizing untuk setiap baris
-            $table->rowStyle('min-height:0.5;');
-            $table->easyCell($i++, 'valign:M;align:C;');
-            $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
-            $table->easyCell($value['qty'], 'valign:M;align:C;');
-            $table->easyCell($value['unit_price'], 'valign:M;align:R;');
-            $table->easyCell($value['total_price'], 'valign:M;align:R;');
-
+        
+            
+            if ($this->fpdf->GetY() > 14) {
+                $table->easyCell($i++, 'valign:M;align:C;');
+                // Bagi menjadi dua bagian
+                $part1 = substr($value['partnumber_description'], 0, 845);
+                $part2 = substr($value['partnumber_description'], 845);
+                
+                // Cetak bagian pertama
+                $table->easyCell($part1, 'valign:M;align:L;');
+                $table->easyCell($value['qty'], 'valign:M;align:C;');
+                $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                $table->printRow();
+                
+                // Cetak bagian kedua
+                $this->fpdf->AddPage('P', 'A4');
+                $table->easyCell('', 'valign:M;align:C;');
+                $table->easyCell($part2, 'valign:M;align:L;');
+                $table->easyCell('', 'valign:M;align:C;');
+                $table->easyCell('', 'valign:M;align:C;');
+                $table->easyCell('', 'valign:M;align:C;');
+            } else {
+                $table->easyCell($i++, 'valign:M;align:C;');
+                $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                $table->easyCell($value['qty'], 'valign:M;align:C;');
+                $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                $table->easyCell($value['total_price'], 'valign:M;align:R;');
+            }
+        
+        
+            // Cetak baris
             $table->printRow();
         }
 
@@ -1082,22 +1099,10 @@ class InvoiceController extends Controller
 
         // print_r($this->fpdf->GetY());die;
         if ($this->fpdf->GetY() > 19.21) {
-            $this->fpdf->AddPage('P', 'A4');
+            // $this->fpdf->AddPage('P', 'A4');
         }
 
 
-        // Hitung ruang yang tersisa untuk footer
-        // $footer_start_y = $current_y + 1;
-        // $page_height = 20; // Tinggi A4 dalam cm
-        // $footer_height = $page_height - $footer_start_y;
-
-
-        // $this->fpdf->SetY($footer_start_y);
-
-        // Footer content dengan posisi yang dinamis
-        // $this->fpdf->SetLineWidth(0.1);
-        // $this->fpdf->Line(1, $footer_start_y, 20, $footer_start_y);
-        // $this->fpdf->SetLineWidth(0);
         $this->fpdf->Ln(1);
 
         $this->fpdf->SetFont('Arial', 'B', 8);
