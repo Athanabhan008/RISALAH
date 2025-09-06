@@ -1087,17 +1087,17 @@ class InvoiceController extends Controller
 
 
         // Hitung ruang yang tersisa untuk footer
-        $footer_start_y = $current_y + 1;
-        $page_height = 29.7; // Tinggi A4 dalam cm
-        $footer_height = $page_height - $footer_start_y;
+        // $footer_start_y = $current_y + 1;
+        // $page_height = 20; // Tinggi A4 dalam cm
+        // $footer_height = $page_height - $footer_start_y;
 
 
-        $this->fpdf->SetY($footer_start_y);
+        // $this->fpdf->SetY($footer_start_y);
 
         // Footer content dengan posisi yang dinamis
-        $this->fpdf->SetLineWidth(0.1);
-        $this->fpdf->Line(1, $footer_start_y, 20, $footer_start_y);
-        $this->fpdf->SetLineWidth(0);
+        // $this->fpdf->SetLineWidth(0.1);
+        // $this->fpdf->Line(1, $footer_start_y, 20, $footer_start_y);
+        // $this->fpdf->SetLineWidth(0);
         $this->fpdf->Ln(1);
 
         $this->fpdf->SetFont('Arial', 'B', 8);
@@ -1389,11 +1389,6 @@ class InvoiceController extends Controller
         // Footer content
         $this->fpdf->SetFont('Arial', '', 11);
         $this->fpdf->SetTextColor(000, 000, 000);
-
-        // Left side - Company info
-        $this->fpdf->Cell(10, 0.4, "Workshop", 0, 0, 'L');
-        $this->fpdf->Ln(0.4);
-        $this->fpdf->Cell(10, 0.4, "Jl. Cilengkrang 2 No.144, Bandung", 0, 0, 'L');
 
 
     }

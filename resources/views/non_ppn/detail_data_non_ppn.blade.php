@@ -674,12 +674,12 @@
 
                     <div class="row">
                         <div class="col-12">
-                            <div class="input-group mb-3">
+                            <div class="input-group">
                                 <div class="input-group-prepend">
-                                    <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Partnumber/Description</span>
+                                  <span class="input-group-text" style="background-color: rgb(222, 222, 222);">Partnumber/Description</span>
                                 </div>
-                                <input type="text" name="partnumber_description" id="partnumber_description" class="form-control pl-2" style="border: 1px solid black;">
-                            </div>
+                                <textarea class="form-control" aria-label="With textarea" name="partnumber_description" id="partnumber_description" style="border: 1px solid black;"></textarea>
+                              </div>
                         </div>
                     </div>
 
@@ -1395,15 +1395,18 @@ function viewDatatable() {
                 }
             },
             {
-                data: "partnumber_description",
-                render: function (data, type, row, meta) {
-                    if (data == '' || data == null) {
-                        return '-';
-                    } else {
-                        return data;
-                    }
+            data: "partnumber_description",
+            className: "text-left align-middle",
+            render: function(data, type, row) {
+              if (type === 'display') {
+                if (data && data.length > 50) {
+                  return '<span title="' + data + '">' + data.substring(0, 50) + '...</span>';
                 }
-            },
+                return data;
+              }
+              return data;
+            }
+          },
             {
                 data: "nama_vendor",
                 render: function (data, type, row, meta) {
@@ -2565,7 +2568,6 @@ tableCogs.on('draw', function() {
 });
 
 function updateIncentiveFe001a() {
-    // Ambil data dari tabel COGS
     let data = tableCogs.rows().data();
     let addInsentif = 0;
 
@@ -2573,28 +2575,22 @@ function updateIncentiveFe001a() {
         addInsentif = parseFloat(data[0].add_insentif_fe001a) || 0;
     }
 
-    // Kurangi 10% untuk incentive fe001a
     let incentiveFe001a = addInsentif - (addInsentif * 0.10);
     $('#incentive_fe001a').val('Rp ' + formatRupiahWithDots(incentiveFe001a.toFixed(0), ''));
 
-    // Ambil nilai subtotal-margin-cv
     let subtotalMarginCVText = $('#subtotal-margin-cv').val();
     let subtotalMarginCV = parseFloat((subtotalMarginCVText || '').replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
 
-    // Hitung persentase
     let persentase = 0;
     if (subtotalMarginCV !== 0) {
         persentase = (addInsentif / subtotalMarginCV) * 100;
     }
 
-    // Update kolom persentase_fe001a - tampilkan nilai minus jika ada
-    let persentaseFormatted = '';
-    if (persentase < 0) {
-        persentaseFormatted = '-' + Math.abs(persentase).toFixed(2) + ' %';
+    if (persentase > 25) {
+        $('#persentase_fe001a').val('-');
     } else {
-        persentaseFormatted = persentase.toFixed(2) + ' %';
+        $('#persentase_fe001a').val(persentase.toFixed(2) + ' %');
     }
-    $('#persentase_fe001a').val(persentaseFormatted);
 }
 
 // Jika ada input manual:

@@ -211,6 +211,7 @@ Route::middleware(['UserAkses:staff,super_admin'])->group(function() {
 
     Route::post('/pr_wapu/updateTotalPpn',                             [WapuController::class, 'updateTotalPpn'])->name('pr_wapu.updateTotalPpn');
     Route::post('/pr_wapu/updateTotalPO',                              [WapuController::class, 'updateTotalPO'])->name('pr_wapu.updateTotalPO');
+    Route::post('/pr_wapu/updatesharingprovit',                        [WapuController::class, 'updateSharingProvit'])->name('pr_wapu.updatesharingprovit');
     Route::post('/pr_wapu/updateincentive',                            [WapuController::class, 'updateIncentive'])->name('pr_wapu.updateincentive');
     Route::post('/pr_wapu/updateValidasiPayment',                      [WapuController::class, 'updateValidasiPayment'])->name('pr_wapu/updateValidasiPayment');
     Route::post('/pr_wapu/total_cogs',                                 [WapuController::class, 'getTotalCogs']);

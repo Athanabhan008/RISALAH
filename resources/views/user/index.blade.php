@@ -19,6 +19,8 @@
     .select2-dropdown {
         z-index: 9999;
     }
+
+    select[name="divisi"] { }
 </style>
 
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
@@ -146,6 +148,18 @@
                         </select>
                       </div>
 
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                          <label class="input-group-text" for="inputGroupSelect01">Divisi</label>
+                        </div>
+                        <select class="custom-select" id="inputGroupSelect01" name="divisi">
+                          <option selected>Choose...</option>
+                          <option value="agus_sopyan">Pak Agus Sopyan</option>
+                          <option value="acep_sonjaya">Pak Acep Sonjaya</option>
+                          <option value="taufik_rachmat">Pak Taufik Rachmat. H</option>
+                        </select>
+                      </div>
+
 
                 </div>
                 <div class="modal-footer">
@@ -211,10 +225,30 @@ let modalUser = $("#formModal");
 let modalPassword = $("#formPassword");
 let tableUser;
 
+function toggleDivisi() {
+    const roleVal = $('select[name=role]').val();
+    const divisiGroup = $('select[name=divisi]').closest('.input-group');
+
+    if (roleVal === 'staff') {
+        divisiGroup.show();
+    } else {
+        divisiGroup.hide();
+        // reset nilai divisi saat disembunyikan
+        $('select[name=divisi]').prop('selectedIndex', 0).trigger('change');
+    }
+}
+
 $(document).ready(function() {
     viewDatatable();
     collectionS2Search();
 
+    // Inisialisasi tampilan awal
+    toggleDivisi();
+
+    // Tampilkan/sembunyikan saat role berubah
+    $('select[name=role]').on('change', toggleDivisi);
+
+    // Saat buka modal create
     $('button[data-target="#formModal"]').on('click', function() {
         // Reset form
         $('#form_user')[0].reset();
@@ -233,6 +267,7 @@ $(document).ready(function() {
         // Tampilkan kembali field nomor_pr dan tombol generate saat mode create
         $('.input-group:has(#nomor_pr)').show();
         $('#btn-generate-pr').show();
+        toggleDivisi(); // default akan hide karena role belum 'staff'
     });
 
     // Event handler untuk tombol generate PR
@@ -268,6 +303,7 @@ $(document).ready(function() {
         modalUser.find("input[name=name]").val(selected.name);
         modalUser.find("input[name=email]").val(selected.email);
         modalUser.find("select[name=role]").val(selected.role);
+        toggleDivisi();
 
         // Sembunyikan field password saat mode edit
         $('.input-group:has(#password)').hide();

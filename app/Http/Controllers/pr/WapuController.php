@@ -726,12 +726,17 @@ class WapuController extends Controller
         $validasi_payment = (int) preg_replace('/[^\d]/', '', $request->validasi_payment);
         $jumlah_ppn = (int) preg_replace('/[^\d]/', '', $request->jumlah_ppn);
         $total_vat = (int) preg_replace('/[^\d]/', '', $request->total_vat);
+        $gross_provit = (int) preg_replace('/[^\d]/', '', $request->gross_provit);
+        $subtotal_cost = (int) preg_replace('/[^\d]/', '', $request->subtotal_cost);
+        $persentase_margin = (int) preg_replace('/[^\d]/', '', $request->persentase_margin);
 
         $prwapu = Wapu::findOrFail($request->id_projek);
         $prwapu->subtotal_price = $subtotal_price;
-        $prwapu->validasi_payment = $validasi_payment;
         $prwapu->jumlah_ppn = $jumlah_ppn;
         $prwapu->total_vat = $total_vat;
+        $prwapu->gross_provit = $gross_provit;
+        $prwapu->subtotal_cost = $subtotal_cost;
+        $prwapu->persentase_margin = $persentase_margin;
         $prwapu->save();
 
         // Jika ingin redirect (seperti sekarang)
@@ -804,6 +809,48 @@ class WapuController extends Controller
         */
     }
 
+
+    public function updateSharingProvit(Request $request)
+    {
+        $request->validate([
+            'id_projek' => 'required|exists:prwapus,id',
+        ]);
+
+        // Hilangkan format Rp dan titik pada input, pastikan hasilnya integer
+        $profit_sharing_holding = (int) preg_replace('/[^\d]/', '', $request->profit_sharing_holding);
+        $profit_sharing_leader = (int) preg_replace('/[^\d]/', '', $request->profit_sharing_leader);
+        $profit_sharing_dirutama = (int) preg_replace('/[^\d]/', '', $request->profit_sharing_dirutama);
+        $profit_sharing_dirutama = (int) preg_replace('/[^\d]/', '', $request->profit_sharing_dirutama);
+        $profit_sharing_sim = (int) preg_replace('/[^\d]/', '', $request->profit_sharing_sim);
+        $profit_sharing_keuangan = (int) preg_replace('/[^\d]/', '', $request->profit_sharing_keuangan);
+        $total_sharing_profit = (int) preg_replace('/[^\d]/', '', $request->total_sharing_profit);
+
+        $prwapu = Wapu::findOrFail($request->id_projek);
+        $prwapu->profit_sharing_holding = $profit_sharing_holding;
+        $prwapu->profit_sharing_leader = $profit_sharing_leader;
+        $prwapu->profit_sharing_dirutama = $profit_sharing_dirutama;
+        $prwapu->profit_sharing_dirutama = $profit_sharing_dirutama;
+        $prwapu->profit_sharing_sim = $profit_sharing_sim;
+        $prwapu->profit_sharing_keuangan = $profit_sharing_keuangan;
+        $prwapu->total_sharing_profit = $total_sharing_profit;
+        $prwapu->save();
+
+        // Jika ingin redirect (seperti sekarang)
+        return redirect()->back()->with('success', 'Data berhasil diupdate!');
+
+        // Jika ingin response JSON (uncomment jika perlu)
+        /*
+        return response()->json([
+            'success' => true,
+            'message' => 'Data berhasil diupdate!',
+            'data' => [
+                'total_po_ppn' => $prwapu->total_po_ppn,
+                'total_cost_ppn' => $prwapu->total_cost_ppn,
+                'total_margin_ppn' => $prwapu->total_margin_ppn,
+            ]
+        ]);
+        */
+    }
 
 
 
