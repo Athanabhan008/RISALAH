@@ -1011,7 +1011,8 @@ class PoController extends Controller
         $this->fpdf->Cell(12, 0.5, $data_result[0]['nama_vendor'], 0, 0, 'L');
 		$this->fpdf->Ln(1);
 
-        $table = new easyTables($this->fpdf, "{5, 12, 12, 4, 12, 15}", 'border:1;font-size:9;');
+        // $table = new easyTables($this->fpdf, "{5, 12, 12, 4, 12, 15}", 'border:1;font-size:9;');
+        $table = new easyTables($this->fpdf, "{3, 9, 20, 3, 9, 8}", 'border:1;font-size:6.5;min-height:0.5;');
 
 
         $table->rowStyle('font-style:B;');
@@ -1031,12 +1032,36 @@ class PoController extends Controller
             $total_price_numeric = (float) preg_replace('/[^\d]/', '', $value['total_price']);
             $grand_total += $total_price_numeric;
 
-            $table->easyCell($i++, 'valign:M;align:C;');
-            $table->easyCell($value['part_number'], 'valign:M;align:L;');
-            $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
-            $table->easyCell($value['qty'], 'valign:M;align:C;');
-            $table->easyCell($value['unit_price'], 'valign:M;align:L;');
-            $table->easyCell($value['total_price'], 'valign:M;align:L;');
+            if ($this->fpdf->GetY() > 14) {
+                $table->easyCell($i++, 'valign:M;align:C;');
+                // Bagi menjadi dua bagian
+                $part1 = substr($value['partnumber_description'], 0, 1193);
+                $part2 = substr($value['partnumber_description'], 1193);
+
+                // Cetak bagian pertama
+                $table->easyCell($value['part_number'], 'valign:M;align:C;');
+                $table->easyCell($part1, 'valign:M;align:L;');
+                $table->easyCell($value['qty'], 'valign:M;align:C;');
+                $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                $table->printRow();
+
+                // Cetak bagian kedua
+                $this->fpdf->AddPage('P', 'A4');
+                $table->easyCell('', 'valign:M;align:C;');
+                $table->easyCell('', 'valign:M;align:C;');
+                $table->easyCell($part2, 'valign:M;align:L;');
+                $table->easyCell('', 'valign:M;align:C;');
+                $table->easyCell('', 'valign:M;align:C;');
+                $table->easyCell('', 'valign:M;align:C;');
+            } else {
+                $table->easyCell($i++, 'valign:M;align:C;');
+                $table->easyCell($value['part_number'], 'valign:M;align:C;');
+                $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                $table->easyCell($value['qty'], 'valign:M;align:C;');
+                $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                $table->easyCell($value['total_price'], 'valign:M;align:R;');
+            }
 
             $table->printRow();
         }
@@ -1045,37 +1070,78 @@ class PoController extends Controller
         $table->rowStyle('font-style:B; border:0;');
         $table->easyCell('TOTAL', 'colspan:5;valign:M;align:R;');
         $table->rowStyle('font-style:B; border:1;');
-        $table->easyCell(number_format($grand_total, 0, ',', '.'), 'valign:M;align:L;');
+        $table->easyCell(number_format($grand_total, 0, ',', '.'), 'valign:M;align:R;');
+        $table->printRow();
+        $this->fpdf->Ln(0);
+
+        // Calculate PPN 11%
+        $ppn_amount = $grand_total * 0.11;
+        $table->rowStyle('font-style:B; border:0;');
+        $table->easyCell('PPN 11%', 'colspan:5;valign:M;align:R;');
+        $table->rowStyle('font-style:B; border:1;');
+        $table->easyCell(number_format($ppn_amount, 0, ',', '.'), 'valign:M;align:R;');
+        $table->printRow();
+        $this->fpdf->Ln(0);
+
+        // Calculate total including PPN
+        $total_with_ppn = $grand_total + $ppn_amount;
+        $table->rowStyle('font-style:B; border:0;');
+        $table->easyCell('Total', 'colspan:5;valign:M;align:R;');
+        $table->rowStyle('font-style:B; border:1;');
+        $table->easyCell(number_format($total_with_ppn, 0, ',', '.'), 'valign:M;align:R;');
         $table->printRow();
         $this->fpdf->Ln(1);
 
-        $this->fpdf->SetFont('Arial', 'I', 11);
-        $this->fpdf->Cell(12, 0.5, "Note : ", 0, 0, 'L');
-        $this->fpdf->Ln(0.5);
+        // Display notes if available
+        if (!empty($data_result[0]['note'])) {
+            $this->fpdf->SetFont('Arial', 'I', 11);
+            $this->fpdf->Cell(12, 0.5, "Note : ", 0, 0, 'L');
+            $this->fpdf->Ln(0.5);
 
-        // Split note into lines and display as list
-        $notes = explode("\n", $data_result[0]['note']);
-        foreach ($notes as $note) {
-            $note = trim($note);
-            if (!empty($note)) {
-                $this->fpdf->Cell(1, 0.5, "• ", 0, 0, 'L');
-                $this->fpdf->Cell(11, 0.5, $note, 0, 0, 'L');
-                $this->fpdf->Ln(0.5);
+            // Split note into lines and display as list
+            $notes = explode("\n", $data_result[0]['note']);
+            foreach ($notes as $note) {
+                $note = trim($note);
+                if (!empty($note)) {
+                    $this->fpdf->Cell(0.5, 0.5, "-", 0, 0, 'L');
+                    $this->fpdf->Cell(11, 0.5, $note, 0, 0, 'L');
+                    $this->fpdf->Ln(0.5);
+                }
             }
+            $this->fpdf->Ln(1);
         }
 
-        $this->fpdf->Ln(2);
+        // Signature section - make it dynamic based on data
         $this->fpdf->SetFont('Arial', '', 11);
         $this->fpdf->Cell(12, 0.5, "Hormat Kami,", 0, 0, 'L');
-		$this->fpdf->Ln(3.5);
-        $this->fpdf->Image(public_path('admin/assets/img/TTD_Rika_CV.png'), 0.8, 16, 5, 3);
-		$this->fpdf->Ln(0);
+
+        // Get current Y position right after "Hormat Kami," text
+        $current_y = $this->fpdf->GetY();
+
+        // Add small spacing before signature image
+        $this->fpdf->Ln(1);
+
+        // Check if signature image exists, otherwise use text
+        $signature_path = public_path('admin/assets/img/TTD_Rika_CV.png');
+        if (file_exists($signature_path)) {
+            // Use current Y position + small offset for proper spacing
+            $signature_y = $current_y + 1; // 1 cm spacing after "Hormat Kami,"
+            $this->fpdf->Image($signature_path, 0.8, $signature_y, 5, 3);
+        }
+
+        // Add space after signature image for name and title
+        $this->fpdf->Ln(3.5);
         $this->fpdf->SetFont('Arial', 'U', 11);
-        $this->fpdf->Cell(12, 0.5, "Rika", 0, 0, 'L');
-		$this->fpdf->Ln(0.5);
+
+        // Use dynamic name from data or default
+        $signature_name = $data_result[0]['signature_name'] ?? 'Rika';
+        $signature_title = $data_result[0]['signature_title'] ?? 'Admin';
+
+        $this->fpdf->Cell(12, 0.5, $signature_name, 0, 0, 'L');
+        $this->fpdf->Ln(0.5);
         $this->fpdf->SetFont('Arial', '', 11);
-        $this->fpdf->Cell(12, 0.5, "Admin", 0, 0, 'L');
-		$this->fpdf->Ln(1);
+        $this->fpdf->Cell(12, 0.5, $signature_title, 0, 0, 'L');
+        $this->fpdf->Ln(1);
 
         // Remove the commented out code since we've implemented the calculation above
         // $grand_total = 0;
@@ -1182,7 +1248,8 @@ class PoController extends Controller
         $this->fpdf->Cell(12, 0.5, $data_result[0]['nama_vendor'], 0, 0, 'L');
 		$this->fpdf->Ln(1);
 
-        $table = new easyTables($this->fpdf, "{5, 12, 12, 4, 12, 15}", 'border:1;font-size:9;');
+        // $table = new easyTables($this->fpdf, "{5, 12, 12, 4, 12, 15}", 'border:1;font-size:9;');
+        $table = new easyTables($this->fpdf, "{3, 9, 20, 3, 9, 8}", 'border:1;font-size:6.5;min-height:0.5;');
 
 
         $table->rowStyle('font-style:B;');
@@ -1202,12 +1269,36 @@ class PoController extends Controller
             $total_price_numeric = (float) preg_replace('/[^\d]/', '', $value['total_price']);
             $grand_total += $total_price_numeric;
 
-            $table->easyCell($i++, 'valign:M;align:C;');
-            $table->easyCell($value['part_number'], 'valign:M;align:L;');
-            $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
-            $table->easyCell($value['qty'], 'valign:M;align:C;');
-            $table->easyCell($value['unit_price'], 'valign:M;align:L;');
-            $table->easyCell($value['total_price'], 'valign:M;align:L;');
+            if ($this->fpdf->GetY() > 14) {
+                $table->easyCell($i++, 'valign:M;align:C;');
+                // Bagi menjadi dua bagian
+                $part1 = substr($value['partnumber_description'], 0, 1193);
+                $part2 = substr($value['partnumber_description'], 1193);
+
+                // Cetak bagian pertama
+                $table->easyCell($value['part_number'], 'valign:M;align:C;');
+                $table->easyCell($part1, 'valign:M;align:L;');
+                $table->easyCell($value['qty'], 'valign:M;align:C;');
+                $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                $table->printRow();
+
+                // Cetak bagian kedua
+                $this->fpdf->AddPage('P', 'A4');
+                $table->easyCell('', 'valign:M;align:C;');
+                $table->easyCell('', 'valign:M;align:C;');
+                $table->easyCell($part2, 'valign:M;align:L;');
+                $table->easyCell('', 'valign:M;align:C;');
+                $table->easyCell('', 'valign:M;align:C;');
+                $table->easyCell('', 'valign:M;align:C;');
+            } else {
+                $table->easyCell($i++, 'valign:M;align:C;');
+                $table->easyCell($value['part_number'], 'valign:M;align:C;');
+                $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                $table->easyCell($value['qty'], 'valign:M;align:C;');
+                $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                $table->easyCell($value['total_price'], 'valign:M;align:R;');
+            }
 
             $table->printRow();
         }
@@ -1216,24 +1307,78 @@ class PoController extends Controller
         $table->rowStyle('font-style:B; border:0;');
         $table->easyCell('TOTAL', 'colspan:5;valign:M;align:R;');
         $table->rowStyle('font-style:B; border:1;');
-        $table->easyCell(number_format($grand_total, 0, ',', '.'), 'valign:M;align:L;');
+        $table->easyCell(number_format($grand_total, 0, ',', '.'), 'valign:M;align:R;');
+        $table->printRow();
+        $this->fpdf->Ln(0);
+
+        // Calculate PPN 11%
+        $ppn_amount = $grand_total * 0.11;
+        $table->rowStyle('font-style:B; border:0;');
+        $table->easyCell('PPN 11%', 'colspan:5;valign:M;align:R;');
+        $table->rowStyle('font-style:B; border:1;');
+        $table->easyCell(number_format($ppn_amount, 0, ',', '.'), 'valign:M;align:R;');
+        $table->printRow();
+        $this->fpdf->Ln(0);
+
+        // Calculate total including PPN
+        $total_with_ppn = $grand_total + $ppn_amount;
+        $table->rowStyle('font-style:B; border:0;');
+        $table->easyCell('Total', 'colspan:5;valign:M;align:R;');
+        $table->rowStyle('font-style:B; border:1;');
+        $table->easyCell(number_format($total_with_ppn, 0, ',', '.'), 'valign:M;align:R;');
         $table->printRow();
         $this->fpdf->Ln(1);
 
-        $this->fpdf->SetFont('Arial', 'I', 11);
-        $this->fpdf->Cell(12, 0.5, "Note : " . $data_result[0]['note'], 0, 0, 'L');
-		$this->fpdf->Ln(3);
+        // Display notes if available
+        if (!empty($data_result[0]['note'])) {
+            $this->fpdf->SetFont('Arial', 'I', 11);
+            $this->fpdf->Cell(12, 0.5, "Note : ", 0, 0, 'L');
+            $this->fpdf->Ln(0.5);
+
+            // Split note into lines and display as list
+            $notes = explode("\n", $data_result[0]['note']);
+            foreach ($notes as $note) {
+                $note = trim($note);
+                if (!empty($note)) {
+                    $this->fpdf->Cell(0.5, 0.5, "-", 0, 0, 'L');
+                    $this->fpdf->Cell(11, 0.5, $note, 0, 0, 'L');
+                    $this->fpdf->Ln(0.5);
+                }
+            }
+            $this->fpdf->Ln(1);
+        }
+
+        // Signature section - make it dynamic based on data
         $this->fpdf->SetFont('Arial', '', 11);
         $this->fpdf->Cell(12, 0.5, "Hormat Kami,", 0, 0, 'L');
-		$this->fpdf->Ln(3.5);
-        $this->fpdf->Image(public_path('admin/assets/img/TTD_Rika_CV.png'), 0.8, 16, 5, 3);
-		$this->fpdf->Ln(0);
+
+        // Get current Y position right after "Hormat Kami," text
+        $current_y = $this->fpdf->GetY();
+
+        // Add small spacing before signature image
+        $this->fpdf->Ln(1);
+
+        // Check if signature image exists, otherwise use text
+        $signature_path = public_path('admin/assets/img/TTD_Rika_CV.png');
+        if (file_exists($signature_path)) {
+            // Use current Y position + small offset for proper spacing
+            $signature_y = $current_y + 1; // 1 cm spacing after "Hormat Kami,"
+            $this->fpdf->Image($signature_path, 0.8, $signature_y, 5, 3);
+        }
+
+        // Add space after signature image for name and title
+        $this->fpdf->Ln(3.5);
         $this->fpdf->SetFont('Arial', 'U', 11);
-        $this->fpdf->Cell(12, 0.5, "Rika", 0, 0, 'L');
-		$this->fpdf->Ln(0.5);
+
+        // Use dynamic name from data or default
+        $signature_name = $data_result[0]['signature_name'] ?? 'Rika';
+        $signature_title = $data_result[0]['signature_title'] ?? 'Admin';
+
+        $this->fpdf->Cell(12, 0.5, $signature_name, 0, 0, 'L');
+        $this->fpdf->Ln(0.5);
         $this->fpdf->SetFont('Arial', '', 11);
-        $this->fpdf->Cell(12, 0.5, "Admin", 0, 0, 'L');
-		$this->fpdf->Ln(1);
+        $this->fpdf->Cell(12, 0.5, $signature_title, 0, 0, 'L');
+        $this->fpdf->Ln(1);
 
         // Remove the commented out code since we've implemented the calculation above
         // $grand_total = 0;

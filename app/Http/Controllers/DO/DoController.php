@@ -435,7 +435,7 @@ class DoController extends Controller
             $maxRows = floor($availableHeight / $rowHeight);
         }
 
-        $table = new easyTables($this->fpdf, "{2, 17, 2.5, 12, 15}", 'border:1;font-size:' . $fontSize . ';');
+        $table = new easyTables($this->fpdf, "{2, 17, 2.5, 12, 15}", 'border:1;font-size:6.5;');
 
         $table->rowStyle('font-style:B;');
         $table->easyCell('NO', 'valign:M;align:C;');
@@ -452,21 +452,36 @@ class DoController extends Controller
         $displayData = array_slice($data_result, 0, $maxRows - 1); // Kurangi 1 untuk header
 
         foreach ($displayData as $value) {
-            $table->easyCell($i++, 'valign:M;align:C;');
-            $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
-            $table->easyCell($value['qty'], 'valign:M;align:C;');
-            $table->easyCell($value['part_number'], 'valign:M;align:L;');
-            $table->easyCell($value['serial_number'], 'valign:M;align:L;');
-            $table->printRow();
-        }
+            if ($this->fpdf->GetY() > 14) {
+                $table->easyCell($i++, 'valign:M;align:C;');
+                // Bagi menjadi dua bagian
+                $part1 = substr($value['partnumber_description'], 0, 2170);
+                $part2 = substr($value['partnumber_description'], 2170);
 
-        // Jika ada data yang tidak ditampilkan, tambahkan catatan
-        if (count($data_result) > count($displayData)) {
-            $remainingCount = count($data_result) - count($displayData);
-            $table->rowStyle('font-style:I;font-size:' . ($fontSize - 1) . ';');
-            $table->easyCell('...', 'colspan:5;valign:M;align:C;');
-            $table->printRow();
-            $table->easyCell('Dan ' . $remainingCount . ' item lainnya', 'colspan:5;valign:M;align:C;');
+                // Cetak bagian pertama
+                $table->easyCell($part1, 'valign:M;align:L;');
+                $table->easyCell($value['qty'], 'valign:M;align:C;');
+                $table->easyCell($value['part_number'], 'valign:M;align:R;');
+                $table->easyCell($value['serial_number'], 'valign:M;align:R;');
+                $table->printRow();
+
+                // Cetak bagian kedua
+                $this->fpdf->AddPage('P', 'A4');
+                $table->easyCell('', 'valign:M;align:C;');
+                $table->easyCell($part2, 'valign:M;align:L;');
+                $table->easyCell('', 'valign:M;align:C;');
+                $table->easyCell('', 'valign:M;align:C;');
+                $table->easyCell('', 'valign:M;align:C;');
+            } else {
+                $table->easyCell($i++, 'valign:M;align:C;');
+                $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                $table->easyCell($value['qty'], 'valign:M;align:C;');
+                $table->easyCell($value['part_number'], 'valign:M;align:R;');
+                $table->easyCell($value['serial_number'], 'valign:M;align:R;');
+            }
+
+
+            // Cetak baris
             $table->printRow();
         }
 
@@ -497,22 +512,11 @@ class DoController extends Controller
         // Simpan posisi Y setelah Ship To
         $afterShipToY = $this->fpdf->GetY();
 
-        // Cek apakah ada ruang cukup untuk signature di halaman ini
-        $signatureHeight = 4.5; // Tinggi yang dibutuhkan untuk section signature
-        $pageHeight = 27.7; // Tinggi halaman A4 dalam cm
-        $currentY = $this->fpdf->GetY();
-        $availableSpace = $pageHeight - $currentY;
-
-        // Jika tidak ada ruang cukup, buat halaman baru
-        if ($availableSpace < $signatureHeight) {
-            $this->fpdf->AddPage('P', 'A4');
-        }
-
         // Tambahkan jarak minimal sebelum signature (dikurangi)
         $minSpaceBeforeSignature = 0.8; // dikurangi dari 1.5
         $signatureY = $this->fpdf->GetY() + $minSpaceBeforeSignature;
 
-        // Pindah ke posisi signature yang dinamis
+        // Pindah ke posisi signature yang statik mengikuti konten
         $this->fpdf->SetY($signatureY);
 
         // Gambar garis pemisah untuk signature
@@ -732,22 +736,11 @@ class DoController extends Controller
         // Simpan posisi Y setelah Ship To
         $afterShipToY = $this->fpdf->GetY();
 
-        // Cek apakah ada ruang cukup untuk signature di halaman ini
-        $signatureHeight = 4.5; // Tinggi yang dibutuhkan untuk section signature
-        $pageHeight = 27.7; // Tinggi halaman A4 dalam cm
-        $currentY = $this->fpdf->GetY();
-        $availableSpace = $pageHeight - $currentY;
-
-        // Jika tidak ada ruang cukup, buat halaman baru
-        if ($availableSpace < $signatureHeight) {
-            $this->fpdf->AddPage('P', 'A4');
-        }
-
         // Tambahkan jarak minimal sebelum signature (dikurangi)
         $minSpaceBeforeSignature = 0.8; // dikurangi dari 1.5
         $signatureY = $this->fpdf->GetY() + $minSpaceBeforeSignature;
 
-        // Pindah ke posisi signature yang dinamis
+        // Pindah ke posisi signature yang statik mengikuti konten
         $this->fpdf->SetY($signatureY);
 
         // Gambar garis pemisah untuk signature

@@ -1,12 +1,11 @@
 <?php
 
 use App\Http\Controllers\StaffController;
+use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\booking\BookingController;
 use App\Http\Controllers\KategoribarangController;
-use App\Http\Controllers\laundry\LaundryController;
 use App\Http\Controllers\SesiController;
 use App\Http\Controllers\manager\ManagerController;
-use App\Http\Controllers\manager\PaketLaundryController;
 use App\Http\Controllers\sound_system\SoundController;
 use App\Http\Controllers\manager\BarangController;
 use App\Http\Controllers\Report\ReportAbsenController;
@@ -177,6 +176,23 @@ Route::middleware(['UserAkses:staff,super_admin'])->group(function() {
     Route::post('/user/getshift',                                   [UserController::class, 'getshift'])->name('sound/getshift');
 });
 
+
+//Approval
+Route::middleware(['UserAkses:staff,super_admin'])->group(function() {
+    Route::get('/approval',                                             [ApprovalController::class, 'index']);
+    Route::get('/approval/datatable',                                   [ApprovalController::class, 'datatable'])->name('approval/datatable');
+    Route::post('/approval/datatable',                                  [ApprovalController::class, 'datatable'])->name('approval/datatable');
+    Route::post('/approval/datatable',                                  [ApprovalController::class, 'datatable'])->name('create');
+    Route::get('/approval/create',                                      [ApprovalController::class, 'create'])->name('create');
+    Route::post('/approval/create',                                     [ApprovalController::class, 'create'])->name('create');
+    Route::get('/approval/update/{id}',                                 [ApprovalController::class, 'update'])->name('update');
+    Route::post('/approval/update/{id}',                                [ApprovalController::class, 'update'])->name('update');
+    Route::get('/approval/updatepassword/{id}',                         [ApprovalController::class, 'updatepassword'])->name('updatepassword');
+    Route::post('/approval/updatepassword/{id}',                        [ApprovalController::class, 'updatepassword'])->name('updatepassword');
+    Route::get('/approval/getshift',                                    [ApprovalController::class, 'getshift'])->name('sound/getshift');
+    Route::post('/approval/getshift',                                   [ApprovalController::class, 'getshift'])->name('sound/getshift');
+});
+
 //PRWAPU
 Route::middleware(['UserAkses:staff,super_admin'])->group(function() {
     // Route::get('/manager',[ManagerController::class, 'index']);
@@ -217,7 +233,6 @@ Route::middleware(['UserAkses:staff,super_admin'])->group(function() {
     Route::post('/pr_wapu/total_cogs',                                 [WapuController::class, 'getTotalCogs']);
 
     Route::get('/pr_wapu/detailUpdate/{id}',                           [WapuController::class, 'detailUpdate'])->name('pr_wapu.detailUpdate');
-    // Route::post('/pr_wapu/detailUpdate/{id}',                       [WapuController::class, 'detailUpdate'])->name('pr_wapu.detailUpdate');
 
     Route::get('/pr_wapu/detailUpdateCogs/{id}',                       [WapuController::class, 'detailUpdateCogs'])->name('pr_wapu/detailUpdateCogs');
     Route::post('/pr_wapu/detailUpdateCogs/{id}',                      [WapuController::class, 'detailUpdateCogs'])->name('pr_wapu/detailUpdateCogs');

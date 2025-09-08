@@ -1055,23 +1055,23 @@ class InvoiceController extends Controller
             // Hitung grand total
             $total_price_numeric = (float) preg_replace('/[^\d]/', '', $value['total_price']);
             $grand_total += $total_price_numeric;
-        
-            
+
+
             if ($this->fpdf->GetY() > 14) {
                 $table->easyCell($i++, 'valign:M;align:C;');
                 // Bagi menjadi dua bagian
-                $part1 = substr($value['partnumber_description'], 0, 845);
-                $part2 = substr($value['partnumber_description'], 845);
-                
+                $part1 = substr($value['partnumber_description'], 0, 1100);
+                $part2 = substr($value['partnumber_description'], 1190);
+
                 // Cetak bagian pertama
                 $table->easyCell($part1, 'valign:M;align:L;');
                 $table->easyCell($value['qty'], 'valign:M;align:C;');
                 $table->easyCell($value['unit_price'], 'valign:M;align:R;');
                 $table->easyCell($value['total_price'], 'valign:M;align:R;');
                 $table->printRow();
-                
+
                 // Cetak bagian kedua
-                $this->fpdf->AddPage('P', 'A4');
+                // $this->fpdf->AddPage('P', 'A4');
                 $table->easyCell('', 'valign:M;align:C;');
                 $table->easyCell($part2, 'valign:M;align:L;');
                 $table->easyCell('', 'valign:M;align:C;');
@@ -1084,8 +1084,8 @@ class InvoiceController extends Controller
                 $table->easyCell($value['unit_price'], 'valign:M;align:R;');
                 $table->easyCell($value['total_price'], 'valign:M;align:R;');
             }
-        
-        
+
+
             // Cetak baris
             $table->printRow();
         }
@@ -1270,7 +1270,7 @@ class InvoiceController extends Controller
         $available_height = 29.7 - $header_height - $client_info_height - 2; // Tinggi A4 - header - client - margin
 
         // Buat tabel dengan auto-sizing
-        $table = new easyTables($this->fpdf, "{2, 17, 2.5, 12, 15}", 'border:1;font-size:9;min-height:0.5;');
+        $table = new easyTables($this->fpdf, "{2, 17, 2.5, 12, 15}", 'border:1;font-size:6.5;');
 
         $table->rowStyle('font-style:B;min-height:0.6;');
         $table->easyCell('NO', 'valign:M;align:C;');
@@ -1289,12 +1289,33 @@ class InvoiceController extends Controller
             $grand_total += $total_price_numeric;
 
             // Gunakan auto-sizing untuk setiap baris
-            $table->rowStyle('min-height:0.5;');
-            $table->easyCell($i++, 'valign:M;align:C;');
-            $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
-            $table->easyCell($value['qty'], 'valign:M;align:C;');
-            $table->easyCell($value['unit_price'], 'valign:M;align:L;');
-            $table->easyCell($value['total_price'], 'valign:M;align:L;');
+            if ($this->fpdf->GetY() > 14) {
+                $table->easyCell($i++, 'valign:M;align:C;');
+                // Bagi menjadi dua bagian
+                $part1 = substr($value['partnumber_description'], 0, 1190);
+                $part2 = substr($value['partnumber_description'], 1190);
+
+                // Cetak bagian pertama
+                $table->easyCell($part1, 'valign:M;align:L;');
+                $table->easyCell($value['qty'], 'valign:M;align:C;');
+                $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                $table->printRow();
+
+                // Cetak bagian kedua
+                $this->fpdf->AddPage('P', 'A4');
+                $table->easyCell('', 'valign:M;align:C;');
+                $table->easyCell($part2, 'valign:M;align:L;');
+                $table->easyCell('', 'valign:M;align:C;');
+                $table->easyCell('', 'valign:M;align:C;');
+                $table->easyCell('', 'valign:M;align:C;');
+            } else {
+                $table->easyCell($i++, 'valign:M;align:C;');
+                $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                $table->easyCell($value['qty'], 'valign:M;align:C;');
+                $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                $table->easyCell($value['total_price'], 'valign:M;align:R;');
+            }
 
             $table->printRow();
         }

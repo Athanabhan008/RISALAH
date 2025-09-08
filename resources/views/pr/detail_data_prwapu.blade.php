@@ -2403,7 +2403,6 @@ function updateIncentiveSales() {
     updateProvitSharingSim();
     updateProvitSharingKeuangan();
     updateTotalProvitSharing();
-
     updatePersentaseIncentive();
 }
 

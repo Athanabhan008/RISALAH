@@ -576,9 +576,17 @@ function viewDatatable() {
         },
         {
             data: "partnumber_description",
-            className: "text-center align-middle"
-        },
-
+            className: "text-left align-middle",
+            render: function(data, type, row) {
+              if (type === 'display') {
+                if (data && data.length > 100) {
+                  return '<span title="' + data + '">' + data.substring(0, 100) + '...</span>';
+                }
+                return data;
+              }
+              return data;
+            }
+          },
         ],createdRow: function (row, data, index) {
             $(row).attr("data-value", encodeURIComponent(JSON.stringify(data)));
             if (data.selected) {
