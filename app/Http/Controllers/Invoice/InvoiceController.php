@@ -5,23 +5,9 @@ namespace App\Http\Controllers\Invoice;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\Cogs;
-use App\Models\PaketSoundsystem;
-use App\Models\SoundSystem;
-use App\Models\DetailSoundSystem;
-use App\Models\Po;
-use App\Models\PrwapuDetail;
 use App\Models\User;
-use App\Models\Vwcogs;
 use App\Models\VwPr;
 use App\Models\vwGetvendorDetailpr;
-use App\Models\VwPo;
-use App\Models\VwPrwapudetail;
-use App\Models\Wapu;
-use App\Models\vwExportPoCv;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use App\Libraries\easyTables;
 use App\Libraries\exFPDF;
 use App\Models\Invoice;
@@ -143,6 +129,7 @@ class InvoiceController extends Controller
             $po->id_sales = $request->cmb_sales;
             $po->id_pr = $request->cmb_pr;
             $po->terbilang = $request->terbilang;
+            $po->alamat = $request->alamat;
             $po->updated_at = null;
             $po->save();
 
@@ -182,7 +169,7 @@ class InvoiceController extends Controller
                 'nomor_pr.unique' => 'Nomor PR sudah digunakan'
             ]);
 
-            $pr_wapu = Wapu::findOrFail($id);
+            $pr_wapu = Invoice::findOrFail($id);
             $pr_wapu->nama_projek = $request->nama_projek;
             // $pr_wapu->nomor_pr = $request->nomor_pr;
             $pr_wapu->save();
@@ -210,7 +197,7 @@ class InvoiceController extends Controller
     public function delete($id)
     {
         try {
-            $pr_wapu = Wapu::findOrFail($id);
+            $pr_wapu = Invoice::findOrFail($id);
             $pr_wapu->delete();
 
             return response()->json([
@@ -303,602 +290,6 @@ class InvoiceController extends Controller
         return $result;
     }
 
-
-        public function detail_data_prwapu(Request $request)
-        {
-            try {
-                // Panggil multiple SP
-                $subtotal = DB::select("CALL sp_subtotal(?)", [$request->id_prwapu]);
-                $subtotal_cogs = DB::select("CALL sp_subtotal_cogs(?)", [$request->id_prwapu]);
-
-                $prwapu = Wapu::findOrFail($request->id_prwapu);
-
-                // Ambil pph_bank_fee dari tabel cogs, bukan dari prwapus
-                $cogs = Cogs::where('id_prwapu', $request->id_prwapu)->first();
-                $pph_bank_fee = $cogs ? $cogs->pph_bank_fee : null;
-
-                // Jika pph_bank_fee kosong, hitung berdasarkan validasi_payment dan subtotal_price
-                if (!$pph_bank_fee && $prwapu->validasi_payment && $prwapu->subtotal_price) {
-                    $pph_bank_fee = $prwapu->subtotal_price - $prwapu->validasi_payment;
-                }
-
-                // Hitung subtotal_price dari data prwapu_detail
-                $subtotalPrice = 0;
-                $prwapuDetails = PrwapuDetail::where('id_prwapu', $request->id_prwapu)->get();
-                foreach ($prwapuDetails as $detail) {
-                    $totalPrice = (int) preg_replace('/[^\d]/', '', $detail->total_price);
-                    $subtotalPrice += $totalPrice;
-                }
-
-                // Hitung subtotal_cost dari data prwapu_detail dan cogs
-                $subtotalCost = 0;
-                foreach ($prwapuDetails as $detail) {
-                    $totalCost = (int) preg_replace('/[^\d]/', '', $detail->total_cost);
-                    $subtotalCost += $totalCost;
-                }
-
-                // Tambahkan total COGS
-                if ($cogs) {
-                    $subtotalCost += ($cogs->expedittion ?? 0) +
-                                    ($cogs->add_insentif_fe001a ?? 0) +
-                                    ($cogs->instalasi_setting ?? 0) +
-                                    ($cogs->pph_bank_fee ?? 0) +
-                                    ($cogs->other ?? 0);
-                }
-
-                // Hitung incentive_sales berdasarkan logika yang sama dengan frontend
-                $incentive_sales = 0;
-                if ($subtotalPrice > 0 && $subtotalCost > 0) {
-                    $subtotalSP2D = $subtotalPrice - $subtotalCost;
-
-                    if ($subtotalCost != 0) {
-                        $totalMarginPercent = ($subtotalSP2D / $subtotalCost) * 100;
-
-                        // Kondisi perhitungan incentive sales berdasarkan total_margin
-                        if ($totalMarginPercent < 10) {
-                            // Jika total_margin < 10%, maka subtotal_sp2d * 6.25%
-                            $incentive_sales = $subtotalSP2D * 0.0625;
-                        } else if ($totalMarginPercent >= 10 && $totalMarginPercent < 15) {
-                            // Jika total_margin >= 10% dan < 15%, maka subtotal_sp2d * 12.5%
-                            $incentive_sales = $subtotalSP2D * 0.125;
-                        } else if ($totalMarginPercent >= 15 && $totalMarginPercent < 20) {
-                            // Jika total_margin >= 15% dan < 20%, maka subtotal_sp2d * 15%
-                            $incentive_sales = $subtotalSP2D * 0.15;
-                        } else if ($totalMarginPercent >= 20) {
-                            // Jika total_margin >= 20%, maka subtotal_sp2d * 20%
-                            $incentive_sales = $subtotalSP2D * 0.20;
-                        }
-                    }
-                }
-
-                return view('pr.detail_data_prwapu', [
-                    'active'=> 'pr_wapu',
-                    'id_prwapu' => $request->id_prwapu,
-                    'subtotal' => $subtotal,
-                    'subtotal_cogs' => $subtotal_cogs,
-                    'validasi_payment' => $prwapu->validasi_payment ?? '',
-                    'pph_bank_fee' => $pph_bank_fee ?? '',
-                    'incentive_sales' => $incentive_sales ?? 0,
-                ]);
-            } catch (\Exception $e) {
-                return redirect()->back()->with('error', 'Gagal memuat data: ' . $e->getMessage());
-            }
-        }
-
-    public function datatabledetail(Request $request,)
-    {
-        $draw = request()->get('draw');
-        $start = request()->get('start');
-        $length = request()->get('length');
-        $id_prwapu = request()->get('id_prwapu');
-
-        $query = VwPrwapudetail::query();
-        $query->where('id_prwapu', $id_prwapu);
-
-        $total = $query->count();
-
-        // Apply pagination
-        $results = $query->offset($start)
-                        ->limit($length)
-                        ->get();
-
-        return response()->json([
-            'draw' => $draw,
-            'recordsTotal' => $total,
-            'recordsFiltered' => $total,
-            'data' => $results
-        ]);
-    }
-
-    public function detailCreate(Request $request)
-    {
-        $user = auth()->user();
-
-        try {
-            $pr_wapu = new PrwapuDetail();
-            $pr_wapu->id_prwapu = $request->id_prwapu;
-            $pr_wapu->jenis_ppn = $request->jenis_ppn;
-            $pr_wapu->partnumber_description = $request->partnumber_description;
-            $pr_wapu->vendor = $request->vendor;
-            $pr_wapu->unit_price = $request->unit_price;
-            $pr_wapu->total_price = $request->total_price;
-            $pr_wapu->qty = $request->qty;
-            $pr_wapu->vendor_price = $request->vendor_price;
-            $pr_wapu->unit_price_cv = $request->unit_price_cv;
-            $pr_wapu->total_po_cv = $request->total_po_cv;
-            $pr_wapu->total_cost = $request->total_cost;
-            $pr_wapu->margin = $request->margin;
-            $pr_wapu->persentase = $request->persentase;
-            $pr_wapu->updated_at = null;
-            $pr_wapu->save();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Data berhasil disimpan',
-                'data' => $pr_wapu
-            ]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validasi gagal',
-                'errors' => $e->errors()
-            ], 422);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menyimpan data',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    public function detailUpdate(Request $request)
-    {
-        try {
-            $pr_wapu = PrwapuDetail::findOrFail($request->id);
-            $pr_wapu->jenis_ppn = $request->jenis_ppn;
-            $pr_wapu->partnumber_description = $request->partnumber_description;
-            $pr_wapu->vendor = $request->vendor;
-            $pr_wapu->unit_price = $request->unit_price;
-            $pr_wapu->total_price = $request->total_price;
-            $pr_wapu->qty = $request->qty;
-            $pr_wapu->vendor_price = $request->vendor_price;
-            $pr_wapu->unit_price_cv = $request->unit_price_cv;
-            $pr_wapu->total_po_cv = $request->total_po_cv;
-            $pr_wapu->total_cost = $request->total_cost;
-            $pr_wapu->margin = $request->margin;
-            $pr_wapu->persentase = $request->persentase;
-            $pr_wapu->save();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Data berhasil diupdate',
-                'data' => $pr_wapu
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal mengupdate data',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    public function deletedetail($id)
-    {
-        try {
-            $pr_wapu = PrwapuDetail::findOrFail($id);
-            $pr_wapu->delete();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Data berhasil dihapus'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menghapus data',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    public function getSubtotal(Request $request)
-    {
-        try {
-            $vid = $request->get('vid');
-            $subtotal = DB::select("CALL sp_subtotal(?)", [$vid]);
-
-            return response()->json([
-                'success' => true,
-                'data' => $subtotal
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal mengambil subtotal',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-
-    public function datatabledetailcogs(Request $request,)
-    {
-        $draw = request()->get('draw');
-        $start = request()->get('start');
-        $length = request()->get('length');
-        $id_prwapu = request()->get('id_prwapu');
-
-        $query = Vwcogs::query();
-        $query->where('id_prwapu', $id_prwapu);
-
-        $total = $query->count();
-
-        // Apply pagination
-        $results = $query->offset($start)
-                        ->limit($length)
-                        ->get();
-
-        return response()->json([
-            'draw' => $draw,
-            'recordsTotal' => $total,
-            'recordsFiltered' => $total,
-            'data' => $results
-        ]);
-    }
-
-    public function createCogs(Request $request)
-    {
-        $user = auth()->user();
-
-        try {
-            $pr_wapu = new Cogs();
-            $pr_wapu->id_prwapu = $request->id_prwapu;
-            $pr_wapu->expedittion = $request->expedittion;
-            $pr_wapu->add_insentif_fe001a = $request->add_insentif_fe001a;
-            $pr_wapu->instalasi_setting = $request->instalasi_setting;
-            $pr_wapu->other = $request->other;
-            $pr_wapu->updated_at = null;
-            $pr_wapu->save();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Data berhasil disimpan',
-                'data' => $pr_wapu
-            ]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validasi gagal',
-                'errors' => $e->errors()
-            ], 422);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menyimpan data',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    public function updateTotalPpn(Request $request)
-    {
-        $request->validate([
-            'id_prwapu' => 'required|exists:prwapus,id',
-        ]);
-
-        // Hilangkan format Rp dan titik pada input, pastikan hasilnya integer
-        $subtotal_price = (int) preg_replace('/[^\d]/', '', $request->subtotal_price);
-        $validasi_payment = (int) preg_replace('/[^\d]/', '', $request->validasi_payment);
-        $jumlah_ppn = (int) preg_replace('/[^\d]/', '', $request->jumlah_ppn);
-        $total_vat = (int) preg_replace('/[^\d]/', '', $request->total_vat);
-
-        $prwapu = Wapu::findOrFail($request->id_prwapu);
-        $prwapu->subtotal_price = $subtotal_price;
-        $prwapu->validasi_payment = $validasi_payment;
-        $prwapu->jumlah_ppn = $jumlah_ppn;
-        $prwapu->total_vat = $total_vat;
-        $prwapu->save();
-
-        // Jika ingin redirect (seperti sekarang)
-        return redirect()->back()->with('success', 'Data berhasil diupdate!');
-
-        // Jika ingin response JSON (uncomment jika perlu)
-        /*
-        return response()->json([
-            'success' => true,
-            'message' => 'Data berhasil diupdate!',
-            'data' => [
-                'total_po_ppn' => $prwapu->total_po_ppn,
-                'total_cost_ppn' => $prwapu->total_cost_ppn,
-                'total_margin_ppn' => $prwapu->total_margin_ppn,
-            ]
-        ]);
-        */
-    }
-
-
-
-    public function updateTotalPO(Request $request)
-    {
-        $request->validate([
-            'id_prwapu' => 'required|exists:prwapus,id',
-            'total_po_ppn' => 'required',
-            'total_cost_ppn' => 'required',
-            'total_margin_ppn' => 'required',
-        ]);
-
-        // Hilangkan format Rp dan titik pada input, pastikan hasilnya integer
-        $total_po_ppn = (int) preg_replace('/[^\d]/', '', $request->total_po_ppn);
-        $total_cost_ppn = (int) preg_replace('/[^\d]/', '', $request->total_cost_ppn);
-        $total_margin_ppn = (int) preg_replace('/[^\d]/', '', $request->total_margin_ppn);
-        $total_po_non_ppn = (int) preg_replace('/[^\d]/', '', $request->total_po_non_ppn);
-        $total_cost_non_ppn = (int) preg_replace('/[^\d]/', '', $request->total_cost_non_ppn);
-        $total_margin_non_ppn = (int) preg_replace('/[^\d]/', '', $request->total_margin_non_ppn);
-        $subtotal_po_cv = (int) preg_replace('/[^\d]/', '', $request->subtotal_po_cv);
-        $subtotal_po_cost_cv = (int) preg_replace('/[^\d]/', '', $request->subtotal_po_cost_cv);
-        $subtotal_margin_cv = (int) preg_replace('/[^\d]/', '', $request->subtotal_margin_cv);
-        $subtotal_persentase_cv = (int) preg_replace('/[^\d]/', '', $request->subtotal_persentase_cv);
-
-        $prwapu = Wapu::findOrFail($request->id_prwapu);
-        $prwapu->total_po_ppn = $total_po_ppn;
-        $prwapu->total_cost_ppn = $total_cost_ppn;
-        $prwapu->total_margin_ppn = $total_margin_ppn;
-        $prwapu->total_po_non_ppn = $total_po_non_ppn;
-        $prwapu->total_cost_non_ppn = $total_cost_non_ppn;
-        $prwapu->total_margin_non_ppn = $total_margin_non_ppn;
-        $prwapu->subtotal_po_cv = $subtotal_po_cv;
-        $prwapu->subtotal_po_cost_cv = $subtotal_po_cost_cv;
-        $prwapu->subtotal_margin_cv = $subtotal_margin_cv;
-        $prwapu->subtotal_persentase_cv = $subtotal_persentase_cv;
-        $prwapu->save();
-
-        // Jika ingin redirect (seperti sekarang)
-        return redirect()->back()->with('success', 'Data berhasil diupdate!');
-
-        // Jika ingin response JSON (uncomment jika perlu)
-        /*
-        return response()->json([
-            'success' => true,
-            'message' => 'Data berhasil diupdate!',
-            'data' => [
-                'total_po_ppn' => $prwapu->total_po_ppn,
-                'total_cost_ppn' => $prwapu->total_cost_ppn,
-                'total_margin_ppn' => $prwapu->total_margin_ppn,
-            ]
-        ]);
-        */
-    }
-
-
-
-
-    public function updateValidasi(Request $request)
-    {
-        $request->validate([
-            'id_prwapu' => 'required|exists:prwapus,id',
-            'total_po_ppn' => 'required',
-            'total_cost_ppn' => 'required',
-            'total_margin_ppn' => 'required',
-        ]);
-
-        // Hilangkan format Rp dan titik pada input, pastikan hasilnya integer
-        $pph_bank_fee = (int) preg_replace('/[^\d]/', '', $request->pph_bank_fee);
-
-        $prwapu = Wapu::findOrFail($request->id_prwapu);
-        $prwapu->pph_bank_fee = $pph_bank_fee;
-
-        $prwapu->save();
-
-        // Jika ingin redirect (seperti sekarang)
-        return redirect()->back()->with('success', 'Data berhasil diupdate!');
-
-        // Jika ingin response JSON (uncomment jika perlu)
-        /*
-        return response()->json([
-            'success' => true,
-            'message' => 'Data berhasil diupdate!',
-            'data' => [
-                'total_po_ppn' => $prwapu->total_po_ppn,
-                'total_cost_ppn' => $prwapu->total_cost_ppn,
-                'total_margin_ppn' => $prwapu->total_margin_ppn,
-            ]
-        ]);
-        */
-    }
-
-    public function updateValidasiPayment(Request $request)
-    {
-        try {
-            $request->validate([
-                'id_prwapu' => 'required|exists:prwapus,id',
-                'validasi_payment' => 'nullable',
-                'pph_bank_fee' => 'nullable',
-            ]);
-
-            // Clean and parse the input values
-            $validasiPayment = $request->validasi_payment;
-            $pphBankFee = $request->pph_bank_fee;
-
-            // Remove Rp and dots from validasi_payment if it's not empty
-            if (!empty($validasiPayment) && $validasiPayment !== '-') {
-                $validasiPayment = (int) preg_replace('/[^\d]/', '', $validasiPayment);
-            } else {
-                $validasiPayment = null;
-            }
-
-            // Remove Rp and dots from pph_bank_fee if it's not empty
-            if (!empty($pphBankFee) && $pphBankFee !== '-') {
-                $pphBankFee = (int) preg_replace('/[^\d]/', '', $pphBankFee);
-            } else {
-                $pphBankFee = null;
-            }
-
-            // Update prwapus table (validasi_payment)
-            $prwapu = Wapu::findOrFail($request->id_prwapu);
-            $prwapu->validasi_payment = $validasiPayment;
-            $prwapu->save();
-
-            // Update cogs table (pph_bank_fee)
-            $cogs = Cogs::where('id_prwapu', $request->id_prwapu)->first();
-            if ($cogs) {
-                $cogs->pph_bank_fee = $pphBankFee;
-                $cogs->save();
-            }
-
-            // Hitung subtotal_price dari data prwapu_detail
-            $subtotalPrice = 0;
-            $prwapuDetails = PrwapuDetail::where('id_prwapu', $request->id_prwapu)->get();
-            foreach ($prwapuDetails as $detail) {
-                $totalPrice = (int) preg_replace('/[^\d]/', '', $detail->total_price);
-                $subtotalPrice += $totalPrice;
-            }
-
-            // Hitung subtotal_cost dari data prwapu_detail dan cogs
-            $subtotalCost = 0;
-            foreach ($prwapuDetails as $detail) {
-                $totalCost = (int) preg_replace('/[^\d]/', '', $detail->total_cost);
-                $subtotalCost += $totalCost;
-            }
-
-            // Tambahkan total COGS
-            if ($cogs) {
-                $subtotalCost += ($cogs->expedittion ?? 0) +
-                                ($cogs->add_insentif_fe001a ?? 0) +
-                                ($cogs->instalasi_setting ?? 0) +
-                                ($cogs->pph_bank_fee ?? 0) +
-                                ($cogs->other ?? 0);
-            }
-
-            // Hitung incentive_sales berdasarkan logika yang ada di frontend
-            $incentiveSales = 0;
-            if ($subtotalPrice > 0 && $subtotalCost > 0) {
-                $subtotalSP2D = $subtotalPrice - $subtotalCost;
-
-                if ($subtotalCost != 0) {
-                    $totalMarginPercent = ($subtotalSP2D / $subtotalCost) * 100;
-
-                    // Kondisi perhitungan incentive sales berdasarkan total_margin
-                    if ($totalMarginPercent < 10) {
-                        // Jika total_margin < 10%, maka subtotal_sp2d * 6.25%
-                        $incentiveSales = $subtotalSP2D * 0.0625;
-                    } else if ($totalMarginPercent >= 10 && $totalMarginPercent < 15) {
-                        // Jika total_margin >= 10% dan < 15%, maka subtotal_sp2d * 12.5%
-                        $incentiveSales = $subtotalSP2D * 0.125;
-                    } else if ($totalMarginPercent >= 15 && $totalMarginPercent < 20) {
-                        // Jika total_margin >= 15% dan < 20%, maka subtotal_sp2d * 15%
-                        $incentiveSales = $subtotalSP2D * 0.15;
-                    } else if ($totalMarginPercent >= 20) {
-                        // Jika total_margin >= 20%, maka subtotal_sp2d * 20%
-                        $incentiveSales = $subtotalSP2D * 0.20;
-                    }
-                }
-            }
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Data berhasil diupdate!',
-                'validasi_payment' => $validasiPayment,
-                'pph_bank_fee' => $pphBankFee,
-                'incentive_sales' => $incentiveSales
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal mengupdate data',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    public function getTotalCogs(Request $request)
-    {
-        try {
-            $id_prwapu = $request->input('id_prwapu');
-
-            if (!$id_prwapu) {
-                return response()->json(['total_cogs' => 0]);
-            }
-
-            $result = DB::select("CALL sp_subtotal_cogs(?)", [$id_prwapu]);
-
-            // Ambil total dari hasil stored procedure
-            $total = 0;
-            if (!empty($result)) {
-                $total = $result[0]->subtotal_cogs ?? $result[0]->total_cogs ?? 0;
-            }
-
-            return response()->json(['total_cogs' => $total]);
-        } catch (\Exception $e) {
-            Log::error('Error in getTotalCogs: ' . $e->getMessage());
-            return response()->json(['total_cogs' => 0]);
-        }
-    }
-
-    public function updateIncentive(Request $request)
-    {
-        try {
-            $request->validate([
-                'id_prwapu' => 'required|exists:prwapus,id',
-                // validasi lain jika perlu
-            ]);
-
-            $id = $request->input('id_prwapu');
-            $prwapu = Wapu::findOrFail($id);
-
-            $parseRupiah = function($val) {
-                return (int) preg_replace('/[^\d]/', '', $val ?? '0');
-            };
-
-            // $prwapu->angka = $parseRupiah($request->input('angka'));
-            $prwapu->persentase_incentive = $request->input('persentase_incentive');
-            $prwapu->incentive_fe001a = $parseRupiah($request->input('incentive_fe001a'));
-            $prwapu->persentase_fe001a = $request->input('persentase_fe001a');
-            $prwapu->approval = $request->input('approval');
-            $prwapu->status = $request->input('status');
-            $prwapu->save();
-
-            return response()->json(['message' => 'Data berhasil diupdate!']);
-        } catch (\Exception $e) {
-            // Log error dan return response error
-            Log::error($e);
-            return response()->json(['message' => 'Gagal update data', 'error' => $e->getMessage()], 500);
-        }
-    }
-
-
-    public function detailUpdateCogs(Request $request, $id)
-    {
-        try {
-            $non_ppn = Cogs::findOrFail($id);
-            $non_ppn->expedittion = $request->expedittion;
-            $non_ppn->add_insentif_fe001a = $request->add_insentif_fe001a;
-            $non_ppn->instalasi_setting = $request->instalasi_setting;
-            $non_ppn->other = $request->other;
-            $non_ppn->save();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Data berhasil diupdate',
-                'data' => $non_ppn
-            ]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validasi gagal',
-                'errors' => $e->errors()
-            ], 422);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal mengupdate data',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
     private function formatDateIndonesian($date = null)
     {
         if ($date === null) {
@@ -988,7 +379,7 @@ class InvoiceController extends Controller
 
 
 		// $this->fpdf->Line(1, 2.8, 20, 2.8);
-		$this->fpdf->Ln(3.5);
+		$this->fpdf->Ln(4.3);
 
 
 
@@ -1036,10 +427,10 @@ class InvoiceController extends Controller
 		// $this->fpdf->Ln(0.8);
         // $this->fpdf->Cell(10.2, 0.5, "Date", 0, 0, 'R');
         // $this->fpdf->Cell(2.6, 0.5, ":", 0, 0, 'R');
-		$this->fpdf->Ln(0.5);
+		// $this->fpdf->Ln(0.1);
 
         // Buat tabel dengan auto-sizing
-        $table = new easyTables($this->fpdf, "{2, 17, 2.5, 12, 15}", 'border:1;font-size:6.5;');
+        $table = new easyTables($this->fpdf, "{2, 17, 2.5, 12, 15}", 'border:1;font-size:7.9;');
 
         $table->rowStyle('font-style:B;');
         $table->easyCell('NO', 'valign:M;align:C;');
@@ -1056,27 +447,191 @@ class InvoiceController extends Controller
             $total_price_numeric = (float) preg_replace('/[^\d]/', '', $value['total_price']);
             $grand_total += $total_price_numeric;
 
+            $dsc = strlen($value['partnumber_description']);
 
-            if ($this->fpdf->GetY() > 14) {
-                $table->easyCell($i++, 'valign:M;align:C;');
-                // Bagi menjadi dua bagian
-                $part1 = substr($value['partnumber_description'], 0, 1100);
-                $part2 = substr($value['partnumber_description'], 1190);
+            if ($this->fpdf->GetY() > 27) {
+                if ($dsc > 100) {
+                    $table->easyCell($i++, 'valign:M;align:C;');
+                    // Bagi menjadi dua bagian
+                    $part1 = substr($value['partnumber_description'], 0, 100);
+                    $part2 = substr($value['partnumber_description'], 100);
 
-                // Cetak bagian pertama
-                $table->easyCell($part1, 'valign:M;align:L;');
-                $table->easyCell($value['qty'], 'valign:M;align:C;');
-                $table->easyCell($value['unit_price'], 'valign:M;align:R;');
-                $table->easyCell($value['total_price'], 'valign:M;align:R;');
-                $table->printRow();
+                    // Cetak bagian pertama
+                    $table->easyCell($part1, 'valign:M;align:L;');
+                    $table->easyCell($value['qty'], 'valign:M;align:C;');
+                    $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                    $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                    $table->printRow();
 
-                // Cetak bagian kedua
-                // $this->fpdf->AddPage('P', 'A4');
-                $table->easyCell('', 'valign:M;align:C;');
-                $table->easyCell($part2, 'valign:M;align:L;');
-                $table->easyCell('', 'valign:M;align:C;');
-                $table->easyCell('', 'valign:M;align:C;');
-                $table->easyCell('', 'valign:M;align:C;');
+                    // Cetak bagian kedua
+                    // $this->fpdf->AddPage('P', 'A4');
+                    $table->easyCell('', 'valign:M;align:C;');
+                    $table->easyCell($part2, 'valign:M;align:L;');
+                    $table->easyCell('', 'valign:M;align:C;');
+                    $table->easyCell('', 'valign:M;align:C;');
+                    $table->easyCell('', 'valign:M;align:C;');
+                } else {
+                    if ($this->fpdf->GetY() > 25) {
+                        if ($dsc > 500) {
+                            $table->easyCell($i++, 'valign:M;align:C;');
+                            // Bagi menjadi dua bagian
+                            $part1 = substr($value['partnumber_description'], 0, 500);
+                            $part2 = substr($value['partnumber_description'], 500);
+
+                            // Cetak bagian pertama
+                            $table->easyCell($part1, 'valign:M;align:L;');
+                            $table->easyCell($value['qty'], 'valign:M;align:C;');
+                            $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                            $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                            $table->printRow();
+
+                            // Cetak bagian kedua
+                            // $this->fpdf->AddPage('P', 'A4');
+                            $table->easyCell('', 'valign:M;align:C;');
+                            $table->easyCell($part2, 'valign:M;align:L;');
+                            $table->easyCell('', 'valign:M;align:C;');
+                            $table->easyCell('', 'valign:M;align:C;');
+                            $table->easyCell('', 'valign:M;align:C;');
+                        } else {
+                            $table->easyCell($i++, 'valign:M;align:C;');
+                            $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                            $table->easyCell($value['qty'], 'valign:M;align:C;');
+                            $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                            $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                        }
+
+                    } else {
+                        if ($this->fpdf->GetY() > 23) {
+                            if ($dsc > 900) {
+                                $table->easyCell($i++, 'valign:M;align:C;');
+                                // Bagi menjadi dua bagian
+                                $part1 = substr($value['partnumber_description'], 0, 900);
+                                $part2 = substr($value['partnumber_description'], 900);
+
+                                // Cetak bagian pertama
+                                $table->easyCell($part1, 'valign:M;align:L;');
+                                $table->easyCell($value['qty'], 'valign:M;align:C;');
+                                $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                                $table->printRow();
+
+                                // Cetak bagian kedua
+                                // $this->fpdf->AddPage('P', 'A4');
+                                $table->easyCell('', 'valign:M;align:C;');
+                                $table->easyCell($part2, 'valign:M;align:L;');
+                                $table->easyCell('', 'valign:M;align:C;');
+                                $table->easyCell('', 'valign:M;align:C;');
+                                $table->easyCell('', 'valign:M;align:C;');
+                            } else {
+                                $table->easyCell($i++, 'valign:M;align:C;');
+                                $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                                $table->easyCell($value['qty'], 'valign:M;align:C;');
+                                $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                            }
+
+                        } else {
+                            if ($this->fpdf->GetY() > 21) {
+                                if ($dsc > 1100) {
+                                    $table->easyCell($i++, 'valign:M;align:C;');
+                                    // Bagi menjadi dua bagian
+                                    $part1 = substr($value['partnumber_description'], 0, 1100);
+                                    $part2 = substr($value['partnumber_description'], 1100);
+
+                                    // Cetak bagian pertama
+                                    $table->easyCell($part1, 'valign:M;align:L;');
+                                    $table->easyCell($value['qty'], 'valign:M;align:C;');
+                                    $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                    $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                                    $table->printRow();
+
+                                    // Cetak bagian kedua
+                                    // $this->fpdf->AddPage('P', 'A4');
+                                    $table->easyCell('', 'valign:M;align:C;');
+                                    $table->easyCell($part2, 'valign:M;align:L;');
+                                    $table->easyCell('', 'valign:M;align:C;');
+                                    $table->easyCell('', 'valign:M;align:C;');
+                                    $table->easyCell('', 'valign:M;align:C;');
+                                } else {
+                                    $table->easyCell($i++, 'valign:M;align:C;');
+                                    $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                                    $table->easyCell($value['qty'], 'valign:M;align:C;');
+                                    $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                    $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                                }
+
+                            } else {
+                                if ($this->fpdf->GetY() > 19) {
+                                    if ($dsc > 1500) {
+                                        $table->easyCell($i++, 'valign:M;align:C;');
+                                        // Bagi menjadi dua bagian
+                                        $part1 = substr($value['partnumber_description'], 0, 1500);
+                                        $part2 = substr($value['partnumber_description'], 1500);
+
+                                        // Cetak bagian pertama
+                                        $table->easyCell($part1, 'valign:M;align:L;');
+                                        $table->easyCell($value['qty'], 'valign:M;align:C;');
+                                        $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                        $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                                        $table->printRow();
+
+                                        // Cetak bagian kedua
+                                        // $this->fpdf->AddPage('P', 'A4');
+                                        $table->easyCell('', 'valign:M;align:C;');
+                                        $table->easyCell($part2, 'valign:M;align:L;');
+                                        $table->easyCell('', 'valign:M;align:C;');
+                                        $table->easyCell('', 'valign:M;align:C;');
+                                        $table->easyCell('', 'valign:M;align:C;');
+                                    } else {
+                                        $table->easyCell($i++, 'valign:M;align:C;');
+                                        $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                                        $table->easyCell($value['qty'], 'valign:M;align:C;');
+                                        $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                        $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                                    }
+
+                                } else {
+                                    if ($this->fpdf->GetY() > 17) {
+                                        if ($dsc > 1800) {
+                                            $table->easyCell($i++, 'valign:M;align:C;');
+                                            // Bagi menjadi dua bagian
+                                            $part1 = substr($value['partnumber_description'], 0, 1800);
+                                            $part2 = substr($value['partnumber_description'], 1800);
+
+                                            // Cetak bagian pertama
+                                            $table->easyCell($part1, 'valign:M;align:L;');
+                                            $table->easyCell($value['qty'], 'valign:M;align:C;');
+                                            $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                            $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                                            $table->printRow();
+
+                                            // Cetak bagian kedua
+                                            // $this->fpdf->AddPage('P', 'A4');
+                                            $table->easyCell('', 'valign:M;align:C;');
+                                            $table->easyCell($part2, 'valign:M;align:L;');
+                                            $table->easyCell('', 'valign:M;align:C;');
+                                            $table->easyCell('', 'valign:M;align:C;');
+                                            $table->easyCell('', 'valign:M;align:C;');
+                                        } else {
+                                            $table->easyCell($i++, 'valign:M;align:C;');
+                                            $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                                            $table->easyCell($value['qty'], 'valign:M;align:C;');
+                                            $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                            $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                                        }
+
+                                    } else {
+                                        $table->easyCell($i++, 'valign:M;align:C;');
+                                        $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                                        $table->easyCell($value['qty'], 'valign:M;align:C;');
+                                        $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                        $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             } else {
                 $table->easyCell($i++, 'valign:M;align:C;');
                 $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
@@ -1098,8 +653,8 @@ class InvoiceController extends Controller
 
 
         // print_r($this->fpdf->GetY());die;
-        if ($this->fpdf->GetY() > 19.21) {
-            // $this->fpdf->AddPage('P', 'A4');
+        if ($this->fpdf->GetY() > 20.56) {
+            $this->fpdf->AddPage('P', 'A4');
         }
 
 
@@ -1270,9 +825,9 @@ class InvoiceController extends Controller
         $available_height = 29.7 - $header_height - $client_info_height - 2; // Tinggi A4 - header - client - margin
 
         // Buat tabel dengan auto-sizing
-        $table = new easyTables($this->fpdf, "{2, 17, 2.5, 12, 15}", 'border:1;font-size:6.5;');
+        $table = new easyTables($this->fpdf, "{2, 17, 2.5, 12, 15}", 'border:1;font-size:7.9;');
 
-        $table->rowStyle('font-style:B;min-height:0.6;');
+        $table->rowStyle('font-style:B;');
         $table->easyCell('NO', 'valign:M;align:C;');
         $table->easyCell('Description', 'valign:M;align:C;');
         $table->easyCell('QTY', 'valign:M;align:C;');
@@ -1283,32 +838,195 @@ class InvoiceController extends Controller
         $i = 1;
         $grand_total = 0; // Initialize grand total
         foreach ($data_result as $value) {
-            // Calculate grand total by summing total_price
-            // Remove any currency formatting and convert to numeric value
+            // Hitung grand total
             $total_price_numeric = (float) preg_replace('/[^\d]/', '', $value['total_price']);
             $grand_total += $total_price_numeric;
 
-            // Gunakan auto-sizing untuk setiap baris
-            if ($this->fpdf->GetY() > 14) {
-                $table->easyCell($i++, 'valign:M;align:C;');
-                // Bagi menjadi dua bagian
-                $part1 = substr($value['partnumber_description'], 0, 1190);
-                $part2 = substr($value['partnumber_description'], 1190);
+            $dsc = strlen($value['partnumber_description']);
 
-                // Cetak bagian pertama
-                $table->easyCell($part1, 'valign:M;align:L;');
-                $table->easyCell($value['qty'], 'valign:M;align:C;');
-                $table->easyCell($value['unit_price'], 'valign:M;align:R;');
-                $table->easyCell($value['total_price'], 'valign:M;align:R;');
-                $table->printRow();
+            if ($this->fpdf->GetY() > 27) {
+                if ($dsc > 100) {
+                    $table->easyCell($i++, 'valign:M;align:C;');
+                    // Bagi menjadi dua bagian
+                    $part1 = substr($value['partnumber_description'], 0, 100);
+                    $part2 = substr($value['partnumber_description'], 100);
 
-                // Cetak bagian kedua
-                $this->fpdf->AddPage('P', 'A4');
-                $table->easyCell('', 'valign:M;align:C;');
-                $table->easyCell($part2, 'valign:M;align:L;');
-                $table->easyCell('', 'valign:M;align:C;');
-                $table->easyCell('', 'valign:M;align:C;');
-                $table->easyCell('', 'valign:M;align:C;');
+                    // Cetak bagian pertama
+                    $table->easyCell($part1, 'valign:M;align:L;');
+                    $table->easyCell($value['qty'], 'valign:M;align:C;');
+                    $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                    $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                    $table->printRow();
+
+                    // Cetak bagian kedua
+                    // $this->fpdf->AddPage('P', 'A4');
+                    $table->easyCell('', 'valign:M;align:C;');
+                    $table->easyCell($part2, 'valign:M;align:L;');
+                    $table->easyCell('', 'valign:M;align:C;');
+                    $table->easyCell('', 'valign:M;align:C;');
+                    $table->easyCell('', 'valign:M;align:C;');
+                } else {
+                    if ($this->fpdf->GetY() > 25) {
+                        if ($dsc > 500) {
+                            $table->easyCell($i++, 'valign:M;align:C;');
+                            // Bagi menjadi dua bagian
+                            $part1 = substr($value['partnumber_description'], 0, 500);
+                            $part2 = substr($value['partnumber_description'], 500);
+
+                            // Cetak bagian pertama
+                            $table->easyCell($part1, 'valign:M;align:L;');
+                            $table->easyCell($value['qty'], 'valign:M;align:C;');
+                            $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                            $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                            $table->printRow();
+
+                            // Cetak bagian kedua
+                            // $this->fpdf->AddPage('P', 'A4');
+                            $table->easyCell('', 'valign:M;align:C;');
+                            $table->easyCell($part2, 'valign:M;align:L;');
+                            $table->easyCell('', 'valign:M;align:C;');
+                            $table->easyCell('', 'valign:M;align:C;');
+                            $table->easyCell('', 'valign:M;align:C;');
+                        } else {
+                            $table->easyCell($i++, 'valign:M;align:C;');
+                            $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                            $table->easyCell($value['qty'], 'valign:M;align:C;');
+                            $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                            $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                        }
+
+                    } else {
+                        if ($this->fpdf->GetY() > 23) {
+                            if ($dsc > 900) {
+                                $table->easyCell($i++, 'valign:M;align:C;');
+                                // Bagi menjadi dua bagian
+                                $part1 = substr($value['partnumber_description'], 0, 900);
+                                $part2 = substr($value['partnumber_description'], 900);
+
+                                // Cetak bagian pertama
+                                $table->easyCell($part1, 'valign:M;align:L;');
+                                $table->easyCell($value['qty'], 'valign:M;align:C;');
+                                $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                                $table->printRow();
+
+                                // Cetak bagian kedua
+                                // $this->fpdf->AddPage('P', 'A4');
+                                $table->easyCell('', 'valign:M;align:C;');
+                                $table->easyCell($part2, 'valign:M;align:L;');
+                                $table->easyCell('', 'valign:M;align:C;');
+                                $table->easyCell('', 'valign:M;align:C;');
+                                $table->easyCell('', 'valign:M;align:C;');
+                            } else {
+                                $table->easyCell($i++, 'valign:M;align:C;');
+                                $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                                $table->easyCell($value['qty'], 'valign:M;align:C;');
+                                $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                            }
+
+                        } else {
+                            if ($this->fpdf->GetY() > 21) {
+                                if ($dsc > 1100) {
+                                    $table->easyCell($i++, 'valign:M;align:C;');
+                                    // Bagi menjadi dua bagian
+                                    $part1 = substr($value['partnumber_description'], 0, 1100);
+                                    $part2 = substr($value['partnumber_description'], 1100);
+
+                                    // Cetak bagian pertama
+                                    $table->easyCell($part1, 'valign:M;align:L;');
+                                    $table->easyCell($value['qty'], 'valign:M;align:C;');
+                                    $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                    $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                                    $table->printRow();
+
+                                    // Cetak bagian kedua
+                                    // $this->fpdf->AddPage('P', 'A4');
+                                    $table->easyCell('', 'valign:M;align:C;');
+                                    $table->easyCell($part2, 'valign:M;align:L;');
+                                    $table->easyCell('', 'valign:M;align:C;');
+                                    $table->easyCell('', 'valign:M;align:C;');
+                                    $table->easyCell('', 'valign:M;align:C;');
+                                } else {
+                                    $table->easyCell($i++, 'valign:M;align:C;');
+                                    $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                                    $table->easyCell($value['qty'], 'valign:M;align:C;');
+                                    $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                    $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                                }
+
+                            } else {
+                                if ($this->fpdf->GetY() > 19) {
+                                    if ($dsc > 1500) {
+                                        $table->easyCell($i++, 'valign:M;align:C;');
+                                        // Bagi menjadi dua bagian
+                                        $part1 = substr($value['partnumber_description'], 0, 1500);
+                                        $part2 = substr($value['partnumber_description'], 1500);
+
+                                        // Cetak bagian pertama
+                                        $table->easyCell($part1, 'valign:M;align:L;');
+                                        $table->easyCell($value['qty'], 'valign:M;align:C;');
+                                        $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                        $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                                        $table->printRow();
+
+                                        // Cetak bagian kedua
+                                        // $this->fpdf->AddPage('P', 'A4');
+                                        $table->easyCell('', 'valign:M;align:C;');
+                                        $table->easyCell($part2, 'valign:M;align:L;');
+                                        $table->easyCell('', 'valign:M;align:C;');
+                                        $table->easyCell('', 'valign:M;align:C;');
+                                        $table->easyCell('', 'valign:M;align:C;');
+                                    } else {
+                                        $table->easyCell($i++, 'valign:M;align:C;');
+                                        $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                                        $table->easyCell($value['qty'], 'valign:M;align:C;');
+                                        $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                        $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                                    }
+
+                                } else {
+                                    if ($this->fpdf->GetY() > 17) {
+                                        if ($dsc > 1800) {
+                                            $table->easyCell($i++, 'valign:M;align:C;');
+                                            // Bagi menjadi dua bagian
+                                            $part1 = substr($value['partnumber_description'], 0, 1800);
+                                            $part2 = substr($value['partnumber_description'], 1800);
+
+                                            // Cetak bagian pertama
+                                            $table->easyCell($part1, 'valign:M;align:L;');
+                                            $table->easyCell($value['qty'], 'valign:M;align:C;');
+                                            $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                            $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                                            $table->printRow();
+
+                                            // Cetak bagian kedua
+                                            // $this->fpdf->AddPage('P', 'A4');
+                                            $table->easyCell('', 'valign:M;align:C;');
+                                            $table->easyCell($part2, 'valign:M;align:L;');
+                                            $table->easyCell('', 'valign:M;align:C;');
+                                            $table->easyCell('', 'valign:M;align:C;');
+                                            $table->easyCell('', 'valign:M;align:C;');
+                                        } else {
+                                            $table->easyCell($i++, 'valign:M;align:C;');
+                                            $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                                            $table->easyCell($value['qty'], 'valign:M;align:C;');
+                                            $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                            $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                                        }
+
+                                    } else {
+                                        $table->easyCell($i++, 'valign:M;align:C;');
+                                        $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                                        $table->easyCell($value['qty'], 'valign:M;align:C;');
+                                        $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                        $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             } else {
                 $table->easyCell($i++, 'valign:M;align:C;');
                 $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
@@ -1317,30 +1035,24 @@ class InvoiceController extends Controller
                 $table->easyCell($value['total_price'], 'valign:M;align:R;');
             }
 
+
+            // Cetak baris
             $table->printRow();
         }
 
         // End table dan dapatkan posisi Y setelah tabel
-        $table->endTable(1);
+        $table->endTable(0);
         $current_y = $this->fpdf->GetY();
 
-        // Hitung ruang yang tersisa untuk footer
-        $footer_start_y = $current_y + 1;
-        $page_height = 29.7; // Tinggi A4 dalam cm
-        $footer_height = $page_height - $footer_start_y;
 
-        // Jika footer terlalu dekat dengan tabel, tambah halaman baru
-        if ($footer_height < 6) {
+
+
+        // print_r($this->fpdf->GetY());die;
+        if ($this->fpdf->GetY() > 20.56) {
             $this->fpdf->AddPage('P', 'A4');
-            $footer_start_y = 2; // Mulai dari atas halaman baru
         }
 
-        $this->fpdf->SetY($footer_start_y);
 
-        // Footer content dengan posisi yang dinamis
-        $this->fpdf->SetLineWidth(0.1);
-        $this->fpdf->Line(1, $footer_start_y, 20, $footer_start_y);
-        $this->fpdf->SetLineWidth(0);
         $this->fpdf->Ln(1);
 
         $this->fpdf->SetFont('Arial', 'B', 8);
@@ -1349,14 +1061,16 @@ class InvoiceController extends Controller
         $this->fpdf->Ln(0.8);
 
         $this->fpdf->SetFont('Arial', 'B', 8);
-        $this->fpdf->Cell(14.7, 0, "PPN 11% :", 0, 0, 'R');
-        $this->fpdf->Cell(2.7, 0, number_format($data_result[0]['jumlah_ppn'], 0, ',', ','), 0, 0, 'R');
+        $this->fpdf->Cell(14.6, 0, "PPN 11% :", 0, 0, 'R');
+        $this->fpdf->Cell(2.9, 0, number_format($data_result[0]['jumlah_ppn'], 0, ',', ','), 0, 0, 'R');
         $this->fpdf->Ln(0.8);
 
         $this->fpdf->SetFont('Arial', 'B', 8);
         $this->fpdf->Cell(14.7, 0, "Grand Total :", 0, 0, 'R');
-        $this->fpdf->Cell(2.5, 0, number_format($data_result[0]['total_vat'], 0, ',', ','), 0, 0, 'R');
+        $this->fpdf->Cell(2.8, 0, number_format($data_result[0]['total_vat'], 0, ',', ','), 0, 0, 'R');
         $this->fpdf->Ln(0.8);
+
+
 
         $this->fpdf->SetFont('Arial', 'B', 10);
         $this->fpdf->Cell(12, 0, "Terbilang :", 0, 0, 'L');
@@ -1372,22 +1086,18 @@ class InvoiceController extends Controller
 
         $this->fpdf->SetFont('Arial', 'B',7);
         $this->fpdf->Cell(5, 0.5, "A/C: 13000.91.333222", 0, 0, 'L');
-        $this->fpdf->Ln(0.5);
+        $this->fpdf->Ln(1);
 
-        $this->fpdf->SetFont('Arial', 'B', 7);
-        $this->fpdf->Cell(5, 0.5, "Mitra Brata Sujana", 0, 0, 'L');
-        $this->fpdf->Ln(2);
-
-        $this->fpdf->SetLineWidth(0.1);
-        $this->fpdf->Line(1, $this->fpdf->GetY(), 20, $this->fpdf->GetY());
-        $this->fpdf->SetLineWidth(0);
-        $this->fpdf->Ln(2.5);
 
         $this->fpdf->SetFont('Arial', 'BU', 7);
         $this->fpdf->Cell(17, 0.5, "Rika Aulia", 0, 0, 'R');
-        $this->fpdf->Ln(0.3);
+        $this->fpdf->Ln(0.4); // Increased spacing between name and title
         $this->fpdf->SetFont('Arial', 'B', 7);
         $this->fpdf->Cell(16.9, 0.5, "Finance", 0, 0, 'R');
+        $this->fpdf->Ln(1); // Added spacing after signature
+
+
+
 
         $this->fpdf->Output();
         exit;

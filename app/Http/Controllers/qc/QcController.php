@@ -36,7 +36,7 @@ class QcController extends Controller
 {
     public function __construct()
     {
-        $this->fpdf = new exFPDF('P', 'cm', 'A4');
+        $this->fpdf = new exFPDF('P', 'mm', 'A4');
     }
 
     public function index()

@@ -72,7 +72,7 @@
                         <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nama Client</th>
                         <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nama Projek</th>
                         <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Total Vat</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Terbilang</th>
+                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Alamat</th>
                       </tr>
                     </thead>
                     <tbody></tbody>
@@ -162,6 +162,15 @@
                           <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Terbilang</span>
                         </div>
                         <input type="text" name="terbilang" id="terbilang" class="form-control" style="border: 1px solid black;">
+                    </div>
+
+                    <div class="input-group mb-3">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                              <span class="input-group-text" style="background-color: rgb(222, 222, 222);">Partnumber/Description</span>
+                            </div>
+                            <textarea class="form-control" aria-label="With textarea" name="alamat" id="alamat" style="border: 1px solid black;"></textarea>
+                          </div>
                     </div>
 
                 </div>
@@ -512,7 +521,7 @@ function viewDatatable() {
                 }
             },
             {
-                data: "terbilang",
+                data: "alamat",
                 render: function (data, type, row, meta) {
                     if (data == '' || data == null) {
                         return '-';
@@ -520,7 +529,7 @@ function viewDatatable() {
                         return data;
                     }
                 }
-            },
+            }
         ],
             createdRow: function (row, data, index) {
                 $(row).attr("data-value", encodeURIComponent(JSON.stringify(data)));

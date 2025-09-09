@@ -19,7 +19,7 @@ class ReportSoundController extends Controller
     }
     public function __construct()
     {
-        $this->fpdf = new exFPDF('P', 'cm', 'A4');
+        $this->fpdf = new exFPDF('P', 'mm', 'A4');
     }
 
     function numToBulan($bulan)

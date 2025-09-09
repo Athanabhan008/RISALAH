@@ -990,7 +990,8 @@ class PoController extends Controller
 
 
 		// $this->fpdf->Line(1, 2.8, 20, 2.8);
-		$this->fpdf->Ln(4.9);
+		$this->fpdf->Ln(4.3);
+
 
 
 
@@ -999,6 +1000,8 @@ class PoController extends Controller
         $this->fpdf->SetFont('helvetica', 'BU', 16);
         $this->fpdf->Cell(0, 0.7, "Purchase Order", 0, 0, 'C');
 		$this->fpdf->Ln(1);
+
+
 
         $this->fpdf->SetFont('helvetica', '', 11);
         $this->fpdf->Cell(12, 0.5, "Nomor PO : " . $data_result[0]['nomor_po'], 0, 0, 'L');
@@ -1010,10 +1013,23 @@ class PoController extends Controller
 		$this->fpdf->Ln();
         $this->fpdf->Cell(12, 0.5, $data_result[0]['nama_vendor'], 0, 0, 'L');
 		$this->fpdf->Ln(1);
+		$this->fpdf->Ln(0.5);
 
-        // $table = new easyTables($this->fpdf, "{5, 12, 12, 4, 12, 15}", 'border:1;font-size:9;');
-        $table = new easyTables($this->fpdf, "{3, 9, 20, 3, 9, 8}", 'border:1;font-size:6.5;min-height:0.5;');
+        // Move address closer to client name - right after the date
+        $this->fpdf->Cell(3.5, 0.7, '', 0, 0, 'L');
+        // $this->fpdf->Cell(12, 0.5, $data_result[0]['alamat'], 0, 0, 'L');
+		$this->fpdf->Ln(1);
 
+        // // Continue with Purchase Order information
+        // $this->fpdf->Cell(12.1, 0.5, "Purchase Order", 0, 0, 'R');
+        // $this->fpdf->Cell(0.7, 0.5, ":", 0, 0, 'R');
+		// $this->fpdf->Ln(0.8);
+        // $this->fpdf->Cell(10.2, 0.5, "Date", 0, 0, 'R');
+        // $this->fpdf->Cell(2.6, 0.5, ":", 0, 0, 'R');
+		// $this->fpdf->Ln(0.1);
+
+        // Buat tabel dengan auto-sizing
+        $table = new easyTables($this->fpdf, "{2.5, 8, 20, 2.5, 6, 6}", 'border:1;font-size:7.9;min-height:0.5;');
 
         $table->rowStyle('font-style:B;');
         $table->easyCell('NO', 'valign:M;align:C;');
@@ -1027,42 +1043,218 @@ class PoController extends Controller
         $i = 1;
         $grand_total = 0; // Initialize grand total
         foreach ($data_result as $value) {
-            // Calculate grand total by summing total_price
-            // Remove any currency formatting and convert to numeric value
+            // Hitung grand total
             $total_price_numeric = (float) preg_replace('/[^\d]/', '', $value['total_price']);
             $grand_total += $total_price_numeric;
 
-            if ($this->fpdf->GetY() > 14) {
-                $table->easyCell($i++, 'valign:M;align:C;');
-                // Bagi menjadi dua bagian
-                $part1 = substr($value['partnumber_description'], 0, 1193);
-                $part2 = substr($value['partnumber_description'], 1193);
+            $dsc = strlen($value['partnumber_description']);
 
-                // Cetak bagian pertama
-                $table->easyCell($value['part_number'], 'valign:M;align:C;');
-                $table->easyCell($part1, 'valign:M;align:L;');
-                $table->easyCell($value['qty'], 'valign:M;align:C;');
-                $table->easyCell($value['unit_price'], 'valign:M;align:R;');
-                $table->easyCell($value['total_price'], 'valign:M;align:R;');
-                $table->printRow();
+            if ($this->fpdf->GetY() > 27) {
+                if ($dsc > 100) {
+                    $table->easyCell($i++, 'valign:M;align:C;');
+                    // Bagi menjadi dua bagian
+                    $part1 = substr($value['partnumber_description'], 0, 100);
+                    $part2 = substr($value['partnumber_description'], 100);
 
-                // Cetak bagian kedua
-                $this->fpdf->AddPage('P', 'A4');
-                $table->easyCell('', 'valign:M;align:C;');
-                $table->easyCell('', 'valign:M;align:C;');
-                $table->easyCell($part2, 'valign:M;align:L;');
-                $table->easyCell('', 'valign:M;align:C;');
-                $table->easyCell('', 'valign:M;align:C;');
-                $table->easyCell('', 'valign:M;align:C;');
+                    // Cetak bagian pertama
+                    $table->easyCell($value['part_number'], 'valign:M;align:C;');
+                    $table->easyCell($part1, 'valign:M;align:L;');
+                    $table->easyCell($value['qty'], 'valign:M;align:R;');
+                    $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                    $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                    $table->printRow();
+
+                    // Cetak bagian kedua
+                    // $this->fpdf->AddPage('P', 'A4');
+                    $table->easyCell('', 'valign:M;align:C;');
+                    $table->easyCell($part2, 'valign:M;align:L;');
+                    $table->easyCell('', 'valign:M;align:C;');
+                    $table->easyCell('', 'valign:M;align:C;');
+                    $table->easyCell('', 'valign:M;align:C;');
+                } else {
+                    if ($this->fpdf->GetY() > 25) {
+                        if ($dsc > 500) {
+                            $table->easyCell($i++, 'valign:M;align:C;');
+                            // Bagi menjadi dua bagian
+                            $part1 = substr($value['partnumber_description'], 0, 500);
+                            $part2 = substr($value['partnumber_description'], 500);
+
+                            // Cetak bagian pertama
+                            $table->easyCell($value['part_number'], 'valign:M;align:C;');
+                            $table->easyCell($part1, 'valign:M;align:L;');
+                            $table->easyCell($value['qty'], 'valign:M;align:R;');
+                            $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                            $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                            $table->printRow();
+
+                            // Cetak bagian kedua
+                            // $this->fpdf->AddPage('P', 'A4');
+                            $table->easyCell('', 'valign:M;align:C;');
+                            $table->easyCell($part2, 'valign:M;align:L;');
+                            $table->easyCell('', 'valign:M;align:C;');
+                            $table->easyCell('', 'valign:M;align:C;');
+                            $table->easyCell('', 'valign:M;align:C;');
+                        } else {
+                            $table->easyCell($i++, 'valign:M;align:C;');
+                            $table->easyCell($value['part_number'], 'valign:M;align:L;');
+                            $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                            $table->easyCell($value['qty'], 'valign:M;align:C;');
+                            $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                            $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                        }
+
+                    } else {
+                        if ($this->fpdf->GetY() > 23) {
+                            if ($dsc > 900) {
+                                $table->easyCell($i++, 'valign:M;align:C;');
+                                // Bagi menjadi dua bagian
+                                $part1 = substr($value['partnumber_description'], 0, 900);
+                                $part2 = substr($value['partnumber_description'], 900);
+
+                                // Cetak bagian pertama
+                                $table->easyCell($value['part_number'], 'valign:M;align:C;');
+                                $table->easyCell($part1, 'valign:M;align:L;');
+                                $table->easyCell($value['qty'], 'valign:M;align:R;');
+                                $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                                $table->printRow();
+
+                                // Cetak bagian kedua
+                                // $this->fpdf->AddPage('P', 'A4');
+                                $table->easyCell('', 'valign:M;align:C;');
+                                $table->easyCell($part2, 'valign:M;align:L;');
+                                $table->easyCell('', 'valign:M;align:C;');
+                                $table->easyCell('', 'valign:M;align:C;');
+                                $table->easyCell('', 'valign:M;align:C;');
+                            } else {
+                                $table->easyCell($i++, 'valign:M;align:C;');
+                                $table->easyCell($value['part_number'], 'valign:M;align:L;');
+                                $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                                $table->easyCell($value['qty'], 'valign:M;align:C;');
+                                $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                            }
+
+                        } else {
+                            if ($this->fpdf->GetY() > 21) {
+                                if ($dsc > 1100) {
+                                    $table->easyCell($i++, 'valign:M;align:C;');
+                                    // Bagi menjadi dua bagian
+                                    $part1 = substr($value['partnumber_description'], 0, 1100);
+                                    $part2 = substr($value['partnumber_description'], 1100);
+
+                                    // Cetak bagian pertama
+                                    $table->easyCell($value['part_number'], 'valign:M;align:C;');
+                                    $table->easyCell($part1, 'valign:M;align:L;');
+                                    $table->easyCell($value['qty'], 'valign:M;align:R;');
+                                    $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                    $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                                    $table->printRow();
+
+                                    // Cetak bagian kedua
+                                    // $this->fpdf->AddPage('P', 'A4');
+                                    $table->easyCell('', 'valign:M;align:C;');
+                                    $table->easyCell($part2, 'valign:M;align:L;');
+                                    $table->easyCell('', 'valign:M;align:C;');
+                                    $table->easyCell('', 'valign:M;align:C;');
+                                    $table->easyCell('', 'valign:M;align:C;');
+                                } else {
+                                    $table->easyCell($i++, 'valign:M;align:C;');
+                                    $table->easyCell($value['part_number'], 'valign:M;align:L;');
+                                    $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                                    $table->easyCell($value['qty'], 'valign:M;align:C;');
+                                    $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                    $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                                }
+
+                            } else {
+                                if ($this->fpdf->GetY() > 19) {
+                                    if ($dsc > 1500) {
+                                        $table->easyCell($i++, 'valign:M;align:C;');
+                                        // Bagi menjadi dua bagian
+                                        $part1 = substr($value['partnumber_description'], 0, 1500);
+                                        $part2 = substr($value['partnumber_description'], 1500);
+
+                                        // Cetak bagian pertama
+                                        $table->easyCell($value['part_number'], 'valign:M;align:C;');
+                                        $table->easyCell($part1, 'valign:M;align:L;');
+                                        $table->easyCell($value['qty'], 'valign:M;align:R;');
+                                        $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                        $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                                        $table->printRow();
+
+                                        // Cetak bagian kedua
+                                        // $this->fpdf->AddPage('P', 'A4');
+                                        $table->easyCell('', 'valign:M;align:C;');
+                                        $table->easyCell($part2, 'valign:M;align:L;');
+                                        $table->easyCell('', 'valign:M;align:C;');
+                                        $table->easyCell('', 'valign:M;align:C;');
+                                        $table->easyCell('', 'valign:M;align:C;');
+                                    } else {
+                                        $table->easyCell($i++, 'valign:M;align:C;');
+                                        $table->easyCell($value['part_number'], 'valign:M;align:L;');
+                                        $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                                        $table->easyCell($value['qty'], 'valign:M;align:C;');
+                                        $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                        $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                                    }
+
+                                } else {
+                                    if ($this->fpdf->GetY() > 17) {
+                                        if ($dsc > 1800) {
+                                            $table->easyCell($i++, 'valign:M;align:C;');
+                                            // Bagi menjadi dua bagian
+                                            $part1 = substr($value['partnumber_description'], 0, 1800);
+                                            $part2 = substr($value['partnumber_description'], 1800);
+
+                                            // Cetak bagian pertama
+                                            $table->easyCell($value['part_number'], 'valign:M;align:C;');
+                                            $table->easyCell($part1, 'valign:M;align:L;');
+                                            $table->easyCell($value['qty'], 'valign:M;align:R;');
+                                            $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                            $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                                            $table->printRow();
+
+                                            // Cetak bagian kedua
+                                            // $this->fpdf->AddPage('P', 'A4');
+                                            $table->easyCell('', 'valign:M;align:C;');
+                                            $table->easyCell($part2, 'valign:M;align:L;');
+                                            $table->easyCell('', 'valign:M;align:C;');
+                                            $table->easyCell('', 'valign:M;align:C;');
+                                            $table->easyCell('', 'valign:M;align:C;');
+                                        } else {
+                                            $table->easyCell($i++, 'valign:M;align:C;');
+                                            $table->easyCell($value['part_number'], 'valign:M;align:L;');
+                                            $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                                            $table->easyCell($value['qty'], 'valign:M;align:C;');
+                                            $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                            $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                                        }
+
+                                    } else {
+                                        $table->easyCell($i++, 'valign:M;align:C;');
+                                        $table->easyCell($value['part_number'], 'valign:M;align:L;');
+                                        $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                                        $table->easyCell($value['qty'], 'valign:M;align:C;');
+                                        $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                        $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             } else {
                 $table->easyCell($i++, 'valign:M;align:C;');
-                $table->easyCell($value['part_number'], 'valign:M;align:C;');
+                $table->easyCell($value['part_number'], 'valign:M;align:L;');
                 $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
                 $table->easyCell($value['qty'], 'valign:M;align:C;');
                 $table->easyCell($value['unit_price'], 'valign:M;align:R;');
                 $table->easyCell($value['total_price'], 'valign:M;align:R;');
             }
 
+
+            // Cetak baris
             $table->printRow();
         }
         $this->fpdf->Ln(0);
@@ -1090,9 +1282,17 @@ class PoController extends Controller
         $table->rowStyle('font-style:B; border:1;');
         $table->easyCell(number_format($total_with_ppn, 0, ',', '.'), 'valign:M;align:R;');
         $table->printRow();
-        $this->fpdf->Ln(1);
+        $this->fpdf->Ln(0.1);
 
-        // Display notes if available
+        // End table dan dapatkan posisi Y setelah tabel
+        $table->endTable(0);
+        $current_y = $this->fpdf->GetY();
+
+         // print_r($this->fpdf->GetY());die;
+         if ($this->fpdf->GetY() > 20.56) {
+            $this->fpdf->AddPage('P', 'A4');
+        }
+
         if (!empty($data_result[0]['note'])) {
             $this->fpdf->SetFont('Arial', 'I', 11);
             $this->fpdf->Cell(12, 0.5, "Note : ", 0, 0, 'L');
@@ -1130,7 +1330,7 @@ class PoController extends Controller
         }
 
         // Add space after signature image for name and title
-        $this->fpdf->Ln(3.5);
+        $this->fpdf->Ln(3);
         $this->fpdf->SetFont('Arial', 'U', 11);
 
         // Use dynamic name from data or default
@@ -1138,29 +1338,13 @@ class PoController extends Controller
         $signature_title = $data_result[0]['signature_title'] ?? 'Admin';
 
         $this->fpdf->Cell(12, 0.5, $signature_name, 0, 0, 'L');
-        $this->fpdf->Ln(0.5);
+        $this->fpdf->Ln(0.6);
         $this->fpdf->SetFont('Arial', '', 11);
         $this->fpdf->Cell(12, 0.5, $signature_title, 0, 0, 'L');
         $this->fpdf->Ln(1);
 
-        // Remove the commented out code since we've implemented the calculation above
-        // $grand_total = 0;
-        // // foreach ($data_result as $value) {
-        // //     foreach ($value as $key => $data) {
-        // //         $grand_total += $data->harga;
-        // //     }
-        // // }
-
-        // // $table->rowStyle('font-style:B');
-        // // $table->easyCell('TOTAL KESELURUHAN', 'colspan:5;valign:M;align:L;');
-        // // $table->easyCell('Rp ' . number_format($grand_total, 0, ',', '.'), 'valign:M;align:R;');
-        // // $table->printRow();
 
 
-		$table->endTable(0);
-
-        // Add footer
-        $this->addFooter();
 
         $this->fpdf->Output();
         exit;
@@ -1227,7 +1411,8 @@ class PoController extends Controller
 
 
 		// $this->fpdf->Line(1, 2.8, 20, 2.8);
-		$this->fpdf->Ln(4.9);
+		$this->fpdf->Ln(4.3);
+
 
 
 
@@ -1236,6 +1421,8 @@ class PoController extends Controller
         $this->fpdf->SetFont('helvetica', 'BU', 16);
         $this->fpdf->Cell(0, 0.7, "Purchase Order", 0, 0, 'C');
 		$this->fpdf->Ln(1);
+
+
 
         $this->fpdf->SetFont('helvetica', '', 11);
         $this->fpdf->Cell(12, 0.5, "Nomor PO : " . $data_result[0]['nomor_po'], 0, 0, 'L');
@@ -1247,10 +1434,23 @@ class PoController extends Controller
 		$this->fpdf->Ln();
         $this->fpdf->Cell(12, 0.5, $data_result[0]['nama_vendor'], 0, 0, 'L');
 		$this->fpdf->Ln(1);
+		$this->fpdf->Ln(0.5);
 
-        // $table = new easyTables($this->fpdf, "{5, 12, 12, 4, 12, 15}", 'border:1;font-size:9;');
-        $table = new easyTables($this->fpdf, "{3, 9, 20, 3, 9, 8}", 'border:1;font-size:6.5;min-height:0.5;');
+        // Move address closer to client name - right after the date
+        $this->fpdf->Cell(3.5, 0.7, '', 0, 0, 'L');
+        // $this->fpdf->Cell(12, 0.5, $data_result[0]['alamat'], 0, 0, 'L');
+		$this->fpdf->Ln(1);
 
+        // // Continue with Purchase Order information
+        // $this->fpdf->Cell(12.1, 0.5, "Purchase Order", 0, 0, 'R');
+        // $this->fpdf->Cell(0.7, 0.5, ":", 0, 0, 'R');
+		// $this->fpdf->Ln(0.8);
+        // $this->fpdf->Cell(10.2, 0.5, "Date", 0, 0, 'R');
+        // $this->fpdf->Cell(2.6, 0.5, ":", 0, 0, 'R');
+		// $this->fpdf->Ln(0.1);
+
+        // Buat tabel dengan auto-sizing
+        $table = new easyTables($this->fpdf, "{2.5, 8, 20, 2.5, 6, 6}", 'border:1;font-size:7.9;min-height:0.5;');
 
         $table->rowStyle('font-style:B;');
         $table->easyCell('NO', 'valign:M;align:C;');
@@ -1264,42 +1464,218 @@ class PoController extends Controller
         $i = 1;
         $grand_total = 0; // Initialize grand total
         foreach ($data_result as $value) {
-            // Calculate grand total by summing total_price
-            // Remove any currency formatting and convert to numeric value
+            // Hitung grand total
             $total_price_numeric = (float) preg_replace('/[^\d]/', '', $value['total_price']);
             $grand_total += $total_price_numeric;
 
-            if ($this->fpdf->GetY() > 14) {
-                $table->easyCell($i++, 'valign:M;align:C;');
-                // Bagi menjadi dua bagian
-                $part1 = substr($value['partnumber_description'], 0, 1193);
-                $part2 = substr($value['partnumber_description'], 1193);
+            $dsc = strlen($value['partnumber_description']);
 
-                // Cetak bagian pertama
-                $table->easyCell($value['part_number'], 'valign:M;align:C;');
-                $table->easyCell($part1, 'valign:M;align:L;');
-                $table->easyCell($value['qty'], 'valign:M;align:C;');
-                $table->easyCell($value['unit_price'], 'valign:M;align:R;');
-                $table->easyCell($value['total_price'], 'valign:M;align:R;');
-                $table->printRow();
+            if ($this->fpdf->GetY() > 27) {
+                if ($dsc > 100) {
+                    $table->easyCell($i++, 'valign:M;align:C;');
+                    // Bagi menjadi dua bagian
+                    $part1 = substr($value['partnumber_description'], 0, 100);
+                    $part2 = substr($value['partnumber_description'], 100);
 
-                // Cetak bagian kedua
-                $this->fpdf->AddPage('P', 'A4');
-                $table->easyCell('', 'valign:M;align:C;');
-                $table->easyCell('', 'valign:M;align:C;');
-                $table->easyCell($part2, 'valign:M;align:L;');
-                $table->easyCell('', 'valign:M;align:C;');
-                $table->easyCell('', 'valign:M;align:C;');
-                $table->easyCell('', 'valign:M;align:C;');
+                    // Cetak bagian pertama
+                    $table->easyCell($value['part_number'], 'valign:M;align:C;');
+                    $table->easyCell($part1, 'valign:M;align:L;');
+                    $table->easyCell($value['qty'], 'valign:M;align:R;');
+                    $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                    $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                    $table->printRow();
+
+                    // Cetak bagian kedua
+                    // $this->fpdf->AddPage('P', 'A4');
+                    $table->easyCell('', 'valign:M;align:C;');
+                    $table->easyCell($part2, 'valign:M;align:L;');
+                    $table->easyCell('', 'valign:M;align:C;');
+                    $table->easyCell('', 'valign:M;align:C;');
+                    $table->easyCell('', 'valign:M;align:C;');
+                } else {
+                    if ($this->fpdf->GetY() > 25) {
+                        if ($dsc > 500) {
+                            $table->easyCell($i++, 'valign:M;align:C;');
+                            // Bagi menjadi dua bagian
+                            $part1 = substr($value['partnumber_description'], 0, 500);
+                            $part2 = substr($value['partnumber_description'], 500);
+
+                            // Cetak bagian pertama
+                            $table->easyCell($value['part_number'], 'valign:M;align:C;');
+                            $table->easyCell($part1, 'valign:M;align:L;');
+                            $table->easyCell($value['qty'], 'valign:M;align:R;');
+                            $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                            $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                            $table->printRow();
+
+                            // Cetak bagian kedua
+                            // $this->fpdf->AddPage('P', 'A4');
+                            $table->easyCell('', 'valign:M;align:C;');
+                            $table->easyCell($part2, 'valign:M;align:L;');
+                            $table->easyCell('', 'valign:M;align:C;');
+                            $table->easyCell('', 'valign:M;align:C;');
+                            $table->easyCell('', 'valign:M;align:C;');
+                        } else {
+                            $table->easyCell($i++, 'valign:M;align:C;');
+                            $table->easyCell($value['part_number'], 'valign:M;align:L;');
+                            $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                            $table->easyCell($value['qty'], 'valign:M;align:C;');
+                            $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                            $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                        }
+
+                    } else {
+                        if ($this->fpdf->GetY() > 23) {
+                            if ($dsc > 900) {
+                                $table->easyCell($i++, 'valign:M;align:C;');
+                                // Bagi menjadi dua bagian
+                                $part1 = substr($value['partnumber_description'], 0, 900);
+                                $part2 = substr($value['partnumber_description'], 900);
+
+                                // Cetak bagian pertama
+                                $table->easyCell($value['part_number'], 'valign:M;align:C;');
+                                $table->easyCell($part1, 'valign:M;align:L;');
+                                $table->easyCell($value['qty'], 'valign:M;align:R;');
+                                $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                                $table->printRow();
+
+                                // Cetak bagian kedua
+                                // $this->fpdf->AddPage('P', 'A4');
+                                $table->easyCell('', 'valign:M;align:C;');
+                                $table->easyCell($part2, 'valign:M;align:L;');
+                                $table->easyCell('', 'valign:M;align:C;');
+                                $table->easyCell('', 'valign:M;align:C;');
+                                $table->easyCell('', 'valign:M;align:C;');
+                            } else {
+                                $table->easyCell($i++, 'valign:M;align:C;');
+                                $table->easyCell($value['part_number'], 'valign:M;align:L;');
+                                $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                                $table->easyCell($value['qty'], 'valign:M;align:C;');
+                                $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                            }
+
+                        } else {
+                            if ($this->fpdf->GetY() > 21) {
+                                if ($dsc > 1100) {
+                                    $table->easyCell($i++, 'valign:M;align:C;');
+                                    // Bagi menjadi dua bagian
+                                    $part1 = substr($value['partnumber_description'], 0, 1100);
+                                    $part2 = substr($value['partnumber_description'], 1100);
+
+                                    // Cetak bagian pertama
+                                    $table->easyCell($value['part_number'], 'valign:M;align:C;');
+                                    $table->easyCell($part1, 'valign:M;align:L;');
+                                    $table->easyCell($value['qty'], 'valign:M;align:R;');
+                                    $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                    $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                                    $table->printRow();
+
+                                    // Cetak bagian kedua
+                                    // $this->fpdf->AddPage('P', 'A4');
+                                    $table->easyCell('', 'valign:M;align:C;');
+                                    $table->easyCell($part2, 'valign:M;align:L;');
+                                    $table->easyCell('', 'valign:M;align:C;');
+                                    $table->easyCell('', 'valign:M;align:C;');
+                                    $table->easyCell('', 'valign:M;align:C;');
+                                } else {
+                                    $table->easyCell($i++, 'valign:M;align:C;');
+                                    $table->easyCell($value['part_number'], 'valign:M;align:L;');
+                                    $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                                    $table->easyCell($value['qty'], 'valign:M;align:C;');
+                                    $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                    $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                                }
+
+                            } else {
+                                if ($this->fpdf->GetY() > 19) {
+                                    if ($dsc > 1500) {
+                                        $table->easyCell($i++, 'valign:M;align:C;');
+                                        // Bagi menjadi dua bagian
+                                        $part1 = substr($value['partnumber_description'], 0, 1500);
+                                        $part2 = substr($value['partnumber_description'], 1500);
+
+                                        // Cetak bagian pertama
+                                        $table->easyCell($value['part_number'], 'valign:M;align:C;');
+                                        $table->easyCell($part1, 'valign:M;align:L;');
+                                        $table->easyCell($value['qty'], 'valign:M;align:R;');
+                                        $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                        $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                                        $table->printRow();
+
+                                        // Cetak bagian kedua
+                                        // $this->fpdf->AddPage('P', 'A4');
+                                        $table->easyCell('', 'valign:M;align:C;');
+                                        $table->easyCell($part2, 'valign:M;align:L;');
+                                        $table->easyCell('', 'valign:M;align:C;');
+                                        $table->easyCell('', 'valign:M;align:C;');
+                                        $table->easyCell('', 'valign:M;align:C;');
+                                    } else {
+                                        $table->easyCell($i++, 'valign:M;align:C;');
+                                        $table->easyCell($value['part_number'], 'valign:M;align:L;');
+                                        $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                                        $table->easyCell($value['qty'], 'valign:M;align:C;');
+                                        $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                        $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                                    }
+
+                                } else {
+                                    if ($this->fpdf->GetY() > 17) {
+                                        if ($dsc > 1800) {
+                                            $table->easyCell($i++, 'valign:M;align:C;');
+                                            // Bagi menjadi dua bagian
+                                            $part1 = substr($value['partnumber_description'], 0, 1800);
+                                            $part2 = substr($value['partnumber_description'], 1800);
+
+                                            // Cetak bagian pertama
+                                            $table->easyCell($value['part_number'], 'valign:M;align:C;');
+                                            $table->easyCell($part1, 'valign:M;align:L;');
+                                            $table->easyCell($value['qty'], 'valign:M;align:R;');
+                                            $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                            $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                                            $table->printRow();
+
+                                            // Cetak bagian kedua
+                                            // $this->fpdf->AddPage('P', 'A4');
+                                            $table->easyCell('', 'valign:M;align:C;');
+                                            $table->easyCell($part2, 'valign:M;align:L;');
+                                            $table->easyCell('', 'valign:M;align:C;');
+                                            $table->easyCell('', 'valign:M;align:C;');
+                                            $table->easyCell('', 'valign:M;align:C;');
+                                        } else {
+                                            $table->easyCell($i++, 'valign:M;align:C;');
+                                            $table->easyCell($value['part_number'], 'valign:M;align:L;');
+                                            $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                                            $table->easyCell($value['qty'], 'valign:M;align:C;');
+                                            $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                            $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                                        }
+
+                                    } else {
+                                        $table->easyCell($i++, 'valign:M;align:C;');
+                                        $table->easyCell($value['part_number'], 'valign:M;align:L;');
+                                        $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                                        $table->easyCell($value['qty'], 'valign:M;align:C;');
+                                        $table->easyCell($value['unit_price'], 'valign:M;align:R;');
+                                        $table->easyCell($value['total_price'], 'valign:M;align:R;');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             } else {
                 $table->easyCell($i++, 'valign:M;align:C;');
-                $table->easyCell($value['part_number'], 'valign:M;align:C;');
+                $table->easyCell($value['part_number'], 'valign:M;align:L;');
                 $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
                 $table->easyCell($value['qty'], 'valign:M;align:C;');
                 $table->easyCell($value['unit_price'], 'valign:M;align:R;');
                 $table->easyCell($value['total_price'], 'valign:M;align:R;');
             }
 
+
+            // Cetak baris
             $table->printRow();
         }
         $this->fpdf->Ln(0);
@@ -1327,9 +1703,17 @@ class PoController extends Controller
         $table->rowStyle('font-style:B; border:1;');
         $table->easyCell(number_format($total_with_ppn, 0, ',', '.'), 'valign:M;align:R;');
         $table->printRow();
-        $this->fpdf->Ln(1);
+        $this->fpdf->Ln(0.1);
 
-        // Display notes if available
+        // End table dan dapatkan posisi Y setelah tabel
+        $table->endTable(0);
+        $current_y = $this->fpdf->GetY();
+
+         // print_r($this->fpdf->GetY());die;
+        if ($this->fpdf->GetY() > 20.56) {
+            $this->fpdf->AddPage('P', 'A4');
+        }
+
         if (!empty($data_result[0]['note'])) {
             $this->fpdf->SetFont('Arial', 'I', 11);
             $this->fpdf->Cell(12, 0.5, "Note : ", 0, 0, 'L');
@@ -1367,7 +1751,7 @@ class PoController extends Controller
         }
 
         // Add space after signature image for name and title
-        $this->fpdf->Ln(3.5);
+        $this->fpdf->Ln(3);
         $this->fpdf->SetFont('Arial', 'U', 11);
 
         // Use dynamic name from data or default
@@ -1375,29 +1759,13 @@ class PoController extends Controller
         $signature_title = $data_result[0]['signature_title'] ?? 'Admin';
 
         $this->fpdf->Cell(12, 0.5, $signature_name, 0, 0, 'L');
-        $this->fpdf->Ln(0.5);
+        $this->fpdf->Ln(0.6);
         $this->fpdf->SetFont('Arial', '', 11);
         $this->fpdf->Cell(12, 0.5, $signature_title, 0, 0, 'L');
         $this->fpdf->Ln(1);
 
-        // Remove the commented out code since we've implemented the calculation above
-        // $grand_total = 0;
-        // // foreach ($data_result as $value) {
-        // //     foreach ($value as $key => $data) {
-        // //         $grand_total += $data->harga;
-        // //     }
-        // // }
-
-        // // $table->rowStyle('font-style:B');
-        // // $table->easyCell('TOTAL KESELURUHAN', 'colspan:5;valign:M;align:L;');
-        // // $table->easyCell('Rp ' . number_format($grand_total, 0, ',', '.'), 'valign:M;align:R;');
-        // // $table->printRow();
 
 
-		$table->endTable(0);
-
-        // Add footer
-        $this->addFooter();
 
         $this->fpdf->Output();
         exit;
