@@ -769,7 +769,7 @@ class InvoiceController extends Controller
 
 
 		// $this->fpdf->Line(1, 2.8, 20, 2.8);
-		$this->fpdf->Ln(4.2);
+		$this->fpdf->Ln(4.3);
 
 
 
@@ -784,26 +784,26 @@ class InvoiceController extends Controller
         $this->fpdf->SetLineWidth(0);
 
 
-        $this->fpdf->SetFont('helvetica', '', 10);
+        $this->fpdf->SetFont('helvetica', 'B', 8);
         $this->fpdf->Cell(0.1, 0.7, '', 0, 0, 'L');
         $this->fpdf->Cell(6.4, 0.5,"Kepada Yth.", 0, 0, 'L');
         $this->fpdf->SetFont('helvetica', '', 11);
         $this->fpdf->Ln(0.4);
 
-        $this->fpdf->SetFont('helvetica', 'B', 10);
+        $this->fpdf->SetFont('helvetica', 'B', 7.5);
         $this->fpdf->Cell(0.1, 0.7, '', 0, 0, 'L');
         $this->fpdf->Cell(6.4, 0.5,$data_result[0]['nama_client'], 0, 0, 'L');
-        $this->fpdf->SetFont('helvetica', 'B', 9);
+        $this->fpdf->SetFont('helvetica', 'B', 7.5);
 
         $this->fpdf->Cell(4.7 , 0.5, "Invoice No", 0, 0, 'R');
         $this->fpdf->Cell(5 , 0.5, ": " . $data_result[0]['nomor_invoice'], 0, 0, 'R');
 		$this->fpdf->Ln(0.5);
-        $this->fpdf->Cell(10.3, 0.5, "Date", 0, 0, 'R');
+        $this->fpdf->Cell(10.4, 0.5, "Date", 0, 0, 'R');
         $this->fpdf->Cell(5, 0.5, ": " . $this->formatDateIndonesian(), 0, 0, 'R');
 		$this->fpdf->Ln(0.7);
 
         $this->fpdf->Cell(10.7, 0.5, "PO No.", 0, 0, 'R');
-        $this->fpdf->Cell(2.1, 0.5, ": ", 0, 0, 'R');
+        $this->fpdf->Cell(2.6, 0.5, ": ", 0, 0, 'R');
 		$this->fpdf->Ln(0.4);
 
         // Move address closer to client name - right after the date
@@ -817,12 +817,7 @@ class InvoiceController extends Controller
 		// $this->fpdf->Ln(0.8);
         // $this->fpdf->Cell(10.2, 0.5, "Date", 0, 0, 'R');
         // $this->fpdf->Cell(2.6, 0.5, ":", 0, 0, 'R');
-		$this->fpdf->Ln(1.4);
-
-        // Hitung tinggi konten sebelum tabel untuk menentukan posisi yang tepat
-        $header_height = 8.5; // Tinggi header (logo, informasi perusahaan, dll)
-        $client_info_height = 2.5; // Tinggi informasi client
-        $available_height = 29.7 - $header_height - $client_info_height - 2; // Tinggi A4 - header - client - margin
+		// $this->fpdf->Ln(0.1);
 
         // Buat tabel dengan auto-sizing
         $table = new easyTables($this->fpdf, "{2, 17, 2.5, 12, 15}", 'border:1;font-size:7.9;');
@@ -1056,18 +1051,18 @@ class InvoiceController extends Controller
         $this->fpdf->Ln(1);
 
         $this->fpdf->SetFont('Arial', 'B', 8);
-        $this->fpdf->Cell(14.6, 0, "Subtotal :", 0, 0, 'R');
-        $this->fpdf->Cell(3, 0,  number_format($data_result[0]['subtotal_price'], 0, ',', '.'), 0, 0, 'R');
+        $this->fpdf->Cell(17, 0, "Subtotal :", 0, 0, 'R');
+        $this->fpdf->Cell(2.1, 0,  number_format($data_result[0]['subtotal_price'], 0, ',', '.'), 0, 0, 'R');
         $this->fpdf->Ln(0.8);
 
         $this->fpdf->SetFont('Arial', 'B', 8);
-        $this->fpdf->Cell(14.6, 0, "PPN 11% :", 0, 0, 'R');
-        $this->fpdf->Cell(2.9, 0, number_format($data_result[0]['jumlah_ppn'], 0, ',', ','), 0, 0, 'R');
+        $this->fpdf->Cell(17, 0, "PPN 11% :", 0, 0, 'R');
+        $this->fpdf->Cell(2.1, 0, number_format($data_result[0]['jumlah_ppn'], 0, ',', ','), 0, 0, 'R');
         $this->fpdf->Ln(0.8);
 
         $this->fpdf->SetFont('Arial', 'B', 8);
-        $this->fpdf->Cell(14.7, 0, "Grand Total :", 0, 0, 'R');
-        $this->fpdf->Cell(2.8, 0, number_format($data_result[0]['total_vat'], 0, ',', ','), 0, 0, 'R');
+        $this->fpdf->Cell(17, 0, "Grand Total :", 0, 0, 'R');
+        $this->fpdf->Cell(2.1, 0, number_format($data_result[0]['total_vat'], 0, ',', ','), 0, 0, 'R');
         $this->fpdf->Ln(0.8);
 
 

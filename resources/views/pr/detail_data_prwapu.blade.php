@@ -357,9 +357,11 @@
                                     </div>
                                 </div>
 
+                                @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'manager','admin']))
                                 <div class="text-center">
                                     <button type="submit" class="btn btn-primary btn-sm mt-2">Simpan Perubahan</button>
                                 </div>
+                                @endif
                             </form>
 
                         </div>
@@ -460,7 +462,7 @@
 
                                 </div>
 
-                                @if(auth()->check() && auth()->user()->role === 'super_admin')
+                                @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'manager','admin']))
                               <div class="text-center">
                                   <button type="submit" class="btn btn-primary btn-sm mt-2">Simpan Perubahan</button>
                               </div>
@@ -475,6 +477,7 @@
         </div>
 
 
+        @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'manager','admin']))
         <div class="row gx-3 gy-3">
             <!-- VALIDASI PAYMENT -->
             <div class="card mb-4 col-md-12">
@@ -610,6 +613,7 @@
             </div>
 
           </div>
+        @endif
 
 
 
@@ -617,6 +621,7 @@
 
 
 
+        @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'manager','admin']))
         <div class="row gx-3 gy-3">
             <!-- VALIDASI PAYMENT -->
             <div class="card mb-4 col-md-12">
@@ -646,7 +651,9 @@
 
                             <div class="input-group mb-3">
                                 <div class="input-group-prepend">
-                                  <span class="input-group-text" style="background-color: rgb(222, 222, 222);">Nama Leader</span>
+                                  <span class="input-group-text" style="background-color: rgb(222, 222, 222);">
+                                    {{ ucfirst($currentUser->divisi ?? '-') }}
+                                  </span>
                                   <span class="input-group-text" style="background-color: rgb(222, 222, 222);">30.00%</span>
                                 </div>
                                 <input type="text" class="form-control" aria-label="Dollar amount (with dot and two decimal places)" name="profit_sharing_leader" id="leader_sales" readonly style="text-align: right;">
@@ -716,6 +723,7 @@
               </div>
             </div>
           </div>
+        @endif
         </div>
 
       </div>

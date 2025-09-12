@@ -29,17 +29,15 @@ class SesiController extends Controller
             if (Auth::user()->role == 'manager'){
                 return redirect('/manager');
 
-            }elseif (Auth::user()->role == 'staff'){
-                return redirect('/staff');
+            }elseif (Auth::user()->role == 'sales'){
+                return redirect('/sales');
 
-            }elseif (Auth::user()->role == 'laundry'){
-                return redirect('/laundry');
-
-            }elseif (Auth::user()->role == 'sound_system'){
-                return redirect('/sound');
+            }elseif (Auth::user()->role == 'teknisi'){
+                return redirect('/teknisi');
 
             }elseif (Auth::user()->role == 'super_admin'){
                 return redirect('/manager');
+
             }
 
         }else{

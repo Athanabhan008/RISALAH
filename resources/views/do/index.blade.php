@@ -706,6 +706,7 @@ function collectionS2Search() {
                             text: item.nomor_pr,
                             nama_client: item.nama_client,
                             nama_projek: item.nama_projek,
+                            nomor_pr: item.nomor_pr,
                             id: item.id,
                         }
                     }),

@@ -361,9 +361,11 @@
                                     </div>
                                 </div>
 
+                                @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'manager','admin']))
                                 <div class="text-center">
                                     <button type="submit" class="btn btn-primary btn-sm mt-2">Simpan Perubahan</button>
                                 </div>
+                                @endif
                             </form>
 
                         </div>
@@ -443,8 +445,7 @@
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Approval By</span>
                                             </div>
-                                            <input type="text" name="approval" id="approval" class="form-control pl-2" style="border: 1px solid black;" value="{{ isset($approval) && $approval !== '' && $approval !== 0 ? 'Rp ' . number_format($approval, 0, ',', '.') : 'Agus Sopyan' }}" readonly>
-                                        </div>
+											<input type="text" name="approval" id="approval" class="form-control pl-2" style="border: 1px solid black;" value="{{ isset($approval) && $approval !== '' && $approval !== 0 ? 'Rp ' . number_format($approval, 0, ',', '.') : (auth()->check() ? auth()->user()->divisi : '') }}" readonly>                                        </div>
                                     </div>
 
                                   <div class="col-md-6">
@@ -462,9 +463,11 @@
 
                                 </div>
 
+                                @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'manager','admin']))
                               <div class="text-center">
                                   <button type="submit" class="btn btn-primary btn-sm mt-2">Simpan Perubahan</button>
                               </div>
+                              @endif
                           </form>
 
                       </div>
@@ -474,6 +477,7 @@
           </div>
         </div>
 
+        @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'manager','admin']))
           <div class="card mb-4">
             <div class="card-header pb-0">
                 <h6>Total PO Ke CV MBS</h6>
@@ -605,8 +609,10 @@
 
 
         </div>
+        @endif
 
 
+        @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'manager','admin']))
         <div class="row gx-3 gy-3">
             <!-- VALIDASI PAYMENT -->
             <div class="card mb-4 col-md-12">
@@ -636,11 +642,14 @@
 
                             <div class="input-group mb-3">
                                 <div class="input-group-prepend">
-                                  <span class="input-group-text" style="background-color: rgb(222, 222, 222);">Nama Leader</span>
+                                  <span class="input-group-text" style="background-color: rgb(222, 222, 222);">
+                                    {{ ucfirst($currentUser->divisi ?? '-') }}
+                                  </span>
                                   <span class="input-group-text" style="background-color: rgb(222, 222, 222);">30.00%</span>
                                 </div>
                                 <input type="text" class="form-control" aria-label="Dollar amount (with dot and two decimal places)" name="profit_sharing_leader" id="leader_sales" readonly style="text-align: right;">
-                              </div>
+                            </div>
+
 
                         </div>
 
@@ -706,6 +715,7 @@
               </div>
             </div>
           </div>
+          @endif
 
 
         </div>

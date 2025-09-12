@@ -47,121 +47,24 @@ Route::get('/home', function() {
 
 Route::get('/error',[SesiController::class, 'error']);
 
-Route::middleware(['UserAkses:staff'])->group(function() {
+Route::middleware(['UserAkses:sales,teknisi'])->group(function() {
 
 
-    Route::get('/staff',[StaffController::class, 'index']);
+    Route::get('/sales', [StaffController::class, 'index']);
+    Route::get('/teknisi',[QcController::class, 'index']);
 
 });
 
 Route::middleware(['UserAkses:manager,super_admin'])->group(function() {
 
     //DASHBOARD MANAGER
-    Route::get('/manager',[ManagerController::class, 'index']);
+    Route::get('/manager',    [ManagerController::class, 'index']);
     Route::get('/super_admin',[ManagerController::class, 'index']);
 
-
-
-
-//////BOOKING
-    // getbarang
-    Route::get('/booking/getKategori',                               [BookingController::class, 'getKategori'])->name('booking/getKategori');
-    Route::post('/booking/getKategori',                              [BookingController::class, 'getKategori'])->name('booking/getKategori');
-    Route::get('/pdf',                                               [PDFController::class, 'index'])->name('pdf/index');
-    // getbarang
-    Route::get('/booking/getBarang',                                 [BookingController::class, 'getBarang'])->name('booking/getBarang');
-    Route::post('/booking/getBarang',                                [BookingController::class, 'getBarang'])->name('booking/getBarang');
-
-    Route::get('/booking',                                           [BookingController::class, 'index'])->name('booking');
-    Route::get('/booking/tambah_data_booking',                       [BookingController::class, 'tambah_data'])->name('tambah_data_booking');
-    Route::get('/booking/datatable',                                 [BookingController::class, 'datatable'])->name('booking/datatable');
-    Route::post('/booking/datatable',                                [BookingController::class, 'datatable'])->name('booking/datatable');
-
-    Route::get('/booking/datatabledetail',                           [BookingController::class, 'datatabledetail'])->name('booking/datatabledetail');
-    Route::post('/booking/datatabledetail',                          [BookingController::class, 'datatabledetail'])->name('booking/datatabledetail');
-
-    Route::get('/booking/create',                                    [BookingController::class, 'create'])->name('create');
-    Route::post('/booking/create',                                   [BookingController::class, 'create'])->name('create');
-    Route::get('/booking/update/{id}',                               [BookingController::class, 'update'])->name('update');
-    Route::post('/booking/update/{id}',                              [BookingController::class, 'update'])->name('update');
-    Route::get('/booking/delete/{id}',                               [BookingController::class, 'delete'])->name('delete');
-    Route::post('/booking/delete/{id}',                              [BookingController::class, 'delete'])->name('delete');
-
-    Route::get('/booking/detailCreate',                              [BookingController::class, 'detailCreate'])->name('detailCreate');
-    Route::post('/booking/detailCreate',                             [BookingController::class, 'detailCreate'])->name('detailCreate');
-    Route::get('/booking/detailUpdate',                              [BookingController::class, 'detailUpdate'])->name('detailUpdate');
-    Route::post('/booking/detailUpdate',                             [BookingController::class, 'detailUpdate'])->name('detailUpdate');
-    Route::get('/booking/detailDelete',                              [BookingController::class, 'detailDelete'])->name('detailDelete');
-    Route::post('/booking/detailDelete',                             [BookingController::class, 'detailDelete'])->name('detailDelete');
-
-    Route::get('/booking/detail_data_booking',                       [BookingController::class, 'detail_data_booking']);
-
-
-    //BARANG
-    Route::get('/barang',                                            [BarangController::class, 'index'])->name('barang');
-    Route::get('/barang/datatable',                                  [BarangController::class, 'datatable'])->name('barang/datatable');
-    Route::post('/barang/datatable',                                 [BarangController::class, 'datatable'])->name('barang/datatable');
-    Route::get('/barang/tambah_data_barang',                         [BarangController::class, 'tambah_data_barang']);
-
-    Route::get('/barang/doSave',                                     [BarangController::class, 'doSave'])->name('barang/doSave');
-    Route::post('/barang/doSave',                                    [BarangController::class, 'doSave'])->name('barang/doSave');
-    Route::get('/barang/update/{id}',                                [BarangController::class, 'update'])->name('barang/update');
-    Route::post('/barang/update/{id}',                               [BarangController::class, 'update'])->name('barang/update');
-
-    Route::get('/barang/detail_barang',                              [BarangController::class, 'detail_barang']);
-
-    // Route untuk form barang dengan stok
-    Route::get('/barang/create-with-stok',                           [BarangController::class, 'createBarangWithStok'])->name('manager.barang.create-with-stok');
-    Route::post('/barang/save-with-stok',                            [BarangController::class, 'saveBarangWithStok'])->name('manager.barang.save-with-stok');
-
-    //KATEGORI
-    Route::get('/kategori_barang',                                   [KategoribarangController::class, 'index'])->name('kategori_barang');
-    Route::get('/kategori_barang/tambah_data_kategori',              [KategoribarangController::class, 'tambah_data_kategori']);
-    Route::get('/kategori_barang/dosave',                            [KategoribarangController::class, 'dosave'])->name('kategori_barang/dosave');
-    Route::post('/kategori_barang/dosave',                           [KategoribarangController::class, 'dosave'])->name('kategori_barang/dosave');
-
-
-    //STOK BARANG
-    Route::get('/stok_barang',                                      [StokbarangController::class, 'index'])->name('stok_barang');
-    Route::get('/stok_barang/datatable',                            [StokbarangController::class, 'datatable'])->name('stok_barang/datatable');
-    Route::post('/stok_barang/datatable',                           [StokbarangController::class, 'datatable'])->name('stok_barang/datatable');
-    Route::get('/stok_barang/create',                               [StokbarangController::class, 'create'])->name('stok_barang/create');
-    Route::post('/stok_barang/create',                              [StokbarangController::class, 'create'])->name('stok_barang/create');
-    Route::get('/stok_barang/update',                               [StokbarangController::class, 'update'])->name('stok_barang/update');
-    Route::post('/stok_barang/update',                              [StokbarangController::class, 'update'])->name('stok_barang/update');
-    Route::get('/stok_barang/delete',                               [StokbarangController::class, 'delete'])->name('stok_barang/delete');
-    Route::post('/stok_barang/delete',                              [StokbarangController::class, 'delete'])->name('stok_barang/delete');
-
-    //REPORT
-    Route::get('/report_booking',                                   [ReportBookingController::class, 'index'])->name('report_booking');
-    Route::get('/report_booking/createPdfRekapBookingPerBulan',     [ReportBookingController::class, 'createPdfRekapBookingPerBulan'])->name('report_booking/createPdfRekapBookingPerBulan');
-    Route::get('/report_laundry/createPdfRekapLaundryPerBulan',     [ReportLaundryController::class, 'createPdfRekapLaundryPerBulan'])->name('report_laundry/createPdfRekapLaundryPerBulan');
-    Route::get('/report_sound/createPdfRekapSoundPerBulan',         [ReportSoundController::class, 'createPdfRekapSoundPerBulan'])->name('report_sound/createPdfRekapSoundPerBulan');
-
-
-
-
-    Route::get('/report_absen',                                     [ReportAbsenController::class, 'index'])->name('report_absen');
-    Route::get('/report_laundry',                                   [ReportLaundryController::class, 'index'])->name('report_laundry');
-    Route::get('/report_soundsystem',                               [ReportSoundController::class, 'index'])->name('report_soundsystem');
-    Route::get('/report_barang',                                    [ReportBarangController::class, 'index'])->name('report_barang');
-
-   //MANAJEMEN AKUN
-   Route::get('/manajemen_akun',                                    [ManajemenakunController::class, 'index'])->name('manajemen_akun');
-   Route::get('/datatable',                                         [ManajemenakunController::class, 'datatable'])->name('manajemenakun/datatable');
-   Route::post('/datatable',                                        [ManajemenakunController::class, 'datatable'])->name('manajemenakun/datatable');
-   Route::get('/manajemen_akun/create',                             [ManajemenakunController::class, 'create'])->name('create');
-   Route::post('/manajemen_akun/create',                            [ManajemenakunController::class, 'create'])->name('create');
-   Route::get('/manajemen_akun/delete/{id}',                        [ManajemenakunController::class, 'delete'])->name('delete');
-   Route::post('/manajemen_akun/delete/{id}',                       [ManajemenakunController::class, 'delete'])->name('delete');
-
-
-    // Route::get('/absen',[AbsenController::class, 'index']);
-    // Route::get('/logout', [SesiController::class, 'logout']);
 });
 
 //STAFF
-Route::middleware(['UserAkses:staff,super_admin'])->group(function() {
+Route::middleware(['UserAkses:super_admin, manager'])->group(function() {
     Route::get('/user',                                             [UserController::class, 'index']);
     Route::get('/user/datatable',                                   [UserController::class, 'datatable'])->name('user/datatable');
     Route::post('/user/datatable',                                  [UserController::class, 'datatable'])->name('user/datatable');
@@ -178,7 +81,7 @@ Route::middleware(['UserAkses:staff,super_admin'])->group(function() {
 
 
 //Approval
-Route::middleware(['UserAkses:staff,super_admin'])->group(function() {
+Route::middleware(['UserAkses:manager,admin,super_admin'])->group(function() {
     Route::get('/approval',                                             [ApprovalController::class, 'index']);
     Route::get('/approval/datatable',                                   [ApprovalController::class, 'datatable'])->name('approval/datatable');
     Route::post('/approval/datatable',                                  [ApprovalController::class, 'datatable'])->name('approval/datatable');
@@ -194,8 +97,7 @@ Route::middleware(['UserAkses:staff,super_admin'])->group(function() {
 });
 
 //PRWAPU
-Route::middleware(['UserAkses:staff,super_admin'])->group(function() {
-    // Route::get('/manager',[ManagerController::class, 'index']);
+Route::middleware(['UserAkses:sales,admin,super_admin,manager'])->group(function() {
     Route::get('/pr_wapu/getSales',                                    [WapuController::class, 'getSales'])->name('pr_wapu/getSales');
     Route::post('/pr_wapu/getSales',                                   [WapuController::class, 'getSales'])->name('pr_wapu/getSales');
     Route::get('/pr_wapu/getvendor',                                   [WapuController::class, 'getvendor'])->name('pr_wapu/getvendor');
@@ -242,66 +144,21 @@ Route::middleware(['UserAkses:staff,super_admin'])->group(function() {
 });
 
 ////SWASTA
-Route::middleware(['UserAkses:staff,super_admin'])->group(function() {
+Route::middleware(['UserAkses:sales,admin,super_admin'])->group(function() {
     // Route::get('/manager',[ManagerController::class, 'index']);
-    Route::get('/swasta',                                              [WapuController::class, 'index']);
-    Route::get('/swasta/getSales',                                     [SwastaController::class, 'getSales'])->name('swasta/getSales');
-    Route::post('/swasta/getSales',                                    [SwastaController::class, 'getSales'])->name('swasta/getSales');
-    Route::get('/swasta/datatable',                                    [SwastaController::class, 'datatable'])->name('swasta/datatable');
-    Route::post('/swasta/datatable',                                   [SwastaController::class, 'datatable'])->name('create');
-    Route::get('/swasta/create',                                       [SwastaController::class, 'create'])->name('create');
-    Route::post('/swasta/create',                                      [SwastaController::class, 'create'])->name('create');
-    Route::get('/swasta/update/{id}',                                  [SwastaController::class, 'update'])->name('update');
-    Route::post('/swasta/update/{id}',                                 [SwastaController::class, 'update'])->name('update');
-    Route::get('/swasta/delete/{id}',                                  [SwastaController::class, 'delete'])->name('delete');
-    Route::post('/swasta/delete/{id}',                                 [SwastaController::class, 'delete'])->name('delete');
-    Route::get('/swasta/generate-nomor-pr',                            [SwastaController::class, 'generateNomorPR'])->name('swasta.generate_nomor_pr');
-    // Route::get('/swasta/detail_data_swasta',                           [SwastaController::class, 'detail_data_swasta']);
-    Route::get('/swasta/datatabledetail',                              [SwastaController::class, 'datatabledetail'])->name('swasta/datatabledetail');
-    Route::post('/swasta/datatabledetail',                             [SwastaController::class, 'datatabledetail'])->name('swasta/datatabledetail');
-    Route::get('/swasta/detailCreate',                                 [SwastaController::class, 'detailCreate'])->name('detailCreate');
-    Route::post('/swasta/detailCreate',                                [SwastaController::class, 'detailCreate'])->name('detailCreate');
-    Route::get('/swasta/datatablecogs',                                [SwastaController::class, 'datatabledetailcogs'])->name('swasta/datatablecogs');
-    Route::post('/swasta/datatablecogs',                               [SwastaController::class, 'datatabledetailcogs'])->name('create');
-    Route::get('/swasta/deletedetail/{id}',                            [SwastaController::class, 'deletedetail'])->name('deletedetail');
-    Route::post('/swasta/deletedetail/{id}',                           [SwastaController::class, 'deletedetail'])->name('deletedetail');
-    Route::get('/swasta/createcogs',                                   [SwastaController::class, 'createCogs'])->name('createcogs');
-    Route::post('/swasta/createcogs',                                  [SwastaController::class, 'createCogs'])->name('createcogs');
-    Route::post('/swasta/updateTotalPpn',                              [SwastaController::class, 'updateTotalPpn'])->name('swasta.updateTotalPpn');
-    Route::post('/swasta/updateincentive',                             [SwastaController::class, 'updateIncentive'])->name('swasta.updateincentive');
-    Route::post('/swasta/updateValidasiPayment',                       [SwastaController::class, 'updateValidasiPayment'])->name('swasta/updateValidasiPayment');
-    Route::post('/swasta/total_cogs',                                  [SwastaController::class, 'getTotalCogs']);
-
-    Route::get('/swasta/detailUpdateCogs/{id}',                        [SwastaController::class, 'detailUpdateCogs'])->name('swasta/detailUpdateCogs');
-    Route::post('/swasta/detailUpdateCogs/{id}',                       [SwastaController::class, 'detailUpdateCogs'])->name('swasta/detailUpdateCogs');
-});
-
-
-Route::middleware(['UserAkses:staff,super_admin'])->group(function() {
-    // Route::get('/manager',[ManagerController::class, 'index']);
-    Route::get('/po_vendor',                                              [PoController::class, 'index']);
-    Route::get('/po/datatable',                                           [PoController::class, 'datatable'])->name('po/datatable');
-    Route::post('/po/datatable',                                          [PoController::class, 'datatable'])->name('create');
-    Route::get('/po/generate-nomor-po',                                   [PoController::class, 'generateNomorPO'])->name('po.generate_nomor_po');
-    Route::get('/po/getSales',                                            [PoController::class, 'getSales'])->name('po/getSales');
-    Route::post('/po/getSales',                                           [PoController::class, 'getSales'])->name('po/getSales');
-    Route::get('/po/getPr',                                              [PoController::class, 'getPr'])->name('po/getPr');
-    Route::post('/po/getPr',                                             [PoController::class, 'getPr'])->name('po/getPr');
-    Route::get('/po/getVendor',                                              [PoController::class, 'getVendor'])->name('po/getVendor');
-    Route::post('/po/getVendor',                                             [PoController::class, 'getVendor'])->name('po/getVendor');
-    Route::get('/po/create',                                        [PoController::class, 'create'])->name('create');
-    Route::post('/po/create',                                       [PoController::class, 'create'])->name('create');
-    Route::get('/po/cetakCV',                                       [PoController::class, 'cetakCV'])->name('po/cetakCV');
-    Route::post('/po/cetakCV',                                      [PoController::class, 'cetakCV'])->name('po/cetakCV');
-    Route::get('/po/cetakPT',                                       [PoController::class, 'cetakPT'])->name('po/cetakPT');
-    Route::post('/po/cetakPT',                                      [PoController::class, 'cetakPT'])->name('po/cetakPT');
-
-
+    // Route::get('/swasta',                                              [WapuController::class, 'index']);
+    // Route::get('/swasta/getSales',                                     [SwastaController::class, 'getSales'])->name('swasta/getSales');
+    // Route::post('/swasta/getSales',                                    [SwastaController::class, 'getSales'])->name('swasta/getSales');
+    // Route::get('/swasta/datatable',                                    [SwastaController::class, 'datatable'])->name('swasta/datatable');
+    // Route::post('/swasta/datatable',                                   [SwastaController::class, 'datatable'])->name('create');
+    // Route::get('/swasta/create',                                       [SwastaController::class, 'create'])->name('create');
+    // Route::post('/swasta/create',                                      [SwastaController::class, 'create'])->name('create');
     // Route::get('/swasta/update/{id}',                                  [SwastaController::class, 'update'])->name('update');
     // Route::post('/swasta/update/{id}',                                 [SwastaController::class, 'update'])->name('update');
     // Route::get('/swasta/delete/{id}',                                  [SwastaController::class, 'delete'])->name('delete');
     // Route::post('/swasta/delete/{id}',                                 [SwastaController::class, 'delete'])->name('delete');
-    // Route::get('/swasta/detail_data_swasta',                           [SwastaController::class, 'detail_data_swasta']);
+    // Route::get('/swasta/generate-nomor-pr',                            [SwastaController::class, 'generateNomorPR'])->name('swasta.generate_nomor_pr');
+    // // Route::get('/swasta/detail_data_swasta',                           [SwastaController::class, 'detail_data_swasta']);
     // Route::get('/swasta/datatabledetail',                              [SwastaController::class, 'datatabledetail'])->name('swasta/datatabledetail');
     // Route::post('/swasta/datatabledetail',                             [SwastaController::class, 'datatabledetail'])->name('swasta/datatabledetail');
     // Route::get('/swasta/detailCreate',                                 [SwastaController::class, 'detailCreate'])->name('detailCreate');
@@ -321,8 +178,29 @@ Route::middleware(['UserAkses:staff,super_admin'])->group(function() {
     // Route::post('/swasta/detailUpdateCogs/{id}',                       [SwastaController::class, 'detailUpdateCogs'])->name('swasta/detailUpdateCogs');
 });
 
+
+Route::middleware(['UserAkses:admin,super_admin'])->group(function() {
+    // Route::get('/manager',[ManagerController::class, 'index']);
+    Route::get('/po_vendor',                                              [PoController::class, 'index']);
+    Route::get('/po/datatable',                                           [PoController::class, 'datatable'])->name('po/datatable');
+    Route::post('/po/datatable',                                          [PoController::class, 'datatable'])->name('create');
+    Route::get('/po/generate-nomor-po',                                   [PoController::class, 'generateNomorPO'])->name('po.generate_nomor_po');
+    Route::get('/po/getSales',                                            [PoController::class, 'getSales'])->name('po/getSales');
+    Route::post('/po/getSales',                                           [PoController::class, 'getSales'])->name('po/getSales');
+    Route::get('/po/getPr',                                              [PoController::class, 'getPr'])->name('po/getPr');
+    Route::post('/po/getPr',                                             [PoController::class, 'getPr'])->name('po/getPr');
+    Route::get('/po/getVendor',                                              [PoController::class, 'getVendor'])->name('po/getVendor');
+    Route::post('/po/getVendor',                                             [PoController::class, 'getVendor'])->name('po/getVendor');
+    Route::get('/po/create',                                        [PoController::class, 'create'])->name('create');
+    Route::post('/po/create',                                       [PoController::class, 'create'])->name('create');
+    Route::get('/po/cetakCV',                                       [PoController::class, 'cetakCV'])->name('po/cetakCV');
+    Route::post('/po/cetakCV',                                      [PoController::class, 'cetakCV'])->name('po/cetakCV');
+    Route::get('/po/cetakPT',                                       [PoController::class, 'cetakPT'])->name('po/cetakPT');
+    Route::post('/po/cetakPT',                                      [PoController::class, 'cetakPT'])->name('po/cetakPT');
+});
+
 //DELIVERY ORDER
-    Route::middleware(['UserAkses:staff,super_admin'])->group(function() {
+    Route::middleware(['UserAkses:admin,super_admin'])->group(function() {
     // Route::get('/manager',[ManagerController::class, 'index']);
     Route::get('/delivery_order',                                                     [DoController::class, 'index']);
     Route::get('/delivery_order/datatable',                                           [DoController::class, 'datatable'])->name('delivery_order/datatable');
@@ -343,7 +221,7 @@ Route::middleware(['UserAkses:staff,super_admin'])->group(function() {
 
 
 //INVOICE
-Route::middleware(['UserAkses:staff,super_admin'])->group(function() {
+Route::middleware(['UserAkses:admin,super_admin'])->group(function() {
     // Route::get('/manager',[ManagerController::class, 'index']);
     Route::get('/invoice',                                                     [InvoiceController::class, 'index']);
     Route::get('/invoice/datatable',                                           [InvoiceController::class, 'datatable'])->name('invoice/datatable');
@@ -363,7 +241,7 @@ Route::middleware(['UserAkses:staff,super_admin'])->group(function() {
 });
 
 //QUALITY CONTROL
-Route::middleware(['UserAkses:staff,super_admin'])->group(function() {
+Route::middleware(['UserAkses:teknisi,super_admin'])->group(function() {
     // Route::get('/manager',[ManagerController::class, 'index']);
     Route::get('/qc',                                                          [QcController::class, 'index']);
     Route::get('/qc/datatable',                                                [QcController::class, 'datatable'])->name('qc/datatable');
@@ -390,7 +268,7 @@ Route::middleware(['UserAkses:staff,super_admin'])->group(function() {
 });
 
 ////NON PPN
-Route::middleware(['UserAkses:staff,super_admin'])->group(function() {
+Route::middleware(['UserAkses:sales,admin,super_admin'])->group(function() {
     // Route::get('/manager',[ManagerController::class, 'index']);
     Route::get('/non_ppn/getSales',                                    [NonppnController::class, 'getSales'])->name('non_ppn/getSales');
     Route::post('/non_ppn/getSales',                                   [NonppnController::class, 'getSales'])->name('non_ppn/getSales');
@@ -424,26 +302,6 @@ Route::middleware(['UserAkses:staff,super_admin'])->group(function() {
     Route::post('/non_ppn/detailUpdate', [NonppnController::class, 'detailUpdate'])->name('non_ppn/detailUpdate');
     Route::get('/non_ppn/detailUpdateCogs/{id}', [NonppnController::class, 'detailUpdateCogs'])->name('non_ppn/detailUpdateCogs');
     Route::post('/non_ppn/detailUpdateCogs/{id}', [NonppnController::class, 'detailUpdateCogs'])->name('non_ppn/detailUpdateCogs');
-});
-
-/////SOUND SYSTEM
-Route::middleware(['UserAkses:sound_system,super_admin'])->group(function() {
-    // Route::get('/manager',[ManagerController::class, 'index']);
-    Route::get('/sound',                                             [SoundController::class, 'index']);
-    Route::get('/sound/getdata_sound',                               [SoundController::class, 'getdata_sound'])->name('getdata_sound');
-    Route::get('/sound/tambah_data_sound',                           [SoundController::class, 'tambah_data_sound']);
-    Route::post('/sound/proses_tambah_sound',                        [SoundController::class, 'proses_tambah_sound']);
-    Route::get('/sound/datatable',                                   [SoundController::class, 'datatable'])->name('sound/datatable');
-    Route::get('/sound/datatable',                                   [SoundController::class, 'datatable'])->name('sound/datatable');
-    Route::post('/sound/datatable',                                  [SoundController::class, 'datatable'])->name('create');
-    Route::get('/sound/create',                                      [SoundController::class, 'create'])->name('create');
-    Route::post('/sound/create',                                     [SoundController::class, 'create'])->name('create');
-    Route::get('/sound/update/{id}',                                 [SoundController::class, 'update'])->name('update');
-    Route::post('/sound/update/{id}',                                [SoundController::class, 'update'])->name('update');
-    Route::get('/sound/delete/{id}',                                      [SoundController::class, 'delete'])->name('delete');
-    Route::post('/sound/delete/{id}',                                     [SoundController::class, 'delete'])->name('delete');
-    Route::get('/sound/getpaketsound', [SoundController::class, 'getpaketsound'])->name('sound/getpaketsound');
-    Route::post('/sound/getpaketsound', [SoundController::class, 'getpaketsound'])->name('sound/getpaketsound');
 });
 
 Route::get('/logout',                        [SesiController::class, 'logout']);

@@ -35,7 +35,7 @@
         <div class="col-12">
           <div class="card mb-4">
             <div class="card-header pb-0">
-                <h6>Data PR Wapu</h6>
+                <h6>Data PR</h6>
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div class="ml-auto">
                         @if(Auth::user() && Auth::user()->role === 'super_admin')
@@ -455,36 +455,6 @@ $(document).ready(function() {
     // Event handler ketika modal akan ditutup
     $('#formModal').on('hide.bs.modal', function () {
         closeModal();
-    });
-
-
-    $('select[name=cmb_laundry]').on('select2:select', function (e) {
-        var data = e.params.data;
-        var perkalian = $('#harga').val(data.harga);
-        $('#harga').val(toRp(data.harga));
-        $('#total_harga').val(toRp(data.harga));
-    });
-
-    $('#berat').on('input', function (e) {
-        var perkalian = $(this).val();
-        var harga = $('#harga').val().replace(/\./g, '');
-
-        // Set default value to 1 if input is empty or less than 1
-        if (!perkalian || parseInt(perkalian) < 1) {
-            $(this).val(1);
-            perkalian = 1;
-        }
-
-        $('#total_harga').val(toRp(parseInt(harga) * parseInt(perkalian)));
-    });
-
-    // Add blur event to handle when input loses focus
-    $('#berat').on('blur', function() {
-        if (!$(this).val()) {
-            $(this).val(1);
-            var harga = $('#harga').val();
-            $('#total_harga').val(parseInt(harga) * 1);
-        }
     });
 
     collectionS2Search();

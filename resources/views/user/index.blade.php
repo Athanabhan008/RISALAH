@@ -144,7 +144,9 @@
                         <select class="custom-select" id="inputGroupSelect01" name="role">
                           <option selected>Choose...</option>
                           <option value="super_admin">Super Admin</option>
-                          <option value="staff">Staff</option>
+                          <option value="manager">Manager</option>
+                          <option value="sales">Sales</option>
+                          <option value="teknisi">Teknisi</option>
                         </select>
                       </div>
 
@@ -229,7 +231,7 @@ function toggleDivisi() {
     const roleVal = $('select[name=role]').val();
     const divisiGroup = $('select[name=divisi]').closest('.input-group');
 
-    if (roleVal === 'staff') {
+    if (roleVal === 'sales') {
         divisiGroup.show();
     } else {
         divisiGroup.hide();

@@ -339,6 +339,9 @@ class WapuController extends Controller
                     }
                 }
 
+                // Ambil data user yang sedang login
+                $currentUser = auth()->user();
+
                 return view('pr.detail_data_prwapu', [
                     'active'=> 'pr_wapu',
                     'id_projek' => $request->id_projek,
@@ -347,6 +350,7 @@ class WapuController extends Controller
                     'validasi_payment' => $prwapu->validasi_payment ?? '',
                     'pph_bank_fee' => $pph_bank_fee ?? '',
                     'incentive_sales' => $incentive_sales ?? 0,
+                    'currentUser' => $currentUser, // Tambahkan data user yang login
                 ]);
             } catch (\Exception $e) {
                 return redirect()->back()->with('error', 'Gagal memuat data: ' . $e->getMessage());

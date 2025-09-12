@@ -24,4 +24,19 @@ class StaffController extends Controller
             "active" => 'pr_wapu'
         ]);
     }
+    public function index1()
+    {
+
+        $today = date('Y-m-d');
+        $month = date('Ym');
+        $year = date('Y');
+
+
+        //BOOKING
+
+
+        return view('qc.index', [
+            "active" => 'qc'
+        ]);
+    }
 }

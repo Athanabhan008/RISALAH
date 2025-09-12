@@ -94,7 +94,7 @@ class DoController extends Controller
         $id_sales = $request->input('id_sales');
         $data = DB::table('vw_qc')
             ->where('id_sales', $id_sales)
-            ->select('id_qc as id', 'nama_client', 'nama_projek')
+            ->select('id_qc as id', 'nama_client', 'nama_projek','nomor_pr')
             ->get();
 
         return response()->json(['data' => $data]);
@@ -117,7 +117,7 @@ class DoController extends Controller
             $po = new Delivery();
             $po->nomor_do = $request->nomor_do;
             $po->id_sales = $request->cmb_sales;
-            $po->id_pr = $request->cmb_pr;
+            $po->id_qc = $request->cmb_pr;
             $po->tgl_pengiriman = $request->tgl_pengiriman;
             $po->alamat = $request->alamat;
             $po->updated_at = null;
@@ -787,7 +787,7 @@ class DoController extends Controller
         $this->fpdf->Cell(5 , 0.5, ": " . $data_result[0]['nomor_do'], 0, 0, 'R');
 		$this->fpdf->Ln(0.8);
         $this->fpdf->Cell(10.2, 0.5, "Date", 0, 0, 'R');
-        $this->fpdf->Cell(4.8, 0.5, ": " . $this->formatDateIndonesian(), 0, 0, 'R');
+        $this->fpdf->Cell(5.7, 0.5, ": " . $this->formatDateIndonesian(), 0, 0, 'R');
 		$this->fpdf->Ln(0.4);
 
         // Move address closer to client name - right after the date
@@ -831,7 +831,7 @@ class DoController extends Controller
             $maxRows = floor($availableHeight / $rowHeight);
         }
 
-        $table = new easyTables($this->fpdf, "{2, 17, 2.5, 12, 15}", 'border:1;font-size:' . $fontSize . ';');
+        $table = new easyTables($this->fpdf, "{2.5, 15, 2.3, 5.5, 6}", 'border:1;font-size:7.9;min-height:0.5;');
 
         $table->rowStyle('font-style:B;');
         $table->easyCell('NO', 'valign:M;align:C;');
@@ -842,47 +842,219 @@ class DoController extends Controller
         $table->printRow();
 
         $i = 1;
-        $grand_total = 0;
+        $grand_total = 0; // Initialize grand total
+        foreach ($data_result as $value) {
+            // Hitung grand total
 
-        // Batasi jumlah baris yang ditampilkan jika terlalu banyak
-        $displayData = array_slice($data_result, 0, $maxRows - 1); // Kurangi 1 untuk header
+            $dsc = strlen($value['partnumber_description']);
 
-        foreach ($displayData as $value) {
-            $table->easyCell($i++, 'valign:M;align:C;');
-            $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
-            $table->easyCell($value['qty'], 'valign:M;align:C;');
-            $table->easyCell($value['part_number'], 'valign:M;align:L;');
-            $table->easyCell($value['serial_number'], 'valign:M;align:L;');
+            if ($this->fpdf->GetY() > 27) {
+                if ($dsc > 100) {
+                    $table->easyCell($i++, 'valign:M;align:C;');
+                    // Bagi menjadi dua bagian
+                    $part1 = substr($value['partnumber_description'], 0, 100);
+                    $part2 = substr($value['partnumber_description'], 100);
+
+                    // Cetak bagian pertama
+                    $table->easyCell($part1, 'valign:M;align:L;');
+                    $table->easyCell($value['qty'], 'valign:M;align:R;');
+                    $table->easyCell($value['part_number'], 'valign:M;align:R;');
+                    $table->easyCell($value['serial_number'], 'valign:M;align:R;');
+                    $table->printRow();
+
+                    // Cetak bagian kedua
+                    // $this->fpdf->AddPage('P', 'A4');
+                    $table->easyCell('', 'valign:M;align:C;');
+                    $table->easyCell($part2, 'valign:M;align:L;');
+                    $table->easyCell('', 'valign:M;align:C;');
+                    $table->easyCell('', 'valign:M;align:C;');
+                    $table->easyCell('', 'valign:M;align:C;');
+                } else {
+                    if ($this->fpdf->GetY() > 25) {
+                        if ($dsc > 500) {
+                            $table->easyCell($i++, 'valign:M;align:C;');
+                            // Bagi menjadi dua bagian
+                            $part1 = substr($value['partnumber_description'], 0, 500);
+                            $part2 = substr($value['partnumber_description'], 500);
+
+                            // Cetak bagian pertama
+                            $table->easyCell($part1, 'valign:M;align:L;');
+                            $table->easyCell($value['qty'], 'valign:M;align:R;');
+                            $table->easyCell($value['part_number'], 'valign:M;align:R;');
+                            $table->easyCell($value['serial_number'], 'valign:M;align:R;');
+                            $table->printRow();
+
+                            // Cetak bagian kedua
+                            // $this->fpdf->AddPage('P', 'A4');
+                            $table->easyCell('', 'valign:M;align:C;');
+                            $table->easyCell($part2, 'valign:M;align:L;');
+                            $table->easyCell('', 'valign:M;align:C;');
+                            $table->easyCell('', 'valign:M;align:C;');
+                            $table->easyCell('', 'valign:M;align:C;');
+                        } else {
+                            $table->easyCell($i++, 'valign:M;align:C;');
+                            $table->easyCell($value['partnumber_description'], 'valign:M;align:R;');
+                            $table->easyCell($value['qty'], 'valign:M;align:R;');
+                            $table->easyCell($value['part_number'], 'valign:M;align:R;');
+                            $table->easyCell($value['serial_number'], 'valign:M;align:R;');
+                            $table->printRow();
+                        }
+
+                    } else {
+                        if ($this->fpdf->GetY() > 23) {
+                            if ($dsc > 900) {
+                                $table->easyCell($i++, 'valign:M;align:C;');
+                                // Bagi menjadi dua bagian
+                                $part1 = substr($value['partnumber_description'], 0, 900);
+                                $part2 = substr($value['partnumber_description'], 900);
+
+                                // Cetak bagian pertama
+                                $table->easyCell($part1, 'valign:M;align:L;');
+                                $table->easyCell($value['qty'], 'valign:M;align:R;');
+                                $table->easyCell($value['part_number'], 'valign:M;align:R;');
+                                $table->easyCell($value['serial_number'], 'valign:M;align:R;');
+                                $table->printRow();
+
+                                // Cetak bagian kedua
+                                // $this->fpdf->AddPage('P', 'A4');
+                                $table->easyCell('', 'valign:M;align:C;');
+                                $table->easyCell($part2, 'valign:M;align:L;');
+                                $table->easyCell('', 'valign:M;align:C;');
+                                $table->easyCell('', 'valign:M;align:C;');
+                                $table->easyCell('', 'valign:M;align:C;');
+                            } else {
+                                $table->easyCell($i++, 'valign:M;align:C;');
+                                $table->easyCell($value['partnumber_description'], 'valign:M;align:R;');
+                                $table->easyCell($value['qty'], 'valign:M;align:R;');
+                                $table->easyCell($value['part_number'], 'valign:M;align:R;');
+                                $table->easyCell($value['serial_number'], 'valign:M;align:R;');
+                                $table->printRow();
+                            }
+
+                        } else {
+                            if ($this->fpdf->GetY() > 21) {
+                                if ($dsc > 1100) {
+                                    $table->easyCell($i++, 'valign:M;align:C;');
+                                    // Bagi menjadi dua bagian
+                                    $part1 = substr($value['partnumber_description'], 0, 1100);
+                                    $part2 = substr($value['partnumber_description'], 1100);
+
+                                    // Cetak bagian pertama
+                                    $table->easyCell($part1, 'valign:M;align:L;');
+                                    $table->easyCell($value['qty'], 'valign:M;align:R;');
+                                    $table->easyCell($value['part_number'], 'valign:M;align:R;');
+                                    $table->easyCell($value['serial_number'], 'valign:M;align:R;');
+                                    $table->printRow();
+
+                                    // Cetak bagian kedua
+                                    // $this->fpdf->AddPage('P', 'A4');
+                                    $table->easyCell('', 'valign:M;align:C;');
+                                    $table->easyCell($part2, 'valign:M;align:L;');
+                                    $table->easyCell('', 'valign:M;align:C;');
+                                    $table->easyCell('', 'valign:M;align:C;');
+                                    $table->easyCell('', 'valign:M;align:C;');
+                                } else {
+                                    $table->easyCell($i++, 'valign:M;align:C;');
+                                    $table->easyCell($value['partnumber_description'], 'valign:M;align:R;');
+                                    $table->easyCell($value['qty'], 'valign:M;align:R;');
+                                    $table->easyCell($value['part_number'], 'valign:M;align:R;');
+                                    $table->easyCell($value['serial_number'], 'valign:M;align:R;');
+                                    $table->printRow();
+                                }
+
+                            } else {
+                                if ($this->fpdf->GetY() > 19) {
+                                    if ($dsc > 1500) {
+                                        $table->easyCell($i++, 'valign:M;align:C;');
+                                        // Bagi menjadi dua bagian
+                                        $part1 = substr($value['partnumber_description'], 0, 1500);
+                                        $part2 = substr($value['partnumber_description'], 1500);
+
+                                        // Cetak bagian pertama
+                                        $table->easyCell($part1, 'valign:M;align:L;');
+                                        $table->easyCell($value['qty'], 'valign:M;align:R;');
+                                        $table->easyCell($value['part_number'], 'valign:M;align:R;');
+                                        $table->easyCell($value['serial_number'], 'valign:M;align:R;');
+                                        $table->printRow();
+
+                                        // Cetak bagian kedua
+                                        // $this->fpdf->AddPage('P', 'A4');
+                                        $table->easyCell('', 'valign:M;align:C;');
+                                        $table->easyCell($part2, 'valign:M;align:L;');
+                                        $table->easyCell('', 'valign:M;align:C;');
+                                        $table->easyCell('', 'valign:M;align:C;');
+                                        $table->easyCell('', 'valign:M;align:C;');
+                                    } else {
+                                        $table->easyCell($i++, 'valign:M;align:C;');
+                                        $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                                        $table->easyCell($value['qty'], 'valign:M;align:C;');
+                                        $table->easyCell($value['part_number'], 'valign:M;align:L;');
+                                        $table->easyCell($value['serial_number'], 'valign:M;align:R;');
+                                    }
+
+                                } else {
+                                    if ($this->fpdf->GetY() > 17) {
+                                        if ($dsc > 1800) {
+                                            $table->easyCell($i++, 'valign:M;align:C;');
+                                            // Bagi menjadi dua bagian
+                                            $part1 = substr($value['partnumber_description'], 0, 1800);
+                                            $part2 = substr($value['partnumber_description'], 1800);
+
+                                            // Cetak bagian pertama
+                                            $table->easyCell($part1, 'valign:M;align:L;');
+                                            $table->easyCell($value['qty'], 'valign:M;align:R;');
+                                            $table->easyCell($value['part_number'], 'valign:M;align:R;');
+                                            $table->easyCell($value['serial_number'], 'valign:M;align:R;');
+                                            $table->printRow();
+
+                                            // Cetak bagian kedua
+                                            // $this->fpdf->AddPage('P', 'A4');
+                                            $table->easyCell('', 'valign:M;align:C;');
+                                            $table->easyCell($part2, 'valign:M;align:L;');
+                                            $table->easyCell('', 'valign:M;align:C;');
+                                            $table->easyCell('', 'valign:M;align:C;');
+                                            $table->easyCell('', 'valign:M;align:C;');
+                                        } else {
+                                            $table->easyCell($i++, 'valign:M;align:C;');
+                                            $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                                            $table->easyCell($value['qty'], 'valign:M;align:C;');
+                                            $table->easyCell($value['part_number'], 'valign:M;align:L;');
+                                            $table->easyCell($value['serial_number'], 'valign:M;align:R;');
+                                        }
+
+                                    } else {
+                                        $table->easyCell($i++, 'valign:M;align:C;');
+                                        $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                                        $table->easyCell($value['qty'], 'valign:M;align:C;');
+                                        $table->easyCell($value['part_number'], 'valign:M;align:L;');
+                                        $table->easyCell($value['serial_number'], 'valign:M;align:R;');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                $table->easyCell($i++, 'valign:M;align:C;');
+                $table->easyCell($value['partnumber_description'], 'valign:M;align:L;');
+                $table->easyCell($value['qty'], 'valign:M;align:C;');
+                $table->easyCell($value['part_number'], 'valign:M;align:L;');
+                $table->easyCell($value['serial_number'], 'valign:M;align:R;');
+            }
+
+
+            // Cetak baris
             $table->printRow();
+            $this->fpdf->Ln(0);
+
         }
-
-        // Jika ada data yang tidak ditampilkan, tambahkan catatan
-        if (count($data_result) > count($displayData)) {
-            $remainingCount = count($data_result) - count($displayData);
-            $table->rowStyle('font-style:I;font-size:' . ($fontSize - 1) . ';');
-            $table->easyCell('...', 'colspan:5;valign:M;align:C;');
-            $table->printRow();
-            $table->easyCell('Dan ' . $remainingCount . ' item lainnya', 'colspan:5;valign:M;align:C;');
-            $table->printRow();
-        }
-
-        // Simpan posisi Y setelah tabel selesai
-        $currentY = $this->fpdf->GetY();
-
-         // Tambahkan jarak minimal setelah tabel (dikurangi untuk menghemat ruang)
-        $minSpaceAfterTable = 1; // dikurangi dari 2 menjadi 1
-        $shipToY = $currentY + $minSpaceAfterTable;
-
-        // Pindah ke posisi Ship To yang dinamis
-        $this->fpdf->SetY($shipToY);
-
-        // Gambar garis pemisah
-        $this->fpdf->SetLineWidth(0.1);
-        $this->fpdf->Line(1, $shipToY, 20, $shipToY);
-        $this->fpdf->SetLineWidth(0);
-        $this->fpdf->Ln(0.3); // dikurangi dari 0.5
+ // print_r($this->fpdf->GetY());die;
+ if ($this->fpdf->GetY() > 24) {
+    $this->fpdf->AddPage('P', 'A4');
+}
 
         // Konten Ship To (dikompresi)
+        $this->fpdf->Ln(0.5);
         $this->fpdf->SetFont('Arial', 'B', 10); // dikurangi dari 11
         $this->fpdf->Cell(12, 0, "Ship To :", 0, 0, 'L');
         $this->fpdf->Ln(0.6); // dikurangi dari 1

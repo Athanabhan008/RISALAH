@@ -648,94 +648,10 @@ function collectionS2Search() {
         width: '83.9%',
         placeholder: '',
         ajax: {
-            url: "{{ url('/po/getSales') }}",
-            dataType: 'json',
-            data: function (params) {
-                return {
-                    q: params.term,
-                    page: params.page || 1
-                };
-            },
-            processResults: function (data) {
-                return {
-                    results: $.map(data.data, function (item) {
-                        return {
-                            text: item.name,
-                            id: item.id
-                        }
-                    }),
-                    pagination: {
-                        more: false
-                    }
-                };
-            },
-            cache: true
-        }
-    });
-
-    // Event handler for when sales changes
-    $('select[name=cmb_sales]').on('select2:select', function (e) {
-        // Clear the barang dropdown and enable it
-        $('select[name=cmb_pr]').val(null).trigger('change');
-        $('select[name=cmb_pr]').prop('disabled', false);
-
-        // Clear the harga field
-        $('#harga').val('');
-    });
-
-    $('select[name=cmb_pr]').select2({
-        dropdownParent: $('#formModal'),
-        allowClear: true,
-        width: '83.9%',
-        placeholder: '',
-        ajax: {
-            url: "{{ url('/po/getPr') }}",
-            dataType: 'json',
-            data: function (params) {
-                return {
-                    id_sales: $('#cmb_sales').val(),
-                    q: params.term,
-                    page: params.page || 1
-                };
-            },
-            processResults: function (data) {
-                return {
-                    results: $.map(data.data, function (item) {
-                        return {
-                            text: item.nomor_pr,
-                            nama_client: item.nama_client,
-                            nama_projek: item.nama_projek,
-                            id: item.id,
-                        }
-                    }),
-                    pagination: {
-                        more: false
-                    }
-                };
-            },
-            cache: true
-        }
-    });
-
-    // Event handler for when a barang is selected
-    $('select[name=cmb_pr]').on('select2:select', function (e) {
-        var data = e.params.data;
-
-        $('#nama_client').val(data.nama_client);
-        $('#nama_projek').val(data.nama_projek);
-
-
-        $('select[name=cmb_vendor]').select2({
-            dropdownParent: $('#formModal'),
-            allowClear: true,
-            width: '83.9%',
-            placeholder: '',
-            ajax: {
-                url: "{{ url('/po/getVendor') }}",
+                url: "{{ url('/qc/getSales') }}",
                 dataType: 'json',
                 data: function (params) {
                     return {
-                        id_pr: data.id,
                         q: params.term,
                         page: params.page || 1
                     };
@@ -744,8 +660,8 @@ function collectionS2Search() {
                     return {
                         results: $.map(data.data, function (item) {
                             return {
-                                text: item.nama_vendor,
-                                id: item.id_vendor,
+                                text: item.name,
+                                id: item.id
                             }
                         }),
                         pagination: {
@@ -757,15 +673,71 @@ function collectionS2Search() {
             }
         });
 
-    });
+        // Event handler for when sales changes
+        $('select[name=cmb_sales]').on('select2:select', function (e) {
+            // Clear the barang dropdown and enable it
+            $('select[name=cmb_pr]').val(null).trigger('change');
+            $('select[name=cmb_pr]').prop('disabled', false);
 
-    // $('#jumlah').on('input', function (e) {
-    //     var perkalian = $(this).val();
-    //     var harga = $('#harga_barang').val().replace(/[^0-9]/g, '');
+            // Clear the harga field
+            $('#harga').val('');
+        });
 
-    //     $('#harga_total').val(formatRupiah(parseInt(harga) * parseInt(perkalian)));
-    // });
-}
+        $('select[name=cmb_pr]').select2({
+            dropdownParent: $('#formModal'),
+            allowClear: true,
+            width: '83.9%',
+            placeholder: '',
+            ajax: {
+                url: "{{ url('/qc/getPr') }}",
+                dataType: 'json',
+                data: function (params) {
+                    return {
+                        id_sales: $('#cmb_sales').val(),
+                        q: params.term,
+                        page: params.page || 1
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data.data, function (item) {
+                            return {
+                                text: item.nomor_pr,
+                                nama_client: item.nama_client,
+                                nama_projek: item.nama_projek,
+                                id: item.id,
+                            }
+                        }),
+                        pagination: {
+                            more: false
+                        }
+                    };
+                },
+                cache: true
+            }
+        });
+
+        // setelah inisialisasi $('select[name=cmb_pr]').select2({...})
+        $('select[name=cmb_pr]').on('select2:select', function (e) {
+            const data = e.params.data;
+            $('#nama_client').val(data.nama_client || '');
+            $('#nama_projek').val(data.nama_projek || '');
+        });
+
+        // opsional: kosongkan jika di-clear
+        $('select[name=cmb_pr]').on('select2:clear', function () {
+            $('#nama_client').val('');
+            $('#nama_projek').val('');
+        });
+
+        // saat sales berubah, selain reset cmb_pr, juga kosongkan field
+        $('select[name=cmb_sales]').on('select2:select', function () {
+            $('select[name=cmb_pr]').val(null).trigger('change');
+            $('select[name=cmb_pr]').prop('disabled', false);
+            $('#nama_client').val('');
+            $('#nama_projek').val('');
+        });
+    }
 
 </script>
   @endpush
