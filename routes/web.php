@@ -106,6 +106,8 @@ Route::middleware(['UserAkses:sales,admin,super_admin,manager'])->group(function
     Route::get('/pr_wapu',                                             [WapuController::class, 'index']);
     Route::get('/pr_wapu/datatable',                                   [WapuController::class, 'datatable'])->name('pr_wapu/datatable');
     Route::post('/pr_wapu/datatable',                                  [WapuController::class, 'datatable'])->name('create');
+    Route::get('/pr_wapu/datatablesharing',                            [WapuController::class, 'datatablesharing'])->name('pr_wapu/datatablesharing');
+    Route::post('/pr_wapu/datatablesharing',                           [WapuController::class, 'datatablesharing'])->name('create');
     Route::get('/pr_wapu/create',                                      [WapuController::class, 'create'])->name('create');
     Route::post('/pr_wapu/create',                                     [WapuController::class, 'create'])->name('create');
     Route::get('/pr_wapu/update/{id}',                                 [WapuController::class, 'update'])->name('update');
@@ -129,7 +131,7 @@ Route::middleware(['UserAkses:sales,admin,super_admin,manager'])->group(function
 
     Route::post('/pr_wapu/updateTotalPpn',                             [WapuController::class, 'updateTotalPpn'])->name('pr_wapu.updateTotalPpn');
     Route::post('/pr_wapu/updateTotalPO',                              [WapuController::class, 'updateTotalPO'])->name('pr_wapu.updateTotalPO');
-    Route::post('/pr_wapu/updatesharingprovit',                        [WapuController::class, 'updateSharingProvit'])->name('pr_wapu.updatesharingprovit');
+    Route::post('/pr_wapu/createsharingprovit',                        [WapuController::class, 'createsharingprovit'])->name('pr_wapu.createsharingprovit');
     Route::post('/pr_wapu/updateincentive',                            [WapuController::class, 'updateIncentive'])->name('pr_wapu.updateincentive');
     Route::post('/pr_wapu/updateValidasiPayment',                      [WapuController::class, 'updateValidasiPayment'])->name('pr_wapu/updateValidasiPayment');
     Route::post('/pr_wapu/total_cogs',                                 [WapuController::class, 'getTotalCogs']);

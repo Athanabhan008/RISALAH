@@ -64,11 +64,12 @@
                     <thead style="background-color: #1E3135; color: white;">
                       <tr>
                         <th style="color: white;" class="text-uppercase text-xxs font-weight-bolder opacity-7">No</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nama Client</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nama Projek</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Jenis PR</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nomor PR</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Status</th>
+                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Profit Holding</th>
+                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Profit Leader</th>
+                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Profit Dirutama</th>
+                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Profit SIM</th>
+                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Profit Keuangan</th>
+                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Total Profit</th>
                       </tr>
                     </thead>
                     <tbody></tbody>
@@ -494,7 +495,7 @@ $(document).ready(function() {
 function viewDatatable() {
     table = $('.basic-datatables').DataTable({
         ajax: {
-            url: "{{ route('pr_wapu/datatable') }}",
+            url: "{{ route('pr_wapu/datatablesharing') }}",
             "type": "post",
             "data": function (d) {
                 var formData = $("#form_filter").serializeArray();
@@ -526,7 +527,7 @@ function viewDatatable() {
                 }
             },
             {
-                data: "nama_client",
+                data: "profit_holding",
                 render: function (data, type, row, meta) {
                     if (data == '' || data == null) {
                         return '-';
@@ -536,7 +537,7 @@ function viewDatatable() {
                 }
             },
             {
-                data: "nama_projek",
+                data: "profit_leader",
                 render: function (data, type, row, meta) {
                     if (data == '' || data == null) {
                         return '-';
@@ -546,7 +547,7 @@ function viewDatatable() {
                 }
             },
             {
-                data: "jenis_pr",
+                data: "profit_dirutama",
                 render: function (data, type, row, meta) {
                     if (data == '' || data == null) {
                         return '-';
@@ -556,7 +557,7 @@ function viewDatatable() {
                 }
             },
             {
-                data: "nomor_pr",
+                data: "profit_sim",
                 render: function (data, type, row, meta) {
                     if (data == '' || data == null) {
                         return '-';
@@ -566,7 +567,17 @@ function viewDatatable() {
                 }
             },
             {
-                data: "status",
+                data: "profit_keuangan",
+                render: function (data, type, row, meta) {
+                    if (data == '' || data == null) {
+                        return '-';
+                    } else {
+                        return data;
+                    }
+                }
+            },
+            {
+                data: "total_profit",
                 render: function (data, type, row, meta) {
                     if (data == '' || data == null) {
                         return '-';

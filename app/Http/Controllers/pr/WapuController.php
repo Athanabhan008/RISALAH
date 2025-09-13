@@ -11,6 +11,7 @@ use App\Models\SoundSystem;
 use App\Models\DetailSoundSystem;
 use App\Models\Nonppn;
 use App\Models\PrwapuDetail;
+use App\Models\SharingProfit;
 use App\Models\Swasta;
 use App\Models\User;
 use App\Models\Vendor;
@@ -58,6 +59,44 @@ class WapuController extends Controller
 
         // Filter berdasarkan user yang login
         if ($user->role == 'super_admin') {
+            // Jika admin (role 1), tampilkan semua data
+            // Tidak perlu filter tambahan
+        } else {
+            // Jika bukan admin, filter berdasarkan id_sales yang sesuai dengan user yang login
+            $query->where('id_sales', $user->id);
+        }
+
+        $total = $query->count();
+
+        // Apply pagination
+        $results = $query->offset($start)
+                        ->limit($length)
+                        ->get();
+
+        return response()->json([
+            'draw' => $draw,
+            'recordsTotal' => $total,
+            'recordsFiltered' => $total,
+            'data' => $results
+        ]);
+    }
+
+    public function datatablesharing()
+    {
+        $draw = request()->get('draw');
+        $start = request()->get('start');
+        $length = request()->get('length');
+        $id_user = request()->get('cmb_nip');
+
+        $user = auth()->user();
+        $query = SharingProfit::query();
+
+        if ($id_user) {
+            $query->where('nip_user', $id_user);
+        }
+
+        // Filter berdasarkan user yang login
+        if ($user->role == 'super_admin' || $user->role == 'admin' || $user->role == 'manager') {
             // Jika admin (role 1), tampilkan semua data
             // Tidak perlu filter tambahan
         } else {
@@ -814,46 +853,57 @@ class WapuController extends Controller
     }
 
 
-    public function updateSharingProvit(Request $request)
+    public function createsharingprovit(Request $request)
     {
-        $request->validate([
-            'id_projek' => 'required|exists:prwapus,id',
-        ]);
+        try {
+            // Validasi input
+            $request->validate([
+                'id_projek' => 'required|string|max:255',
+                'profit_holding' => 'required|string|max:255',
+                'profit_leader' => 'required|string|max:255',
+                'profit_dirutama' => 'required|string|max:255',
+                'profit_sim' => 'required|string|max:255',
+                'profit_keuangan' => 'required|string|max:255',
+                'total_profit' => 'required|string|max:255',
+            ], [
+                'id_projek.required' => 'Id Projek wajib diisi',
+                'profit_holding.required' => 'Profit Holding wajib diisi',
+                'profit_leader.reuired' => 'Profit Leader Wajib Diisi',
+                'profit_dirutama.required' => 'Profit Dirutama Wajib Diisi',
+                'profit_sim.required' => 'Profit SIM Wajib Diisi',
+                'profit_keuangan.required' => 'Profit Keuangan Wajib Diisi',
+                'total_profit.required' => 'Total Profit Wajib Diisi',
+            ]);
 
-        // Hilangkan format Rp dan titik pada input, pastikan hasilnya integer
-        $profit_sharing_holding = (int) preg_replace('/[^\d]/', '', $request->profit_sharing_holding);
-        $profit_sharing_leader = (int) preg_replace('/[^\d]/', '', $request->profit_sharing_leader);
-        $profit_sharing_dirutama = (int) preg_replace('/[^\d]/', '', $request->profit_sharing_dirutama);
-        $profit_sharing_dirutama = (int) preg_replace('/[^\d]/', '', $request->profit_sharing_dirutama);
-        $profit_sharing_sim = (int) preg_replace('/[^\d]/', '', $request->profit_sharing_sim);
-        $profit_sharing_keuangan = (int) preg_replace('/[^\d]/', '', $request->profit_sharing_keuangan);
-        $total_sharing_profit = (int) preg_replace('/[^\d]/', '', $request->total_sharing_profit);
+            $pr_wapu = new SharingProfit();
+            $pr_wapu->id_projek = $request->id_projek;
+            $pr_wapu->profit_holding = $request->profit_holding;
+            $pr_wapu->profit_leader = $request->  profit_leader;
+            $pr_wapu->profit_dirutama = $request-> profit_dirutama;
+            $pr_wapu->profit_sim = $request->profit_sim;
+            $pr_wapu->profit_keuangan = $request->profit_keuangan;
+            $pr_wapu->total_profit = $request->total_profit;
+            $pr_wapu->updated_at = null;
+            $pr_wapu->save();
 
-        $prwapu = Wapu::findOrFail($request->id_projek);
-        $prwapu->profit_sharing_holding = $profit_sharing_holding;
-        $prwapu->profit_sharing_leader = $profit_sharing_leader;
-        $prwapu->profit_sharing_dirutama = $profit_sharing_dirutama;
-        $prwapu->profit_sharing_dirutama = $profit_sharing_dirutama;
-        $prwapu->profit_sharing_sim = $profit_sharing_sim;
-        $prwapu->profit_sharing_keuangan = $profit_sharing_keuangan;
-        $prwapu->total_sharing_profit = $total_sharing_profit;
-        $prwapu->save();
-
-        // Jika ingin redirect (seperti sekarang)
-        return redirect()->back()->with('success', 'Data berhasil diupdate!');
-
-        // Jika ingin response JSON (uncomment jika perlu)
-        /*
-        return response()->json([
-            'success' => true,
-            'message' => 'Data berhasil diupdate!',
-            'data' => [
-                'total_po_ppn' => $prwapu->total_po_ppn,
-                'total_cost_ppn' => $prwapu->total_cost_ppn,
-                'total_margin_ppn' => $prwapu->total_margin_ppn,
-            ]
-        ]);
-        */
+            return response()->json([
+                'success' => true,
+                'message' => 'Data berhasil disimpan',
+                'data' => $pr_wapu
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menyimpan data',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
 
