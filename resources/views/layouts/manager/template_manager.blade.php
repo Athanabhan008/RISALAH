@@ -90,7 +90,7 @@
           </li>
         @else
           <!-- Menu untuk role selain teknisi -->
-          @if(Auth::user()->role !== 'staff')
+          @if(Auth::user()->role !== 'sales')
           <li class="nav-item">
               <a class="nav-link {{ ($active === "manager") ? 'active' : '' }}" href="{{ url('/manager') }}">
                 <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">

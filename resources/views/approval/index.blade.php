@@ -63,7 +63,6 @@
                 <table id="datatable" class="table table-striped table-bordered basic-datatables">
                     <thead style="background-color: #1E3135; color: white;">
                       <tr>
-                        <th><input type="checkbox" id="head-cb"></th>
                         <th style="color: white;" class="text-uppercase text-xxs font-weight-bolder opacity-7">No</th>
                         <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nama Client</th>
                         <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nama Projek</th>
