@@ -653,6 +653,8 @@ function viewDatatable() {
                         return '<span class="badge badge-warning">Pending</span>';
                     } else if (row.is_approve == 1) {
                         return '<span class="badge badge-success">Approve</span>';
+                    }else {
+                        return '-';
                     }
                 }
             }

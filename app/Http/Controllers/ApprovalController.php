@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use App\Models\SharingProfit;
 use App\Models\SharingProfitModel;
+use App\Models\VwSharingprofit;
 use App\Models\Wapu;
 use Illuminate\Support\Facades\Log;
 
@@ -39,7 +40,7 @@ class ApprovalController extends Controller
         $periode = request()->get('periode_pr');
 
         $user = auth()->user();
-        $query = SharingProfit::query();
+        $query = VwSharingprofit::query();
         $query->where('periode', $periode);
 
         if ($id_user) {

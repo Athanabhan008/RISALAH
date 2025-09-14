@@ -629,7 +629,7 @@
                 <h6 class="text-center font-weight-bold">SHARE MARGIN HOLDING, DIREKSI & INVESTOR</h6>
               </div>
               <div class="card-body px-0 pt-0 pb-2">
-                <form id="form-update-provit-sharing" method="POST" action="{{ url('/pr_wapu/updatesharingprovit') }}">
+              <form id="form-update-provit-sharing" method="POST" action="{{ url('/pr_wapu/createsharingprovit') }}">
                     @csrf
                     <input type="hidden" name="id_projek" value="{{ $id_projek ?? '' }}">
 
@@ -642,7 +642,7 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Profit Sharing Ke Holding</span>
                                 </div>
-                                <input type="text" class="form-control font-weight-bold text-right" id="profit-sharing-holding" name="profit_sharing_holding" readonly value="{{ isset($incentive_sales) && $incentive_sales !== '' ? 'Rp ' . number_format($incentive_sales, 0, ',', '.') : '' }}">
+                                <input type="text" class="form-control font-weight-bold text-right" id="profit-sharing-holding" name="profit_holding" readonly value="{{ isset($incentive_sales) && $incentive_sales !== '' ? 'Rp ' . number_format($incentive_sales, 0, ',', '.') : '' }}">
                             </div>
 
                         </div>
@@ -656,9 +656,8 @@
                                   </span>
                                   <span class="input-group-text" style="background-color: rgb(222, 222, 222);">30.00%</span>
                                 </div>
-                                <input type="text" class="form-control" aria-label="Dollar amount (with dot and two decimal places)" name="profit_sharing_leader" id="leader_sales" readonly style="text-align: right;">
+                                <input type="text" class="form-control" aria-label="Dollar amount (with dot and two decimal places)" name="profit_leader" id="leader_sales" readonly style="text-align: right;">
                               </div>
-
 
                         </div>
 
@@ -669,7 +668,7 @@
                                   <span class="input-group-text" style="background-color: rgb(222, 222, 222);">Dir. Utama</span>
                                   <span class="input-group-text" style="background-color: rgb(222, 222, 222);">15.00%</span>
                                 </div>
-                                <input type="text" class="form-control" aria-label="Dollar amount (with dot and two decimal places)" name="profit_sharing_dirutama" id="provit-sharing-dirutama" readonly style="text-align: right;">
+                                <input type="text" class="form-control" aria-label="Dollar amount (with dot and two decimal places)" name="profit_dirutama" id="provit-sharing-dirutama" readonly style="text-align: right;">
                               </div>
 
                         </div>
@@ -683,7 +682,7 @@
                                   <span class="input-group-text" style="background-color: rgb(222, 222, 222);">Div. SIM</span>
                                   <span class="input-group-text" style="background-color: rgb(222, 222, 222);">10.00%</span>
                                 </div>
-                                <input type="text" class="form-control" aria-label="Dollar amount (with dot and two decimal places)" name="profit_sharing_sim" id="provit-sharing-sim" readonly style="text-align: right;">
+                                <input type="text" class="form-control" aria-label="Dollar amount (with dot and two decimal places)" name="profit_sim" id="provit-sharing-sim" readonly style="text-align: right;">
                             </div>
 
                         </div>
@@ -695,7 +694,7 @@
                                   <span class="input-group-text" style="background-color: rgb(222, 222, 222);">Man. Keuangan</span>
                                   <span class="input-group-text" style="background-color: rgb(222, 222, 222);">05.00%</span>
                                 </div>
-                                <input type="text" class="form-control" aria-label="Dollar amount (with dot and two decimal places)" name="profit_sharing_keuangan" id="provit-sharing-keuangan" readonly style="text-align: right;">
+                                <input type="text" class="form-control" aria-label="Dollar amount (with dot and two decimal places)" name="profit_keuangan" id="provit-sharing-keuangan" readonly style="text-align: right;">
                             </div>
 
                         </div>
@@ -709,7 +708,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Total Provit Sharing</span>
                                     </div>
-                                    <input type="text" class="form-control font-weight-bold text-right" id="total-provit-sharing" name="total_sharing_profit" value="Rp 0" readonly style="width: 150px">
+                                    <input type="text" class="form-control font-weight-bold text-right" id="total-provit-sharing" name="total_profit" value="Rp 0" readonly style="width: 150px">
                                 </div>
                             </div>
 

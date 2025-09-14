@@ -94,7 +94,7 @@ Route::middleware(['UserAkses:manager,admin,super_admin'])->group(function() {
     Route::post('/approval/updatepassword/{id}',                        [ApprovalController::class, 'updatepassword'])->name('updatepassword');
     Route::get('/approval/getshift',                                    [ApprovalController::class, 'getshift'])->name('sound/getshift');
     Route::post('/approval/getshift',                                   [ApprovalController::class, 'getshift'])->name('sound/getshift');
-    Route::post('/approval/setApprove',                                   [ApprovalController::class, 'setApprove'])->name('approval/setApprove');
+    Route::post('/approval/setApprove',                                 [ApprovalController::class, 'setApprove'])->name('approval/setApprove');
 });
 
 //PRWAPU

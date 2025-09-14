@@ -9,7 +9,7 @@ class SharingProfit extends Model
 {
     use HasFactory;
 
-    protected $table = 'vw_sharing_profit';
+    protected $table = 'sharing_profit';
     protected $fillable = [
         'id_projek',
         'profit_holding',
