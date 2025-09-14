@@ -5,6 +5,7 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/css/select2.min.css" integrity="sha512-xrbX64SIXOxo5cMQEDUQ3UyKsCreOEq1Im90z3B7KPoxLJ2ol/tCT0aBhuIzASfmBVdODioUdUPbt5EDEXmD9g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker3.min.css">
 
 <style>
     table.dataTable tbody tr.selected {
@@ -22,190 +23,174 @@
 </style>
 
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
-    <!-- Navbar -->
-    <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl" id="navbarBlur" navbar-scroll="true">
-      <div class="container-fluid py-1 px-3">
-        <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
-        </div>
-      </div>
-    </nav>
-    <!-- End Navbar -->
-    <div class="container-fluid py-4">
-      <div class="row">
-        <div class="col-12">
-          <div class="card mb-4">
-            <div class="card-header pb-0">
-                <h6>Data PR Wapu</h6>
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div class="ml-auto">
-                        @if(Auth::user() && Auth::user()->role === 'super_admin')
-                            <button type="button" class="btn btn-warning" id="btn-filter" data-toggle="modal" data-target="#formFilter">
-                                <i class="fa-solid fa-book fa-lg" style="margin-right: 10px"></i>Filter PR
-                              </button>
-                        @endif
-                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#formModal">
-                            <i class="fa-solid fa-plus fa-lg" style="margin-right: 10px"></i>Tambah Data
-                          </button>
-                          <button type="button" class="btn btn-warning" id="btn-edit" data-toggle="modal" data-target="#formModal">
-                            <i class="fa-solid fa-pencil" style="margin-right: 10px;"></i> Ubah Data
-                          </button>
-                          <button type="button" class="btn btn-danger" id="btn-delete">
-                            <i class="fa-solid fa-trash" style="margin-right: 10px;"></i> Hapus Data
-                          </button>
-                          <button type="button" class="btn btn-info" id="btn-detail">
-                            <i class="fa-solid fa-arrow-right" style="margin-right: 10px;"></i> Tambah Barang
-                          </button>
+
+    <div class="page-content container-fluid py-4">
+        <div class="card ccard">
+            <div class="card-header align-middle border-t-3 brc-primary-tp3" style="border-bottom: 1px solid #e0e5e8 !important;">
+                <h4 class="card-title text-dark-m3 mt-2">
+                    <i class="fa fa-money-bill-alt"></i>
+                    <?php if ($user['role'] == 'admin') { ?>
+                        Pencairan Data PR
+                    <?php } else if ($user['role'] == 'super_admin') { ?>
+                        Approval Data PR
+                    <?php } ?>
+                </h4>
+            </div>
+
+            <div class="card-body p-3">
+                <div class="row">
+                    <div class="col-md-12">
+                        <form class="form-horizontal" id="form_filter">
+                            <div class="input-group mb-2">
+                                <div class="input-group-prepend" style="height: 39px;">
+                                    <span class="input-group-text bg-light">
+                                        Periode PR
+                                    </span>
+                                </div>
+                                <input type="text" name="periode_pr" id="periode_pr" class="form-control form-control-lg pl-3 yearmonthpicker" placeholder="Pilih periode" autocomplete="off">
+
+                                <div class="input-group-append">
+                                    <button class="btn btn-info" id="btnCekData" type="button">
+                                        <i class="fa fa-arrow-right mr-1"></i>
+                                        Cek Data
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
-              </div>
-            <div class="card-body px-0 pt-0 pb-2">
-              <div class="table-responsive p-0">
-                <table id="datatable" class="table table-striped table-bordered basic-datatables">
-                    <thead style="background-color: #1E3135; color: white;">
-                      <tr>
-                        <th style="color: white;" class="text-uppercase text-xxs font-weight-bolder opacity-7">No</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nama Client</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nomor PR</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Profit Holding</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Profit Leader</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Profit Dirutama</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Profit SIM</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Profit Keuangan</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Total Profit</th>
-                      </tr>
-                    </thead>
-                    <tbody></tbody>
-                  </table>
-              </div>
+
+                <div class="row" id="dv_table">
+                    <div class="col-12">
+                        <div class="card mb-4">
+
+
+                            <div class="card-body px-0 pt-0 pb-2">
+                                
+                                <div class="text-right px-4">
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-success" id="btn_approve">
+                                            <i class="fas fa-check-circle"></i>
+                                            <?php if ($user['role'] == 'admin') { ?>
+                                                Pencairan Data
+                                            <?php } else if ($user['role'] == 'super_admin') { ?>
+                                                Approve Data
+                                            <?php } ?>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="table-responsive p-0">
+                                    <table id="datatable" class="table table-striped table-bordered basic-datatables">
+                                        <thead style="background-color: #1E3135; color: white;">
+                                            <tr>
+                                            <th style="color: white;" class="text-uppercase text-xxs font-weight-bolder opacity-7">No</th>
+                                            <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nama Client</th>
+                                            <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nomor PR</th>
+                                            <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Profit Holding</th>
+                                            <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Profit Leader</th>
+                                            <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Profit Dirutama</th>
+                                            <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Profit SIM</th>
+                                            <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Profit Keuangan</th>
+                                            <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Total Profit</th>
+                                            <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
             </div>
-          </div>
+            
         </div>
-      </div>
-      <footer class="footer pt-3  ">
+    </div>
+    
+    <footer class="footer pt-3  ">
         <div class="container-fluid">
-          <div class="row align-items-center justify-content-lg-between">
+            <div class="row align-items-center justify-content-lg-between">
             <div class="col-lg-6 mb-lg-0 mb-4">
-              <div class="copyright text-center text-sm text-muted text-lg-start">
+                <div class="copyright text-center text-sm text-muted text-lg-start">
                 © <script>
-                  document.write(new Date().getFullYear())
+                    document.write(new Date().getFullYear())
                 </script>,
                 made with <i class="fa fa-heart"></i> by
                 <a href="https://www.creative-tim.com" class="font-weight-bold" target="_blank">MBS</a>
                 for a better web.
-              </div>
+                </div>
             </div>
-          </div>
+            </div>
         </div>
-      </footer>
+    </footer>
+
+</main>
+
+<div id="modal_approval" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg radius-4">
+        <!-- Modal content-->
+        <div class="modal-content radius-4">
+            <div class="modal-header btn-success radius-t-4">
+                <h4 class="modal-title text-white">
+                    <i class="fa fa-print text-white"></i>&nbsp;&nbsp;
+                    <?php if ($user['role'] == 'admin') { ?>
+                        Pencairan Data PR
+                    <?php } else if ($user['role'] == 'super_admin') { ?>
+                        Approve Data PR
+                    <?php } ?>
+                </h4>
+                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body ace-scrollbar">
+                <div class="card ccard">
+                    <div class="card-header">
+                        <h4 class="text-120 mb-0">
+                            Daftar riwayat pembayaran yang akan dicetak ulang
+                        </h4>
+                    </div>
+
+                    <div class="card-body p-2">
+                        <p>
+                            <span class="ml-2 font-bold text_jumlahPembayaranCetakUlang"></span>
+                            Struk akan dicetak.
+                        </p>
+                        <input type="hidden" name="txt_selectid" id="txt_selectid">
+                        <div style="overflow:scroll;height:200px;">
+                            <table id="div-table" class="table table-condensed"></table>
+                        </div>
+
+                        <br>
+                        <div class="form-group">
+                            <div class="input-group">
+                                <span class="ml-2 font-bold input-group-addon" style="text-align:left;">
+                                    Jenis Printer :
+                                </span>
+                                <span class="ml-2 input-group-addon" style="background:#fff;">
+                                    <input type="radio" class="rdb_jenisprinter_air" name="rdb_jenisprinter_air" id="rdb-jenisprinter1_air" value="1">
+                                    Default/Utama
+                                </span>
+                                <span class="ml-3 input-group-addon" style="background:#fff;">
+                                    <input type="radio" checked class="rdb_jenisprinter_air" name="rdb_jenisprinter_air" id="rdb-jenisprinter2_air" value="2">
+                                    Alternatif
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer radius-b-4">
+                <button type="button" id="btnAction" class="btn btn-success text-120 radius-2">
+                    <i class="fa fa-save"></i>
+                    Proses Data
+                </button>
+            </div>
+        </div>
+
     </div>
-  </main>
+</div>
 
-  <div class="modal fade" id="formModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Form - Data Projek</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-            <form id="form_sound">
-                @csrf
-                <div class="modal-body">
-                    <input type="hidden" name="_type" value="create">
-                    <input type="hidden" name="id" id="id" value="">
-
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                          <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Nama Client</span>
-                        </div>
-                        <input type="text" name="nama_client" id="nama_client" class="form-control" style="border: 1px solid black;" required>
-                    </div>
-
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                          <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Nama Projek</span>
-                        </div>
-                        <input type="text" name="nama_projek" id="nama_projek" class="form-control" style="border: 1px solid black;" required>
-                    </div>
-
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                          <label class="input-group-text" for="inputGroupSelect01">Jenis PR</label>
-                        </div>
-                        <select class="custom-select" name="jenis_pr" id="inputGroupSelect01" required>
-                          <option selected>Choose...</option>
-                          <option value="pemerintah">Pemerintah</option>
-                          <option value="swasta">Swasta</option>
-                          <option value="non_ppn">Non PPN</option>
-                        </select>
-                      </div>
-
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                          <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Nomor PR</span>
-                        </div>
-                        <input type="text" name="nomor_pr" id="nomor_pr" class="form-control" style="border: 1px solid black;" readonly>
-                        <div class="input-group-append">
-                          <button type="button" class="btn btn-outline-secondary" id="btn-generate-pr">
-                            <i class="fa fa-refresh"></i> Generate
-                          </button>
-                        </div>
-                    </div>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-                    <button type="submit" class="btn btn-success">Simpan</button>
-                </div>
-            </form>
-        </div>
-      </div>
-    </div>
-  </div>
-
-
-  <div class="modal fade" id="formFilter" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Form - FIlter PR</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-            <form id="form_filter">
-                @csrf
-                <div class="modal-body">
-                    <input type="hidden" name="_type" value="create">
-                    <input type="hidden" name="id" id="id" value="">
-
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                          <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">NIP</span>
-                        </div>
-                        <select name="cmb_nip" id="cmb_nip" class="bg-danger"></select>
-                    </div>
-
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                          <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Nama Sales</span>
-                        </div>
-                        <input type="text" name="name" id="name" class="form-control" style="border: 1px solid black;" readonly>
-                    </div>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-                    <button type="button" class="btn btn-success submit-filter" data-dismiss="modal">Simpan</button>
-                </div>
-            </form>
-        </div>
-      </div>
-    </div>
-  </div>
 
   @push('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
@@ -216,6 +201,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap4.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/js/select2.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+  <script src="../../admin/assets/js/plugins/bootstrap-datepicker.js"></script>
+
 <script>
 
 console.log("kipak");
@@ -225,10 +213,63 @@ window.defaultUrl = '{{ url('/pr_wapu/') }}/';
 let modal = $("#formModal");
 let table;
 
-$(document).ready(function() {
-    viewDatatable();
+$('.yearmonthpicker').datepicker({
+    format: "yyyymm",
+    minViewMode: "months",
+    startView: "years",
+    autoclose: true
+});
 
-    // Auto generate nomor PR saat modal dibuka
+$(document).ready(function() {
+    $('#dv_table').hide();
+    
+    $('#btnCekData').on('click', function() {
+        viewDatatable();
+    });
+    
+    $('#btn_approve').on('click', function() {
+        $("#modal_approval").modal("show");
+    });
+    
+    $('#btnAction').on('click', function() {
+
+        $.ajax({
+            type: "POST",
+            url: "{{ route('approval/setApprove') }}",
+            dataType: "JSON",
+            data: $('#form_filter').serialize(),
+            beforeSend: function () {
+            },
+            success: function (response) {
+                let dataResult = response.data;
+
+                $('#modal_approval').modal('hide');
+
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR);
+                console.log(textStatus);
+                console.log(errorThrown);
+                notification("danger", "Terjadi Kesalahan : " + errorThrown)
+            }
+        });
+
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     $('button[data-target="#formModal"]').on('click', function() {
         // Reset form
         $('#form_sound')[0].reset();
@@ -254,10 +295,6 @@ $(document).ready(function() {
 
     $('.submit-filter').on('click', function() {
         viewDatatable();
-    });
-
-    $('#btn-generate-pr').on('click', function() {
-        generateNomorPR();
     });
 
     $('select[name=cmb_laundry').on('select2:select', function (e) {
@@ -495,9 +532,10 @@ $(document).ready(function() {
 });
 
 function viewDatatable() {
+
     table = $('.basic-datatables').DataTable({
         ajax: {
-            url: "{{ route('pr_wapu/datatablesharing') }}",
+            url: "{{ route('approval/datatable') }}",
             "type": "post",
             "data": function (d) {
                 var formData = $("#form_filter").serializeArray();
@@ -607,51 +645,61 @@ function viewDatatable() {
                         return data;
                     }
                 }
-            }
-        ],
-            createdRow: function (row, data, index) {
-                $(row).attr("data-value", encodeURIComponent(JSON.stringify(data)));
-                $("thead").css({
-                    "vertical-align": "middle",
-                    "text-align": "center",
-                });
-                $("td", row).css({
-                    "vertical-align": "middle",
-                    padding: "0.5em",
-                    cursor: "pointer",
-                });
-                $("td", row).first().css({
-                    width: "2%",
-                    "text-align": "center",
-                });
-                $("td", row).eq(2).css({
-                    "text-align": "center",
-                    "font-weight": "normal",
-                });
-                $("td", row).eq(3).css({
-                    "text-align": "center",
-                    "font-weight": "normal",
-                });
-                $("td", row).eq(4).css({
-                    "text-align": "center",
-                    "font-weight": "normal",
-                    width: "5%",
-                });
-                // $("td", row).last().css({ width: "7%", "text-align": "center", });
-                //Default
             },
-        })
-        .on("select", function (e, dt, type, indexes) {
-            var rowData = table.row(indexes).data();
-            $("#btn-edit").removeClass("disabled");
-            $("#btn-delete").removeClass("disabled");
-            alert('1');
-        })
-        .on("deselect", function (e, dt, type, indexes) {
-            $("#btn-edit").addClass("disabled");
-            $("#btn-delete").addClass("disabled");
-            alert('0');
-        });
+            {
+                data: null,
+                render: function (data, type, row, meta) {
+                    if (row.is_pengajuan_admin == 1) {
+                        return '<span class="badge badge-warning">Pending</span>';
+                    } else if (row.is_approve == 1) {
+                        return '<span class="badge badge-success">Approve</span>';
+                    }
+                }
+            }
+        ],createdRow: function (row, data, index) {
+            $(row).attr("data-value", encodeURIComponent(JSON.stringify(data)));
+            $("thead").css({
+                "vertical-align": "middle",
+                "text-align": "center",
+            });
+            $("td", row).css({
+                "vertical-align": "middle",
+                padding: "0.5em",
+                cursor: "pointer",
+            });
+            $("td", row).first().css({
+                width: "2%",
+                "text-align": "center",
+            });
+            $("td", row).eq(2).css({
+                "text-align": "center",
+                "font-weight": "normal",
+            });
+            $("td", row).eq(3).css({
+                "text-align": "center",
+                "font-weight": "normal",
+            });
+            $("td", row).eq(4).css({
+                "text-align": "center",
+                "font-weight": "normal",
+                width: "5%",
+            });
+            // $("td", row).last().css({ width: "7%", "text-align": "center", });
+            //Default
+            $('#dv_table').show();
+        },
+    })
+    .on("select", function (e, dt, type, indexes) {
+        var rowData = table.row(indexes).data();
+        $("#btn-edit").removeClass("disabled");
+        $("#btn-delete").removeClass("disabled");
+        alert('1');
+    })
+    .on("deselect", function (e, dt, type, indexes) {
+        $("#btn-edit").addClass("disabled");
+        $("#btn-delete").addClass("disabled");
+        alert('0');
+    });
 
             // Handle row selection
     // Pindahkan event handler ini ke sini, dan gunakan .off() untuk mencegah duplikasi
