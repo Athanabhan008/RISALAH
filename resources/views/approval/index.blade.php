@@ -31,8 +31,8 @@
                     <i class="fa fa-money-bill-alt"></i>
                     <?php if ($user['role'] == 'admin') { ?>
                         Pencairan Data PR
-                    <?php } else if ($user['role'] == 'super_admin') { ?>
-                        Approval Data PR
+                        <?php } else if (in_array($user['role'], ['super_admin', 'manager'])) { ?>
+                            Approval Data PR
                     <?php } ?>
                 </h4>
             </div>
@@ -66,15 +66,15 @@
 
 
                             <div class="card-body px-0 pt-0 pb-2">
-                                
+
                                 <div class="text-right px-4">
                                     <div class="btn-group">
                                         <button type="button" class="btn btn-success" id="btn_approve">
                                             <i class="fas fa-check-circle"></i>
                                             <?php if ($user['role'] == 'admin') { ?>
                                                 Pencairan Data
-                                            <?php } else if ($user['role'] == 'super_admin') { ?>
-                                                Approve Data
+                                                <?php } else if (in_array($user['role'], ['super_admin', 'manager'])) { ?>
+                                                    Approve Data
                                             <?php } ?>
                                         </button>
                                     </div>
@@ -103,12 +103,12 @@
                         </div>
                     </div>
                 </div>
-                
+
             </div>
-            
+
         </div>
     </div>
-    
+
     <footer class="footer pt-3  ">
         <div class="container-fluid">
             <div class="row align-items-center justify-content-lg-between">
@@ -137,8 +137,8 @@
                     <i class="fa fa-print text-white"></i>&nbsp;&nbsp;
                     <?php if ($user['role'] == 'admin') { ?>
                         Pencairan Data PR
-                    <?php } else if ($user['role'] == 'super_admin') { ?>
-                        Approve Data PR
+                        <?php } else if (in_array($user['role'], ['super_admin', 'manager'])) { ?>
+                            Approve Data PR
                     <?php } ?>
                 </h4>
                 <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
@@ -147,36 +147,12 @@
                 <div class="card ccard">
                     <div class="card-header">
                         <h4 class="text-120 mb-0">
-                            Daftar riwayat pembayaran yang akan dicetak ulang
+                            <?php if ($user['role'] == 'admin') { ?>
+                               Apakah Anda Yakin Ingin Melakukan Pencairan?
+                                <?php } else if (in_array($user['role'], ['super_admin', 'manager'])) { ?>
+                                    Apakah Anda Yakin Ingin Melakukan Approve Pencairan?
+                            <?php } ?>
                         </h4>
-                    </div>
-
-                    <div class="card-body p-2">
-                        <p>
-                            <span class="ml-2 font-bold text_jumlahPembayaranCetakUlang"></span>
-                            Struk akan dicetak.
-                        </p>
-                        <input type="hidden" name="txt_selectid" id="txt_selectid">
-                        <div style="overflow:scroll;height:200px;">
-                            <table id="div-table" class="table table-condensed"></table>
-                        </div>
-
-                        <br>
-                        <div class="form-group">
-                            <div class="input-group">
-                                <span class="ml-2 font-bold input-group-addon" style="text-align:left;">
-                                    Jenis Printer :
-                                </span>
-                                <span class="ml-2 input-group-addon" style="background:#fff;">
-                                    <input type="radio" class="rdb_jenisprinter_air" name="rdb_jenisprinter_air" id="rdb-jenisprinter1_air" value="1">
-                                    Default/Utama
-                                </span>
-                                <span class="ml-3 input-group-addon" style="background:#fff;">
-                                    <input type="radio" checked class="rdb_jenisprinter_air" name="rdb_jenisprinter_air" id="rdb-jenisprinter2_air" value="2">
-                                    Alternatif
-                                </span>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -203,6 +179,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/js/select2.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
   <script src="../../admin/assets/js/plugins/bootstrap-datepicker.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 
@@ -222,15 +199,42 @@ $('.yearmonthpicker').datepicker({
 
 $(document).ready(function() {
     $('#dv_table').hide();
-    
+
     $('#btnCekData').on('click', function() {
-        viewDatatable();
+        // Simpan referensi ke tombol
+        let btnCekData = $(this);
+        let originalContent = btnCekData.html();
+
+        // Tampilkan loading pada tombol
+        btnCekData.html('<i class="fa fa-spinner fa-spin mr-1"></i>Loading...');
+        btnCekData.prop('disabled', true);
+
+        // Tampilkan loading SweetAlert
+        Swal.fire({
+            title: 'Memproses...',
+            text: 'Sedang mengambil data, harap tunggu',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            didOpen: () => {
+                Swal.showLoading()
+            }
+        });
+
+        // Panggil viewDatatable dengan callback untuk menangani selesai loading
+        viewDatatable(function() {
+            // Restore tombol ke kondisi semula
+            btnCekData.html(originalContent);
+            btnCekData.prop('disabled', false);
+
+            // Tutup loading SweetAlert
+            Swal.close();
+        });
     });
-    
+
     $('#btn_approve').on('click', function() {
         $("#modal_approval").modal("show");
     });
-    
+
     $('#btnAction').on('click', function() {
 
         $.ajax({
@@ -239,18 +243,58 @@ $(document).ready(function() {
             dataType: "JSON",
             data: $('#form_filter').serialize(),
             beforeSend: function () {
+                Swal.fire({
+                    title: 'Memproses...',
+                    text: 'Sedang memproses data, harap tunggu',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading()
+                    }
+                });
             },
             success: function (response) {
-                let dataResult = response.data;
+                Swal.close();
 
-                $('#modal_approval').modal('hide');
-
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: response.message || 'Data berhasil diubah',
+                    icon: 'success',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#28a745'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $('#modal_approval').modal('hide');
+                        if (table) {
+                            table.ajax.reload();
+                        }
+                    }
+                });
             },
             error: function (jqXHR, textStatus, errorThrown) {
+                Swal.close();
+
+                let errorMessage = 'Terjadi kesalahan saat memproses data';
+
+                if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
+                    errorMessage = jqXHR.responseJSON.message;
+                } else if (jqXHR.responseJSON && jqXHR.responseJSON.error) {
+                    errorMessage = jqXHR.responseJSON.error;
+                } else if (errorThrown) {
+                    errorMessage = 'Terjadi Kesalahan : ' + errorThrown;
+                }
+
+                Swal.fire({
+                    title: 'Error!',
+                    text: errorMessage,
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#dc3545'
+                });
+
                 console.log(jqXHR);
                 console.log(textStatus);
                 console.log(errorThrown);
-                notification("danger", "Terjadi Kesalahan : " + errorThrown)
             }
         });
 
@@ -531,8 +575,7 @@ $(document).ready(function() {
 
 });
 
-function viewDatatable() {
-
+function viewDatatable(callback) {
     table = $('.basic-datatables').DataTable({
         ajax: {
             url: "{{ route('approval/datatable') }}",
@@ -649,16 +692,22 @@ function viewDatatable() {
             {
                 data: null,
                 render: function (data, type, row, meta) {
-                    if (row.is_pengajuan_admin == 1) {
-                        return '<span class="badge badge-warning">Pending</span>';
-                    } else if (row.is_approve == 1) {
+                    // Convert to string untuk memastikan perbandingan yang konsisten
+                    const isPengajuanAdmin = String(row.is_pengajuan_admin || 0);
+                    const isApprove = String(row.is_approve || 0);
+
+                    // Prioritas: is_approve lebih tinggi dari is_pengajuan_admin
+                    if (isApprove === "1") {
                         return '<span class="badge badge-success">Approve</span>';
-                    }else {
-                        return '-';
+                    } else if (isPengajuanAdmin === "1") {
+                        return '<span class="badge badge-warning">Pending</span>';
+                    } else {
+                        return '<span class="badge badge-secondary">-</span>';
                     }
                 }
             }
-        ],createdRow: function (row, data, index) {
+        ],
+        createdRow: function (row, data, index) {
             $(row).attr("data-value", encodeURIComponent(JSON.stringify(data)));
             $("thead").css({
                 "vertical-align": "middle",
@@ -686,10 +735,15 @@ function viewDatatable() {
                 "font-weight": "normal",
                 width: "5%",
             });
-            // $("td", row).last().css({ width: "7%", "text-align": "center", });
             //Default
             $('#dv_table').show();
         },
+        initComplete: function() {
+            // Panggil callback jika ada, setelah DataTable selesai diinisialisasi
+            if (typeof callback === 'function') {
+                callback();
+            }
+        }
     })
     .on("select", function (e, dt, type, indexes) {
         var rowData = table.row(indexes).data();
@@ -703,8 +757,7 @@ function viewDatatable() {
         alert('0');
     });
 
-            // Handle row selection
-    // Pindahkan event handler ini ke sini, dan gunakan .off() untuk mencegah duplikasi
+    // Handle row selection
     $('.basic-datatables tbody').off('click', 'tr').on('click', 'tr', function () {
         if ($(this).hasClass('selected')) {
             $(this).removeClass('selected');

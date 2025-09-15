@@ -38,7 +38,7 @@
                 <h6>Data PR</h6>
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div class="ml-auto">
-                        @if(Auth::user() && Auth::user()->role === 'super_admin')
+                        @if(Auth::user() && Auth::user()->role === 'super_admin' || Auth::user() && Auth::user()->role == 'admin' || Auth::user() && Auth::user()->role == 'manager')
                             <button type="button" class="btn btn-warning" id="btn-filter" data-toggle="modal" data-target="#formFilter">
                                 <i class="fa-solid fa-book fa-lg" style="margin-right: 10px"></i>Filter PR
                               </button>

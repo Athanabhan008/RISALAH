@@ -55,11 +55,12 @@ Route::middleware(['UserAkses:sales,teknisi'])->group(function() {
 
 });
 
-Route::middleware(['UserAkses:manager,super_admin'])->group(function() {
+Route::middleware(['UserAkses:manager,super_admin,admin'])->group(function() {
 
     //DASHBOARD MANAGER
     Route::get('/manager',    [ManagerController::class, 'index']);
     Route::get('/super_admin',[ManagerController::class, 'index']);
+    Route::get('/admin',      [ManagerController::class, 'index']);
 
 });
 
