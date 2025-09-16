@@ -275,6 +275,18 @@
 
                 <button type="submit" class="login-button">Masuk</button>
             </form>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const passwordInput = document.getElementById('password');
+                    const passwordToggle = document.getElementById('passwordToggle');
+
+                    passwordToggle.addEventListener('click', function() {
+                        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                        passwordInput.setAttribute('type', type);
+                        this.textContent = type === 'password' ? '👁️' : '🙈';
+                    });
+                });
+            </script>
         </div>
     </div>
 
