@@ -47,7 +47,8 @@
                                         Periode PR
                                     </span>
                                 </div>
-                                <input type="text" name="periode_pr" id="periode_pr" class="form-control form-control-lg pl-3 yearmonthpicker" placeholder="Pilih periode" autocomplete="off">
+                                <input type="text" name="periode_start" id="periode_start" class="form-control form-control-lg pl-3 yearmonthpicker" placeholder="Mulai (YYYYMM)" autocomplete="off">
+                                <input type="text" name="periode_end" id="periode_end" class="form-control form-control-lg pl-3 yearmonthpicker" placeholder="Sampai (YYYYMM)" autocomplete="off">
 
                                 <div class="input-group-append">
                                     <button class="btn btn-info" id="btnCekData" type="button">
@@ -196,11 +197,27 @@ $('.yearmonthpicker').datepicker({
     startView: "years",
     autoclose: true
 });
-
 $(document).ready(function() {
     $('#dv_table').hide();
 
     $('#btnCekData').on('click', function() {
+        // Validasi rentang bulan
+        const ps = ($('#periode_start').val() || '').trim();
+        const pe = ($('#periode_end').val() || '').trim();
+
+        if (!ps || !pe) {
+            Swal.fire('Peringatan', 'Silakan pilih bulan mulai dan bulan akhir.', 'warning');
+            return;
+        }
+        if (ps.length !== 6 || pe.length !== 6 || !/^\d{6}$/.test(ps) || !/^\d{6}$/.test(pe)) {
+            Swal.fire('Peringatan', 'Format periode harus YYYYMM.', 'warning');
+            return;
+        }
+        if (ps > pe) {
+            Swal.fire('Peringatan', 'Periode mulai tidak boleh lebih besar dari periode akhir.', 'warning');
+            return;
+        }
+
         // Simpan referensi ke tombol
         let btnCekData = $(this);
         let originalContent = btnCekData.html();
