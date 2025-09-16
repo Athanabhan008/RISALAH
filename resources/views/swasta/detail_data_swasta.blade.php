@@ -477,7 +477,7 @@
         </div>
 
 
-        @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'manager','admin']))
+        @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'manager','admin','sales']))
         <div class="row gx-3 gy-3">
             <!-- VALIDASI PAYMENT -->
             <div class="card mb-4 col-md-12">
@@ -601,9 +601,11 @@
                         </div>
                     </div>
 
+                    @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'manager','admin']))
                     <div class="text-right">
                         <button type="submit" class="btn btn-primary btn-sm mt-2">Simpan Perubahan</button>
                       </div>
+                    @endif
 
                     </div>
                 </form>
@@ -999,7 +1001,11 @@ $(document).ready(function() {
 
     $('#btn-edit-cogs').prop('disabled', true);
 
+    // Pindahkan updateTotalProvitSharing() ke sini agar dipanggil saat halaman load
     updateTotalProvitSharing();
+
+    // Tambahkan inisialisasi perhitungan untuk semua role
+    initializeCalculations();
 
     $("#btn-back").on("click", function () {
         window.location.href = defaultUrl;
@@ -1387,18 +1393,18 @@ $('#formCogs').on('show.bs.modal', function () {
 });
 
 $('#expedittion').on('input', function() {
-    let expedittionValue = parseFloat($(this).val().replace(/[^,\d]/g, '').replace(',', '.')) || 0;
+    let expedittionValue = parseFloat($(this).val().replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
     let total = baseCostCogs + expedittionValue;
     $('#total_cost_cogs').text('Rp ' + formatRupiahWithDots(total.toString(), ''));
 });
 
 // Tambahkan event handler untuk semua input COGS
 $('#add_insentif_fe001a, #instalasi_setting, #pph_bank_fee, #other').on('input', function() {
-    let expedittionValue = parseFloat($('#expedittion').val().replace(/[^,\d]/g, '').replace(',', '.')) || 0;
-    let addInsentifValue = parseFloat($('#add_insentif_fe001a').val()) || 0;
-    let instalasiValue = parseFloat($('#instalasi_setting').val().replace(/[^,\d]/g, '').replace(',', '.')) || 0;
-    let pphValue = parseFloat($('#pph_bank_fee').val().replace(/[^,\d]/g, '').replace(',', '.')) || 0;
-    let otherValue = parseFloat($('#other').val().replace(/[^,\d]/g, '').replace(',', '.')) || 0;
+    let expedittionValue = parseFloat($('#expedittion').val().replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
+    let addInsentifValue = parseFloat($('#add_insentif_fe001a').val().replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
+    let instalasiValue = parseFloat($('#instalasi_setting').val().replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
+    let pphValue = parseFloat($('#pph_bank_fee').val().replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
+    let otherValue = parseFloat($('#other').val().replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
 
     let total = baseCostCogs + expedittionValue + addInsentifValue + instalasiValue + pphValue + otherValue;
     $('#total_cost_cogs').text('Rp ' + formatRupiahWithDots(total.toString(), ''));
@@ -1598,10 +1604,33 @@ function viewDatatable() {
             // $("td", row).last().css({ width: "7%", "text-align": "center", });
             //Default
         },
+        drawCallback: function() {
+            // Jalankan perhitungan setiap kali tabel di-draw
+            updateSubtotalTotalPrice();
+            updateSubtotalPPN();
+            updateSubtotalCostPPN();
+            updateSubtotalMarginPPN();
+            updateSubtotalNonPPN();
+            updateSubtotalCostNonPPN();
+            updateSubtotalMarginNonPPN();
+            updateSubtotalPoCV();
+            updateSubtotalPoCostCV();
+            updateSubtotalPoMarginCV();
+            updateSubtotalPersentaseCV();
+            updateJumlahPPN();
+            updateTotalVat();
+            updateSubtotalCost();
+            updateSubtotalValidasiPayment();
+            updateTotalMargin();
+            updateIncentiveSales();
+            updatePPHBankFee();
+            updatePersentaseIncentive();
+            updateTotalPersentaseMargin();
+        },
     });
 
     // Handle row selection
-    $('.basic-datatables tbody').on('click', 'tr', function () {
+    $('.basic-datatables tbody').off('click', 'tr', function () {
         // Toggle select/unselect
         if ($(this).hasClass('selected')) {
             $(this).removeClass('selected');
@@ -1741,6 +1770,16 @@ function viewDatatableCogs() {
             });
             // $("td", row).last().css({ width: "7%", "text-align": "center", });
             //Default
+        },
+        drawCallback: function() {
+            // Update subtotal COGS
+            updateSubtotalCogs();
+            updateSubtotalCost();
+            updateSubtotalValidasiPayment();
+            updateTotalMargin();
+            updateIncentiveSales();
+            updateTotalPersentaseMargin();
+            updateIncentiveFe001a();
         },
     });
 
@@ -1913,35 +1952,43 @@ function formatRupiahWithDots(angka, prefix = '') {
     return (isNegative ? '-' : '') + prefix + rupiah;
 }
 
-// Helper untuk ambil angka dari input format dengan titik
+// Helper untuk ambil angka dari input format dengan titik (pertahankan minus)
 function getNumberFromDotsFormat(str) {
-    return parseFloat(str.replace(/[^,\d]/g, '').replace(',', '.')) || 0;
+    return parseFloat((str || '').replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
 }
 
 function unformatRupiah(str) {
     if (!str) return 0;
-    return str.replace(/[^,\d]/g, '').replace(',', '.');
+    return str.replace(/[^-\d,]/g, '').replace(',', '.');
 }
 
 // Event handler untuk semua input yang perlu format dengan titik (tanpa validasi_payment)
 $('#Unit_price, #total_price, #vendor_price, #unit_price_cv, #total_po_cv, #total_cost, #margin, #expedittion, #add_insentif_fe001a, #instalasi_setting, #other').on('input', function() {
-    let value = $(this).val();
-    let numericValue = value.replace(/[^,\d]/g, '').replace(',', '.');
-    if (numericValue) {
+    let value = $(this).val() || '';
+    // Pertahankan tanda minus jika ada di awal
+    let isNegative = value.trim().startsWith('-');
+    let cleaned = value.replace(/[^-\d,]/g, '');
+    // Pastikan hanya satu minus di depan
+    cleaned = (isNegative ? '-' : '') + cleaned.replace(/-/g, '').replace(/^,/, '');
+    let numericValue = cleaned.replace(/\./g, '').replace(',', '.');
+    if (numericValue && numericValue !== '-' ) {
         $(this).val(formatRupiahWithDots(numericValue, ''));
     } else {
-        $(this).val('');
+        $(this).val(isNegative ? '-' : '');
     }
 });
 
-// Event handler khusus untuk validasi_payment
+// Event handler khusus untuk validasi_payment (pertahankan minus)
 $('#validasi_payment').on('input', function() {
-    let value = $(this).val();
-    let numericValue = value.replace(/[^,\d]/g, '').replace(',', '.');
-    if (numericValue) {
+    let value = $(this).val() || '';
+    let isNegative = value.trim().startsWith('-');
+    let cleaned = value.replace(/[^-\d,]/g, '');
+    cleaned = (isNegative ? '-' : '') + cleaned.replace(/-/g, '').replace(/^,/, '');
+    let numericValue = cleaned.replace(/\./g, '').replace(',', '.');
+    if (numericValue && numericValue !== '-') {
         $(this).val(formatRupiahWithDots(numericValue, ''));
     } else {
-        $(this).val('');
+        $(this).val(isNegative ? '-' : '');
     }
     // Panggil updatePPHBankFee setelah format
     updatePPHBankFee();
@@ -2022,7 +2069,7 @@ function updateSubtotalTotalPrice() {
     for (let i = 0; i < data.length; i++) {
         let totalPrice = data[i].total_price;
         if (typeof totalPrice === 'string') {
-            totalPrice = parseFloat(totalPrice.replace(/[^,\d]/g, '').replace(',', '.')) || 0;
+            totalPrice = parseFloat(totalPrice.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
         } else if (totalPrice === null || totalPrice === undefined) {
             totalPrice = 0;
         }
@@ -2039,7 +2086,7 @@ function updateSubtotalPPN() {
         if (data[i].jenis_ppn === 'ppn') {
             let totalCost = data[i].total_po_cv;
             if (typeof totalCost === 'string') {
-                totalCost = parseFloat(totalCost.replace(/[^,\d]/g, '').replace(',', '.')) || 0;
+                totalCost = parseFloat(totalCost.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
             } else if (totalCost === null || totalCost === undefined) {
                 totalCost = 0;
             }
@@ -2056,7 +2103,7 @@ function updateSubtotalCostPPN() {
         if (data[i].jenis_ppn === 'ppn') {
             let totalCost = data[i].total_cost;
             if (typeof totalCost === 'string') {
-                totalCost = parseFloat(totalCost.replace(/[^,\d]/g, '').replace(',', '.')) || 0;
+                totalCost = parseFloat(totalCost.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
             } else if (totalCost === null || totalCost === undefined) {
                 totalCost = 0;
             }
@@ -2073,7 +2120,7 @@ function updateSubtotalMarginPPN() {
         if (data[i].jenis_ppn === 'ppn') {
             let totalCost = data[i].margin;
             if (typeof totalCost === 'string') {
-                totalCost = parseFloat(totalCost.replace(/[^,\d]/g, '').replace(',', '.')) || 0;
+                totalCost = parseFloat(totalCost.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
             } else if (totalCost === null || totalCost === undefined) {
                 totalCost = 0;
             }
@@ -2090,7 +2137,7 @@ function updateSubtotalNonPPN() {
         if (data[i].jenis_ppn === 'non_ppn') {
             let totalCost = data[i].total_cost;
             if (typeof totalCost === 'string') {
-                totalCost = parseFloat(totalCost.replace(/[^,\d]/g, '').replace(',', '.')) || 0;
+                totalCost = parseFloat(totalCost.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
             } else if (totalCost === null || totalCost === undefined) {
                 totalCost = 0;
             }
@@ -2107,7 +2154,7 @@ function updateSubtotalCostNonPPN() {
         if (data[i].jenis_ppn === 'non_ppn') {
             let totalCost = data[i].total_cost;
             if (typeof totalCost === 'string') {
-                totalCost = parseFloat(totalCost.replace(/[^,\d]/g, '').replace(',', '.')) || 0;
+                totalCost = parseFloat(totalCost.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
             } else if (totalCost === null || totalCost === undefined) {
                 totalCost = 0;
             }
@@ -2602,7 +2649,7 @@ function autoSetJenisApprove() {
     let totalPersentaseMarginText = $('#total_margin').val();
     let persentase = parseFloat((totalPersentaseMarginText || '').replace(/[^0-9\.\-]/g, '')) || 0;
 
-    if (persentase > 6) {
+    if (persentase > 5) {
         $('#jenis_approve').val('approve');
     } else {
         $('#jenis_approve').val('need_approve');
@@ -2736,6 +2783,54 @@ function updateTotalProvitSharing() {
     // Update field total provit sharing
     $('#total-provit-sharing').val('Rp ' + formatRupiahWithDots(total.toFixed(0), ''));
 }
+
+// Tambahkan fungsi baru untuk inisialisasi perhitungan
+function initializeCalculations() {
+    // Pastikan perhitungan dijalankan setelah data dimuat
+    setTimeout(function() {
+        updateSubtotalTotalPrice();
+        updateSubtotalPPN();
+        updateSubtotalCostPPN();
+        updateSubtotalMarginPPN();
+        updateSubtotalNonPPN();
+        updateSubtotalCostNonPPN();
+        updateSubtotalMarginNonPPN();
+        updateSubtotalPoCV();
+        updateSubtotalPoCostCV();
+        updateSubtotalPoMarginCV();
+        updateSubtotalPersentaseCV();
+        updateJumlahPPN();
+        updateTotalVat();
+        updateSubtotalCost();
+        updateSubtotalValidasiPayment();
+        updateTotalMargin();
+        updateIncentiveSales();
+        updatePPHBankFee();
+        updatePersentaseIncentive();
+        updateTotalPersentaseMargin();
+        updateIncentiveFe001a();
+    }, 1000); // Delay 1 detik untuk memastikan data sudah dimuat
+}
+
+// Tambahkan event listener untuk memastikan perhitungan dijalankan saat data berubah
+$(document).on('DOMContentLoaded', function() {
+    // Jalankan perhitungan awal
+    initializeCalculations();
+});
+
+// Tambahkan event listener untuk input yang mempengaruhi perhitungan
+$(document).on('input change', '#validasi_payment, #expedittion, #add_insentif_fe001a, #instalasi_setting, #other', function() {
+    // Jalankan perhitungan ulang saat input berubah
+    setTimeout(function() {
+        updateSubtotalCost();
+        updateSubtotalValidasiPayment();
+        updateTotalMargin();
+        updateIncentiveSales();
+        updatePPHBankFee();
+        updatePersentaseIncentive();
+        updateTotalPersentaseMargin();
+    }, 100);
+});
 
 </script>
   @endpush

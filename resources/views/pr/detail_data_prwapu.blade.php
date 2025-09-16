@@ -343,7 +343,7 @@
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Validasi Payment</span>
                                             </div>
-                                            <input type="text" class="form-control font-weight-bold text-right" id="validasi_payment" name="validasi_payment" value="{{ isset($validasi_payment) && $validasi_payment !== '' ? 'Rp ' . number_format($validasi_payment, 0, ',', '.') : '' }}" @if(Auth::user()->role !== 'super_admin') readonly @endif>
+                                            <input type="text" class="form-control font-weight-bold text-right" id="validasi_payment" name="validasi_payment" value="{{ isset($validasi_payment) && $validasi_payment !== '' ? 'Rp ' . number_format($validasi_payment, 0, ',', '.') : '' }}" @if(!in_array(Auth::user()->role, ['super_admin', 'manager', 'admin', 'sales'])) readonly @endif>
                                         </div>
                                     </div>
 
@@ -477,7 +477,7 @@
         </div>
 
 
-        @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'manager','admin']))
+        @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'manager','admin','sales']))
         <div class="row gx-3 gy-3">
             <!-- VALIDASI PAYMENT -->
             <div class="card mb-4 col-md-12">
@@ -601,9 +601,11 @@
                         </div>
                     </div>
 
+                    @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'manager','admin']))
                     <div class="text-right">
                         <button type="submit" class="btn btn-primary btn-sm mt-2">Simpan Perubahan</button>
                       </div>
+                    @endif
 
                     </div>
                 </form>
@@ -999,7 +1001,11 @@ $(document).ready(function() {
 
     $('#btn-edit-cogs').prop('disabled', true);
 
-    updateTotalProvitSharing();
+    // Only call updateTotalProvitSharing if user has admin role
+    const userRole = '{{ Auth::user()->role ?? "" }}';
+    if (['super_admin', 'manager', 'admin'].includes(userRole)) {
+        updateTotalProvitSharing();
+    }
 
     $("#btn-back").on("click", function () {
         window.location.href = defaultUrl;
@@ -1600,9 +1606,8 @@ function viewDatatable() {
         },
     });
 
-    // Handle row selection
-    $('.basic-datatables tbody').on('click', 'tr', function () {
-        // Toggle select/unselect
+    // Tambahkan ini:
+    $('.basic-datatables tbody').off('click', 'tr').on('click', 'tr', function () {
         if ($(this).hasClass('selected')) {
             $(this).removeClass('selected');
         } else {
@@ -2017,22 +2022,33 @@ $('#total_price, #total_cost').on('input', updateMargin);
 $('#margin, #total_po_cv').on('input', updatePersentase);
 
 function updateSubtotalTotalPrice() {
+    const element = $('#subtotal-price');
+    if (element.length === 0) return;
+
     let data = tableDetail.rows().data();
     let subtotal = 0;
     for (let i = 0; i < data.length; i++) {
         let totalPrice = data[i].total_price;
         if (typeof totalPrice === 'string') {
-            totalPrice = parseFloat(totalPrice.replace(/[^,\d]/g, '').replace(',', '.')) || 0;
+            totalPrice = parseFloat(totalPrice.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
         } else if (totalPrice === null || totalPrice === undefined) {
             totalPrice = 0;
         }
         subtotal += totalPrice;
     }
-    $('#subtotal-price').val(formatRupiahWithDots(subtotal, ''));
-    $('#subtotal-ppn').val('Rp ' + formatRupiahWithDots(subtotal, ''));
+    element.val(formatRupiahWithDots(subtotal, ''));
+
+    // Also update subtotal-ppn if it exists
+    const ppnElement = $('#subtotal-ppn');
+    if (ppnElement.length > 0) {
+        ppnElement.val('Rp ' + formatRupiahWithDots(subtotal, ''));
+    }
 }
 
 function updateSubtotalPPN() {
+    const element = $('#subtotal-ppn');
+    if (element.length === 0) return; // Exit if element doesn't exist
+
     let data = tableDetail.rows().data();
     let subtotal = 0;
     for (let i = 0; i < data.length; i++) {
@@ -2046,7 +2062,7 @@ function updateSubtotalPPN() {
             subtotal += totalCost;
         }
     }
-    $('#subtotal-ppn').val('Rp ' + formatRupiahWithDots(subtotal, ''));
+    element.val('Rp ' + formatRupiahWithDots(subtotal, ''));
 }
 
 function updateSubtotalCostPPN() {
@@ -2073,7 +2089,7 @@ function updateSubtotalMarginPPN() {
         if (data[i].jenis_ppn === 'ppn') {
             let totalCost = data[i].margin;
             if (typeof totalCost === 'string') {
-                totalCost = parseFloat(totalCost.replace(/[^,\d]/g, '').replace(',', '.')) || 0;
+                totalCost = parseFloat(totalCost.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
             } else if (totalCost === null || totalCost === undefined) {
                 totalCost = 0;
             }
@@ -2715,12 +2731,27 @@ function updateProvitSharingKeuangan() {
 }
 
 function updateTotalProvitSharing() {
+    // Check if elements exist before accessing them
+    const holdingElement = $('#profit-sharing-holding');
+    const leaderElement = $('#leader_sales');
+    const dirutamaElement = $('#provit-sharing-dirutama');
+    const simElement = $('#provit-sharing-sim');
+    const keuanganElement = $('#provit-sharing-keuangan');
+    const totalElement = $('#total-provit-sharing');
+
+    // If any of these elements don't exist (for sales users), return early
+    if (holdingElement.length === 0 || leaderElement.length === 0 ||
+        dirutamaElement.length === 0 || simElement.length === 0 ||
+        keuanganElement.length === 0 || totalElement.length === 0) {
+        return; // Exit early if elements don't exist
+    }
+
     // Ambil nilai dari semua field profit sharing
-    let holdingText = $('#profit-sharing-holding').val();
-    let leaderText = $('#leader_sales').val();
-    let dirutamaText = $('#provit-sharing-dirutama').val();
-    let simText = $('#provit-sharing-sim').val();
-    let keuanganText = $('#provit-sharing-keuangan').val();
+    let holdingText = holdingElement.val();
+    let leaderText = leaderElement.val();
+    let dirutamaText = dirutamaElement.val();
+    let simText = simElement.val();
+    let keuanganText = keuanganElement.val();
 
     // Parse nilai numerik dari setiap field
     let holding = parseFloat((holdingText || '').replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
@@ -2733,7 +2764,7 @@ function updateTotalProvitSharing() {
     let total = holding + leader + dirutama + sim + keuangan;
 
     // Update field total provit sharing
-    $('#total-provit-sharing').val('Rp ' + formatRupiahWithDots(total.toFixed(0), ''));
+    totalElement.val('Rp ' + formatRupiahWithDots(total.toFixed(0), ''));
 }
 
 </script>

@@ -477,7 +477,7 @@
           </div>
         </div>
 
-        @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'manager','admin']))
+        @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'manager','admin','sales']))
           <div class="card mb-4">
             <div class="card-header pb-0">
                 <h6>Total PO Ke CV MBS</h6>
@@ -600,9 +600,11 @@
 
                 </div>
 
+                @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'manager','admin','sales']))
                 <div class="text-right">
                     <button type="submit" class="btn btn-primary btn-sm mt-2">Simpan Perubahan</button>
                   </div>
+                @endif
                 </div>
 
             </form>
@@ -1796,7 +1798,7 @@ function viewDatatableCogs() {
 
 
       // Handle row selection
-    $('.basic-datatables tbody').on('click', 'tr', function () {
+    $('.basic-datatables tbody').off('click', 'tr', function () {
         // Toggle select/unselect
         if ($(this).hasClass('selected')) {
             // Jika row sudah selected, unselect
