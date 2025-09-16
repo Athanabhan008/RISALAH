@@ -147,6 +147,7 @@
                           <option value="manager">Manager</option>
                           <option value="sales">Sales</option>
                           <option value="teknisi">Teknisi</option>
+                          <option value="admin">Admin</option>
                         </select>
                       </div>
 
