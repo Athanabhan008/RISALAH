@@ -55,7 +55,7 @@ class DoController extends Controller
         $query = VwDo::query();
 
         // Filter berdasarkan user yang login
-        if ($user->role == 'super_admin') {
+        if ($user->role == 'super_admin' || $user->role == 'admin') {
             // Jika admin (role 1), tampilkan semua data
             // Tidak perlu filter tambahan
         } else {
