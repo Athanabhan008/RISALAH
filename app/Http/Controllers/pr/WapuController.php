@@ -550,7 +550,7 @@ class WapuController extends Controller
                     'id_projek' => $request->id_projek,
                     'subtotal' => $subtotal,
                     'subtotal_cogs' => $subtotal_cogs,
-                    'validasi_payment' => $prwapu->validasi_payment ?? '',
+                    'validasi_payment' => $non_pppn->validasi_payment ?? '',
                     'pph_bank_fee' => $pph_bank_fee ?? '',
                     'incentive_sales' => $incentive_sales ?? 0,
                 ]);
@@ -1147,6 +1147,13 @@ class WapuController extends Controller
             'message' => 'Success',
             'data'=> $result
         ]);
+    }
+
+    public function summaryDetail(Request $request)
+    {
+        $id_projek = $request->input('id_projek');
+        $data = PrwapuDetail::where('id_projek', $id_projek)->get();
+        return response()->json(['data' => $data]);
     }
 
 }

@@ -811,7 +811,7 @@
                         </div>
                         <div class="col-md-4 mb-3">
                             <label for="Unit_price" class="form-label">Selling Price/Unit</label>
-                            <input type="text" class="form-control" id="Unit_price" name="unit_price" placeholder="Harga per unit">
+                            <input type="text" class="form-control" id="Unit_price" name="unit_price" placeholder="Harga per unit" inputmode="decimal">
                         </div>
                         <div class="col-md-4 mb-3">
                             <div class="input-group-prepend">
@@ -1601,6 +1601,17 @@ function viewDatatable() {
                 "font-weight": "normal",
                 width: "5%",
             });
+
+             // Tambahkan ini:
+    $('.basic-datatables tbody').off('click', 'tr').on('click', 'tr', function () {
+        if ($(this).hasClass('selected')) {
+            $(this).removeClass('selected');
+        } else {
+            $('.basic-datatables tbody tr').removeClass('selected');
+            $(this).addClass('selected');
+        }
+    });
+
             // $("td", row).last().css({ width: "7%", "text-align": "center", });
             //Default
         },
@@ -1963,12 +1974,10 @@ function unformatRupiah(str) {
 }
 
 // Event handler untuk semua input yang perlu format dengan titik (tanpa validasi_payment)
-$('#Unit_price, #total_price, #vendor_price, #unit_price_cv, #total_po_cv, #total_cost, #margin, #expedittion, #add_insentif_fe001a, #instalasi_setting, #other').on('input', function() {
+$('#total_price, #vendor_price, #unit_price_cv, #total_po_cv, #total_cost, #margin, #expedittion, #add_insentif_fe001a, #instalasi_setting, #other, #Unit_price').on('input', function() {
     let value = $(this).val() || '';
-    // Pertahankan tanda minus jika ada di awal
     let isNegative = value.trim().startsWith('-');
     let cleaned = value.replace(/[^-\d,]/g, '');
-    // Pastikan hanya satu minus di depan
     cleaned = (isNegative ? '-' : '') + cleaned.replace(/-/g, '').replace(/^,/, '');
     let numericValue = cleaned.replace(/\./g, '').replace(',', '.');
     if (numericValue && numericValue !== '-' ) {
@@ -1977,91 +1986,6 @@ $('#Unit_price, #total_price, #vendor_price, #unit_price_cv, #total_po_cv, #tota
         $(this).val(isNegative ? '-' : '');
     }
 });
-
-// Event handler khusus untuk validasi_payment (pertahankan minus)
-$('#validasi_payment').on('input', function() {
-    let value = $(this).val() || '';
-    let isNegative = value.trim().startsWith('-');
-    let cleaned = value.replace(/[^-\d,]/g, '');
-    cleaned = (isNegative ? '-' : '') + cleaned.replace(/-/g, '').replace(/^,/, '');
-    let numericValue = cleaned.replace(/\./g, '').replace(',', '.');
-    if (numericValue && numericValue !== '-') {
-        $(this).val(formatRupiahWithDots(numericValue, ''));
-    } else {
-        $(this).val(isNegative ? '-' : '');
-    }
-    // Panggil updatePPHBankFee setelah format
-    updatePPHBankFee();
-});
-
-// Modifikasi semua fungsi perhitungan agar ambil angka asli dari input
-function updateTotalPrice() {
-    var qty = parseFloat($('#qty').val()) || 0;
-    var unitPrice = getNumberFromDotsFormat($('#Unit_price').val());
-    var total = qty * unitPrice;
-    $('#total_price').val(formatRupiahWithDots(total.toString(), ''));
-}
-
-function updateUnitPriceCV() {
-    var vendorPrice = getNumberFromDotsFormat($('#vendor_price').val());
-    var unitPriceCV = vendorPrice + (vendorPrice * 0.02);
-    $('#unit_price_cv').val(formatRupiahWithDots(unitPriceCV.toFixed(0), ''));
-    updateTotalPoKeCV();
-}
-
-function updateTotalPoKeCV() {
-    var qty = parseFloat($('#qty').val()) || 0;
-    var unitPriceCV = getNumberFromDotsFormat($('#unit_price_cv').val());
-    var totalPO = qty * unitPriceCV;
-    $('#total_po_cv').val(formatRupiahWithDots(totalPO.toString(), ''));
-    updateTotalCost();
-}
-
-function updateTotalCost() {
-    var totalPO = getNumberFromDotsFormat($('#total_po_cv').val());
-    var jenisPPN = $('#inputGroupSelect01').val();
-    var totalCost;
-
-    if (jenisPPN === 'ppn') {
-        totalCost = totalPO / 1.11;
-    } else {
-        totalCost = totalPO;
-    }
-    $('#total_cost').val(formatRupiahWithDots(totalCost.toFixed(0), ''));
-    updateMargin();
-}
-
-// Tambahkan event listener untuk select jenis PPN
-$('#inputGroupSelect01').on('change', function() {
-    updateTotalCost();
-});
-
-function updateMargin() {
-    var totalPrice = getNumberFromDotsFormat($('#total_price').val());
-    var totalCost = getNumberFromDotsFormat($('#total_cost').val());
-    var margin = totalPrice - totalCost;
-    $('#margin').val(formatRupiahWithDots(margin.toFixed(0), ''));
-    updatePersentase();
-}
-
-// Persentase tetap angka biasa
-function updatePersentase() {
-    var margin = getNumberFromDotsFormat($('#margin').val());
-    var totalPO = getNumberFromDotsFormat($('#total_po_cv').val());
-    var persentase = 0;
-    if (totalPO !== 0) {
-        persentase = (margin / totalPO) * 100;
-    }
-    $('#persentase').val(persentase.toFixed(2));
-}
-
-// Event listener tetap sama
-$('#qty, #Unit_price').on('input', updateTotalPrice);
-$('#vendor_price').on('input', updateUnitPriceCV);
-$('#qty').on('input', updateTotalPoKeCV);
-$('#total_po_cv').on('input', updateTotalCost);
-$('#total_price, #total_cost').on('input', updateMargin);
-$('#margin, #total_po_cv').on('input', updatePersentase);
 
 function updateSubtotalTotalPrice() {
     let data = tableDetail.rows().data();
@@ -2830,6 +2754,36 @@ $(document).on('input change', '#validasi_payment, #expedittion, #add_insentif_f
         updatePersentaseIncentive();
         updateTotalPersentaseMargin();
     }, 100);
+});
+
+$(document).ready(function(){
+    $('.decimal-format').on('input', function(){
+        let value = $(this).val().replace(/[^0-9]/g, '');
+        $(this).val(value.replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Untuk semua input dengan class decimal-format
+    document.querySelectorAll('.decimal-format').forEach(function(input) {
+        input.addEventListener('input', function(e) {
+            // Hapus semua karakter selain angka
+            let value = this.value.replace(/[^0-9.]/g, '');
+            // Format dengan koma ribuan
+            if (value) {
+                this.value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            } else {
+                this.value = '';
+            }
+        });
+    });
+});
+
+$('#Unit_price').on('blur', function() {
+    var raw = $(this).val() || '';
+    var num = getNumberFromDotsFormat(raw); // ambil angka dari input (abaikan huruf)
+    $(this).val(num ? formatRupiahWithDots(num.toString(), '') : '');
+    updateTotalPrice(); // pastikan total terupdate setelah format
 });
 
 </script>

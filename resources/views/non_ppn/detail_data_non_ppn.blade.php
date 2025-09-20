@@ -1,11 +1,10 @@
 @extends('layouts.manager.template_manager')
 
 @push('css')
-{{-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous"> --}}
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.min.css">
 <style>
-    :root {
+  :root {
     --main-bg: #f8fafc;
     --card-bg: #fff;
     --primary: #5897fb;
@@ -103,13 +102,13 @@
 
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
     <div class="container-fluid py-4">
-      <div class="row">
+      <div class="row" style="background-color: rgb(172, 172, 172)">
         <div class="col-12">
 
         <!-- BARANG/PRODUK -->
           <div class="card mb-4">
             <div class="card-header pb-0">
-              <h6>Data PR Swasta - Detail</h6>
+              <h6>Data PR Non PPN - Detail</h6>
               <div style="display: flex; justify-content: space-between; align-items: center;">
                   <div class="ml-auto">
                     <button type="button" class="btn btn-info" id="btn-back">
@@ -136,16 +135,16 @@
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">#</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Jenis PPN</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Partnumber</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Partnumber/Description</th>
+                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Item Description</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Vendor</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">QTY</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Unit Price</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Total Price</th>
+                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Selling Price/Unit</th>
+                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Total Selling Price</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Vendor Price / Unit</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Unit Price CV</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Total PO CV</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Total Cost</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Margin</th>
+                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Total DPP</th>
+                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Total Margin</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Persentase</th>
                       </tr>
                     </thead>
@@ -154,11 +153,11 @@
 
 
                   <div class="card-header pb-0">
-                    <h6>Data COGS</h6>
+                    <h6>Additional Cost</h6>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div class="ml-auto">
                           <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#formCogs">
-                           <i class="fa-solid fa-plus fa-lg" style="margin-right: 10px"></i>Add Cogs
+                           <i class="fa-solid fa-plus fa-lg" style="margin-right: 10px"></i>Add Addtional Cost
                           </button>
                            <button type="button" class="btn btn-warning" id="btn-edit-cogs" data-toggle="modal" data-target="#formCogs">
                          <i class="fa-solid fa-pencil" style="margin-right: 10px;"></i> Ubah Data
@@ -166,46 +165,33 @@
                    </div>
                   </div>
                   </div>
-                  <div class="card-body px-0 pt-0 pb-2">
-                      <div class="table-responsive p-0">
-                          <table id="datatable-cogs" class="table table-striped table-bordered">
-                              <thead>
-                                <tr>
-                                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">#</th>
-                                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Expedittion</th>
-                                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Add Insentif</th>
-                                  <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Instalasi Setting</th>
-                                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">PPH / BANK FEE</th>
-                                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Other</th>
-                                </tr>
-                              </thead>
-                              <tbody></tbody>
-                            </table>
+
+                  <div class="table-responsive p-0">
+                    <table id="datatable-cogs" class="table table-striped table-bordered">
+                        <thead>
+                          <tr>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">#</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Expedittion</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Add Insentif</th>
+                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Instalasi Setting</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">PPH / BANK FEE</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Other</th>
+                          </tr>
+                        </thead>
+                        <tbody></tbody>
+                      </table>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <table class="table table-borderless">
+                          <tr>
+                            <td class="text-right font-weight-bold">Subtotal Additional Cost</td>
+                            <td class="text-right font-weight-bold" id="subtotal_cogs">Rp 0</td>
+                          </tr>
+                        </table>
                       </div>
-
-                      <div class="row mt-3" style="margin-right: 100px;">
-                          <div class="col-12">
-                            <div class="card">
-                              <div class="card-body">
-
-                                <div class="row">
-                                  <div class="col-md-4">
-                                      <table class="table table-borderless">
-                                        <tr>
-                                          <td class="text-right font-weight-bold">Subtotal COGS</td>
-                                          <td class="text-right font-weight-bold" id="subtotal_cogs">Rp 0</td>
-                                        </tr>
-                                      </table>
-                                    </div>
-                              </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-
-                  </div>
-
+                </div>
 
                   <!-- Subtotal ROW PPN -->
                   <div class="row mt-3" style="margin-right: 100px;">
@@ -243,13 +229,23 @@
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Gross Provit</span>
                                                 </div>
-                                                <input type="text" class="form-control font-weight-bold text-right" id="subtotal_sp2d" name="subtotal_sp2d" value="Rp 0" readonly>
+                                                <input type="text" class="form-control font-weight-bold text-right" id="subtotal_sp2d" name="gross_provit" value="Rp 0" readonly>
                                             </div>
 
                                         </div>
                                 </div>
 
                                 <div class="row mt-4">
+                                    <div class="col-md-4">
+
+                                      <div class="input-group mb-3">
+                                          <div class="input-group-prepend">
+                                              <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">PPN 11%</span>
+                                          </div>
+                                          <input type="text" class="form-control font-weight-bold text-right" id="jumlah-ppn" name="jumlah_ppn" value="Rp 0" readonly>
+                                      </div>
+
+                                </div>
 
                                 <div class="col-md-4">
 
@@ -268,7 +264,7 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Persentase Margin</span>
                                         </div>
-                                        <input type="text" class="form-control font-weight-bold text-right" id="total_margin" name="total_margin" value="0%" readonly>
+                                        <input type="text" class="form-control font-weight-bold text-right" id="total_margin" name="persentase_margin" value="0%" readonly>
                                     </div>
 
                                 </div>
@@ -347,7 +343,7 @@
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Validasi Payment</span>
                                             </div>
-                                            <input type="text" class="form-control font-weight-bold text-right" id="validasi_payment" name="validasi_payment" value="{{ isset($validasi_payment) && $validasi_payment !== '' ? 'Rp ' . number_format($validasi_payment, 0, ',', '.') : '' }}" @if(!in_array(Auth::user()->role, ['super_admin', 'admin'])) readonly @endif>
+                                            <input type="text" class="form-control font-weight-bold text-right" id="validasi_payment" name="validasi_payment" value="{{ isset($validasi_payment) && $validasi_payment !== '' ? 'Rp ' . number_format($validasi_payment, 0, ',', '.') : '' }}" @if(!in_array(Auth::user()->role, ['super_admin', 'manager', 'admin', 'sales'])) readonly @endif>
                                         </div>
                                     </div>
 
@@ -378,6 +374,8 @@
           </div>
 
         </div>
+
+
         <div class="card mb-4 col-md-12">
           <div class="card-header pb-0">
             <h6>Date Of Approval</h6>
@@ -445,7 +443,8 @@
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Approval By</span>
                                             </div>
-											<input type="text" name="approval" id="approval" class="form-control pl-2" style="border: 1px solid black;" value="{{ isset($approval) && $approval !== '' && $approval !== 0 ? 'Rp ' . number_format($approval, 0, ',', '.') : (auth()->check() ? auth()->user()->divisi : '') }}" readonly>                                        </div>
+                                            <input type="text" name="approval" id="approval" class="form-control pl-2" style="border: 1px solid black;" value="{{ isset($approval) && $approval !== '' && $approval !== 0 ? 'Rp ' . number_format($approval, 0, ',', '.') : 'Agus Sopyan' }}" readonly>
+                                        </div>
                                     </div>
 
                                   <div class="col-md-6">
@@ -467,7 +466,7 @@
                               <div class="text-center">
                                   <button type="submit" class="btn btn-primary btn-sm mt-2">Simpan Perubahan</button>
                               </div>
-                              @endif
+                               @endif
                           </form>
 
                       </div>
@@ -477,141 +476,151 @@
           </div>
         </div>
 
+
         @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'manager','admin','sales']))
-          <div class="card mb-4">
-            <div class="card-header pb-0">
-                <h6>Total PO Ke CV MBS</h6>
+        <div class="row gx-3 gy-3">
+            <!-- VALIDASI PAYMENT -->
+            <div class="card mb-4 col-md-12">
+              <div class="card-header pb-0">
+                <h6 class="text-center font-weight-bold">Total PO Ke CV MBS</h6>
+              </div>
+              <div class="card-body px-0 pt-0 pb-2">
+                <form id="form-update-po" method="POST" action="{{ url('/pr_wapu/updateTotalPO') }}">
+                    @csrf
+                    <input type="hidden" name="id_projek" value="{{ $id_projek ?? '' }}">
+
+                <div class="row mt-5">
+
+                    <div class="row">
+                        <div class="col-md-4">
+
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Total PO PPN</span>
+                                </div>
+                                <input type="text" class="form-control font-weight-bold text-right" id="subtotal-ppn" name="total_po_ppn" readonly value="Rp 0">
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Total DPP PPN</span>
+                                </div>
+                                <input type="text" class="form-control font-weight-bold text-right" id="subtotal-cost-ppn" name="total_cost_ppn" readonly value="Rp 0">
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Total Margin PPN</span>
+                                </div>
+                                <input type="text" class="form-control font-weight-bold text-right" id="total-margin-ppn" name="total_margin_ppn" readonly value="Rp 0">
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Total PO Non PPN</span>
+                                </div>
+                                <input type="text" class="form-control font-weight-bold text-right" id="subtotal-non-ppn" name="total_po_non_ppn" value="Rp 0" readonly>
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Total DPP Non PPN</span>
+                                </div>
+                                <input type="text" class="form-control font-weight-bold text-right" id="subtotal-cost-non-ppn" name="total_cost_non_ppn" value="Rp 0" readonly>
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Total Margin Non PPN</span>
+                                </div>
+                                <input type="text" class="form-control font-weight-bold text-right" id="subtotal-margin-non-ppn" name="total_margin_non_ppn" value="Rp 0" readonly>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="row mt-5">
+
+                            <div class="col-md-4">
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Total PPN/Non PPN</span>
+                                    </div>
+                                    <input type="text" class="form-control font-weight-bold text-right" id="subtotal-po-cv" name="subtotal_po_cv" value="Rp 0" readonly style="width: 150px">
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Total DPP</span>
+                                    </div>
+                                    <input type="text" class="form-control font-weight-bold text-right" id="subtotal-po-cost-cv" name="subtotal_po_cost_cv" value="Rp 0" readonly>
+                                </div>
+
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Total Margin</span>
+                                    </div>
+                                    <input type="text" class="form-control font-weight-bold text-right" id="subtotal-margin-cv" name="subtotal_margin_cv" value="Rp 0" readonly>
+                                </div>
+                            </div>
+                     </div>
+
+                    <div class="col-md-4">
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Total Persentase</span>
+                            </div>
+                            <input type="text" class="form-control font-weight-bold text-right" id="subtotal-persentase-cv" name="subtotal_persentase_cv" value="Rp 0" readonly>
+                        </div>
+                    </div>
+
+                    @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'manager','admin']))
+                    <div class="text-right">
+                        <button type="submit" class="btn btn-primary btn-sm mt-2">Simpan Perubahan</button>
+                      </div>
+                    @endif
+
+                    </div>
+                </form>
+
+
+              </div>
             </div>
-            <form id="form-update-po" method="POST" action="{{ url('/pr_wapu/updateTotalPO') }}">
-                @csrf
-                <input type="hidden" name="id_projek" value="{{ $id_projek ?? '' }}">
 
-            <div class="row mt-5">
-                <div class="row">
-                    <div class="col-md-4">
+          </div>
+        @endif
 
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Total PO PPN</span>
-                            </div>
-                            <input type="text" class="form-control font-weight-bold text-right" id="subtotal-ppn" name="total_po_ppn" readonly value="Rp 0">
-                        </div>
-
-                    </div>
-
-                    <div class="col-md-4">
-
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Total Cost PPN</span>
-                            </div>
-                            <input type="text" class="form-control font-weight-bold text-right" id="subtotal-cost-ppn" name="total_cost_ppn" readonly value="Rp 0">
-                        </div>
-
-                    </div>
-
-                    <div class="col-md-4">
-
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Total Margin PPN</span>
-                            </div>
-                            <input type="text" class="form-control font-weight-bold text-right" id="total-margin-ppn" name="total_margin_ppn" readonly value="Rp 0">
-                        </div>
-
-                    </div>
-                </div>
-
-                <div class="row mt-5">
-                    <div class="col-md-4">
-
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Total PO Non PPN</span>
-                            </div>
-                            <input type="text" class="form-control font-weight-bold text-right" id="subtotal-non-ppn" name="total_po_non_ppn" value="Rp 0" readonly>
-                        </div>
-
-                    </div>
-
-                    <div class="col-md-4">
-
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Total Cost Non PPN</span>
-                            </div>
-                            <input type="text" class="form-control font-weight-bold text-right" id="subtotal-cost-non-ppn" name="total_cost_non_ppn" value="Rp 0" readonly>
-                        </div>
-
-                    </div>
-
-                    <div class="col-md-4">
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Total Margin Non PPN</span>
-                            </div>
-                            <input type="text" class="form-control font-weight-bold text-right" id="subtotal-margin-non-ppn" name="total_margin_non_ppn" value="Rp 0" readonly>
-                        </div>
-                    </div>
-
-                </div>
-
-                <div class="row mt-5">
-
-                <div class="col-md-4">
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Total PPN/Non PPN</span>
-                        </div>
-                        <input type="text" class="form-control font-weight-bold text-right" id="subtotal-po-cv" name="subtotal_po_cv" value="Rp 0" readonly style="width: 150px">
-                    </div>
-
-                </div>
-                <div class="col-md-4">
-
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Total Cost</span>
-                        </div>
-                        <input type="text" class="form-control font-weight-bold text-right" id="subtotal-po-cost-cv" name="subtotal_po_cost_cv" value="Rp 0" readonly>
-                    </div>
-
-                </div>
-                <div class="col-md-4">
-
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Total Margin</span>
-                        </div>
-                        <input type="text" class="form-control font-weight-bold text-right" id="subtotal-margin-cv" name="subtotal_margin_cv" value="Rp 0" readonly>
-                    </div>
-                    </div>
-
-                </div>
-
-                <div class="col-md-4 mt-5">
-
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Total Persentase</span>
-                        </div>
-                        <input type="text" class="form-control font-weight-bold text-right" id="subtotal-persentase-cv" name="subtotal_persentase_cv" value="Rp 0" readonly>
-                    </div>
-
-                </div>
-
-                @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'manager','admin','sales']))
-                <div class="text-right">
-                    <button type="submit" class="btn btn-primary btn-sm mt-2">Simpan Perubahan</button>
-                  </div>
-                @endif
-                </div>
-
-            </form>
 
 
         </div>
-        @endif
+
 
 
         @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'manager','admin']))
@@ -622,7 +631,7 @@
                 <h6 class="text-center font-weight-bold">SHARE MARGIN HOLDING, DIREKSI & INVESTOR</h6>
               </div>
               <div class="card-body px-0 pt-0 pb-2">
-              <form id="form-update-provit-sharing" method="POST" action="{{ url('/pr_wapu/createsharingprovit') }}">
+                <form id="form-update-provit-sharing" method="POST" action="{{ url('/pr_wapu/createsharingprovit') }}">
                     @csrf
                     <input type="hidden" name="id_projek" value="{{ $id_projek ?? '' }}">
 
@@ -716,10 +725,9 @@
               </div>
             </div>
           </div>
-          @endif
-
-
+        @endif
         </div>
+
       </div>
       <footer class="footer pt-3  ">
         <div class="container-fluid">
@@ -816,7 +824,7 @@
 
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
-                          <span class="input-group-text" style="height: 35px; background-color: rgb(222, 222, 222);">Total Price</span>
+                          <span class="input-group-text" style="height: 35px; background-color: rgb(222, 222, 222);">Total Selling Price</span>
                         </div>
                         <input type="text" name="total_price" id="total_price" class="form-control pl-2" style="border: 1px solid black;" readonly>
                     </div>
@@ -858,7 +866,7 @@
                         <div class="col-6">
                             <div class="input-group mb-3">
                                 <div class="input-group-prepend">
-                                  <span class="input-group-text" style="height: 35px; background-color: rgb(222, 222, 222);">Total Cost</span>
+                                  <span class="input-group-text" style="height: 35px; background-color: rgb(222, 222, 222);">Total DPP</span>
                                 </div>
                                 <input type="text" name="total_cost" id="total_cost" class="form-control pl-2" style="border: 1px solid black;" readonly>
                             </div>
@@ -903,7 +911,7 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Form - COGS</h5>
+          <h5 class="modal-title" id="exampleModalLabel">Form - Add Cost</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -991,33 +999,28 @@ $(document).ready(function() {
     viewDatatableCogs();
     koleksiSelect2();
 
-    // Hapus titik pada semua field form COGS sebelum submit
-    $('#form_cogs').on('submit', function() {
-            $(this).find('input, textarea').each(function() {
-                if (this.type === 'hidden' || this.disabled) return;
-                const $el = $(this);
-                const v = $el.val();
-                if (typeof v === 'string') {
-                    $el.val(v.replace(/\./g, ''));
-                }
-            });
-        });
-
-    // Initially disable edit button
     $('#btn-edit-cogs').prop('disabled', true);
+
+    // Only call updateTotalProvitSharing if user has admin role
+    const userRole = '{{ Auth::user()->role ?? "" }}';
+    if (['super_admin', 'manager', 'admin'].includes(userRole)) {
+        updateTotalProvitSharing();
+    }
 
     $("#btn-back").on("click", function () {
         window.location.href = defaultUrl;
     });
 
+
     $('select[name=cmb_vendor]').val(null).trigger('change');
 
 
     $('select[name=cmb_vendor').on('select2:select', function (e) {
-    var data = e.params.data;
-    // alert(data)
-    // $('#total_harga').val();
+        var data = e.params.data;
+        // alert(data)
+        // $('#total_harga').val();
     });
+
 
     $("#btn-edit").on("click", function () {
         let selected = tableDetail.row('.selected').data();
@@ -1062,7 +1065,6 @@ $(document).ready(function() {
         modal.modal("show");
     });
 
-
     $("#btn-edit-cogs").on("click", function () {
         let selected = tableCogs.row('.selected').data();
 
@@ -1088,7 +1090,6 @@ $(document).ready(function() {
         modal.modal("show");
     });
 
-
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -1104,7 +1105,7 @@ $(document).ready(function() {
 
         let type = $("[name=_type]").val();
         let id = $("[name=id]").val();
-        let url = type == "create" ? defaultUrl + "detailCreate" : defaultUrl + "detailUpdate" ;
+        let url = type == "create" ? defaultUrl + "detailCreate" : defaultUrl + "detailUpdate";
 
         $.ajax({
             url: url,
@@ -1112,8 +1113,6 @@ $(document).ready(function() {
             data: $(this).serialize() + "&id_projek=" + "<?php echo $id_projek ?>",
             dataType: 'json',
             success: function(response) {
-                // Tampilkan SweetAlert
-                viewDatatable();
                 Swal.fire({
                     title: 'Sukses',
                     text: response.message,
@@ -1126,6 +1125,9 @@ $(document).ready(function() {
                         // Reset select2
                         $('#cmb_kategori').val(null).trigger('change.select2');
                         $('#cmb_barang').val(null).trigger('change.select2');
+                        $('#cmb_vendor').val(null).trigger('change.select2');
+                        // Reset pilihan Jenis PPN
+                        $('#inputGroupSelect01').val('').trigger('change');
                         // Kosongkan input readonly
                         $('#total_price').val('');
                         $('#unit_price_cv').val('');
@@ -1133,18 +1135,18 @@ $(document).ready(function() {
                         $('#total_cost').val('');
                         $('#margin').val('');
                         $('#persentase').val('');
-                        // Kembalikan _type ke create
+                        // Kembalikan _type ke create dan kosongkan id
                         $("input[name=_type]").val("create");
+                        $("[name=id]").val("");
                         // Reload datatable
                         tableDetail.ajax.reload();
-                        // Tutup modal dengan cara yang lebih robust
-                        $('#formModal').modal('hide');
-                        setTimeout(function() {
-                            $('.modal-backdrop').remove();
-                            $('body').removeClass('modal-open');
-                            $('body').css('padding-right', '');
-                            $('#formModal').hide();
-                        }, 150);
+
+                        // Aktifkan kembali tombol submit
+                        submitButton.html(originalContent);
+                        submitButton.prop("disabled", false);
+
+                        // Fokus ke field pertama
+                        $('#part_number').focus();
                     }
                 });
             },
@@ -1158,6 +1160,10 @@ $(document).ready(function() {
                     }
                 }
                 alert('Terjadi kesalahan saat menyimpan data');
+
+                // Pastikan tombol submit diaktifkan kembali saat gagal
+                submitButton.html(originalContent);
+                submitButton.prop("disabled", false);
             },
             complete: function() {
                 submitButton.html(originalContent);
@@ -1177,6 +1183,17 @@ $(document).ready(function() {
         let type = $("[name=_type]").val();
         let id = $("[name=id]").val();
         let url = type == "create" ? defaultUrl + "createcogs" : defaultUrl + "detailUpdateCogs/" + id;
+
+
+        $(this).find('input[type="text"]').each(function() {
+    if ($(this).attr('name') && [
+        'Unit_price', 'total_price', 'vendor_price', 'unit_price_cv', 'total_po_cv', 'total_cost', 'margin', 'expedittion', 'add_insentif_fe001a', 'instalasi_setting', 'other'
+    ].includes($(this).attr('id'))) {
+        let val = $(this).val();
+        $(this).val(unformatRupiah(val));
+    }
+});
+
 
         $.ajax({
             url: url,
@@ -1215,7 +1232,7 @@ $(document).ready(function() {
                         // Update total COGS di modal
                         $('#total_cost_cogs').text('Rp 0');
                         baseCostCogs = 0;
-                        // Tutup modal dengan cara yang lebih robust
+
                         $('#formCogs').modal('hide');
                         setTimeout(function() {
                             $('.modal-backdrop').remove();
@@ -1311,7 +1328,7 @@ $(document).ready(function() {
     });
 
     // Event handler ketika modal akan ditutup
-    $('#formModal').on('hidden.bs.modal', function () {
+    $('#formModal').on('hide.bs.modal', function () {
         closeModal();
     });
 
@@ -1327,11 +1344,8 @@ $(document).ready(function() {
         updateSubtotalPoCostCV();
         updateSubtotalPoMarginCV();
         updateSubtotalPersentaseCV();
-        updateSubtotalValidasiPayment();
-        updateTotalMargin(); // Tambahkan ini
-        updateTotalPersentaseMargin();
+        updateJumlahPPN();
         updateTotalVat();
-        updateSubtotalCostSP2D();
         updateSubtotalCost(); // Tambahkan fungsi ini
         updateSubtotalValidasiPayment(); // Tambahkan fungsi ini
         updateTotalMargin(); // Tambahkan fungsi ini
@@ -1341,35 +1355,18 @@ $(document).ready(function() {
         updateTotalPersentaseMargin();
     });
 
-    function hitungTotalMargin() {
-        let totalMargin = 0;
-        let totalBeli = 0;
-        let totalJual = 0;
+    // Di dalam $(document).ready(...), setelah inisialisasi datatable:
+    updateIncentiveFe001a();
 
-        // Asumsi: input harga beli dan jual punya class .harga-beli dan .harga-jual
-        $('.harga-beli').each(function(i, el) {
-            let beli = parseFloat($(el).val().replace(/[^0-9.-]+/g,"")) || 0;
-            totalBeli += beli;
-        });
-        $('.harga-jual').each(function(i, el) {
-            let jual = parseFloat($(el).val().replace(/[^0-9.-]+/g,"")) || 0;
-            totalJual += jual;
-        });
-
-        if (totalBeli > 0) {
-            totalMargin = ((totalJual - totalBeli) / totalBeli) * 100;
-        }
-
-        $('#total_margin').val(totalMargin.toFixed(2) + '%');
-    }
-
-    // Trigger hitungTotalMargin saat ada perubahan pada input harga
-    $(document).on('input', '.harga-beli, .harga-jual', function() {
-        hitungTotalMargin();
+    // Hitung ulang realtime ketika subtotal-margin-cv berubah
+    $(document).on('keyup change', '#subtotal-margin-cv', function() {
+        updateIncentiveFe001a();
     });
 
-    // Panggil sekali saat load
-    hitungTotalMargin();
+    // Hitung ulang realtime ketika nilai add_insentif_fe001a di modal diubah
+    $(document).on('keyup change', '#add_insentif_fe001a', function() {
+        updateIncentiveFe001a();
+    });
 });
 
 $('#formCogs').on('show.bs.modal', function () {
@@ -1454,10 +1451,11 @@ function koleksiSelect2() {
     });
 }
 
+
 function viewDatatable() {
     tableDetail = $(".basic-datatables").DataTable({
         ajax: {
-            url: "{{ route('non_ppn/datatabledetail') }}",
+            url: "{{ route('pr_wapu/datatabledetail') }}",
             "type": "post",
             data: {
                 id_projek: "<?php echo $id_projek ?>"
@@ -1481,33 +1479,11 @@ function viewDatatable() {
             searchable: false,
             targets: [0]
         }],
-        columns: [{
-                "data": "id_projek",
-                render: function (data, type, row, meta) {
-                    return meta.row + meta.settings._iDisplayStart + 1 + ".";
-                }
-            },
-            {
-                data: "jenis_ppn",
-                render: function (data, type, row, meta) {
-                    if (data == '' || data == null) {
-                        return '-';
-                    } else {
-                        return data;
-                    }
-                }
-            },
-            {
-                data: "part_number",
-                render: function (data, type, row, meta) {
-                    if (data == '' || data == null) {
-                        return '-';
-                    } else {
-                        return data;
-                    }
-                }
-            },
-            {
+        columns: [
+          { data: "id_projek", className: "text-center align-middle" },
+          { data: "jenis_ppn", className: "text-center align-middle" },
+          { data: "part_number", className: "text-left align-middle" },
+          {
             data: "partnumber_description",
             className: "text-left align-middle",
             render: function(data, type, row) {
@@ -1520,37 +1496,10 @@ function viewDatatable() {
               return data;
             }
           },
-            {
-                data: "nama_vendor",
-                render: function (data, type, row, meta) {
-                    if (data == '' || data == null) {
-                        return '-';
-                    } else {
-                        return data;
-                    }
-                }
-            },
-            {
-                data: "qty",
-                render: function (data, type, row, meta) {
-                    if (data == '' || data == null) {
-                        return '-';
-                    } else {
-                        return data;
-                    }
-                }
-            },
-            {
-                data: "unit_price",
-                render: function (data, type, row, meta) {
-                    if (data == '' || data == null) {
-                        return '-';
-                    } else {
-                        return 'Rp ' + formatRupiahWithDots(data.toString(), '');
-                    }
-                }
-            },
-            {
+          { data: "nama_vendor", className: "text-left align-middle" },
+          { data: "qty", className: "text-center align-middle" },
+          { data: "unit_price", className: "text-right align-middle" },
+          {
                 data: "total_price",
                 render: function (data, type, row, meta) {
                     if (data == '' || data == null) {
@@ -1657,34 +1606,39 @@ function viewDatatable() {
         },
     });
 
-        // Handle row selection
-    // $('.basic-datatables tbody').on('click', 'tr', function () {
-    //     if ($(this).hasClass('selected')) {
-    //         $(this).removeClass('selected');
-    //     } else {
-    //         $('.basic-datatables tbody tr').removeClass('selected');
-    //         $(this).addClass('selected');
-    //     }
-    // });
-
-    $('#datatable-cogs tbody').on('click', 'tr', function () {
+    // Tambahkan ini:
+    $('.basic-datatables tbody').off('click', 'tr').on('click', 'tr', function () {
         if ($(this).hasClass('selected')) {
             $(this).removeClass('selected');
-            // Disable tombol edit jika tidak ada row yang terselect
-            $('#btn-edit-cogs').prop('disabled', true);
+        } else {
+            $('.basic-datatables tbody tr').removeClass('selected');
+            $(this).addClass('selected');
+        }
+    });
+
+    $('#datatable-cogs tbody').on('click', 'tr', function () {
+        // Toggle select/unselect
+        if ($(this).hasClass('selected')) {
+            $(this).removeClass('selected');
         } else {
             $('#datatable-cogs tbody tr').removeClass('selected');
             $(this).addClass('selected');
-            // Enable tombol edit jika ada row yang terselect
-            $('#btn-edit-cogs').prop('disabled', false);
         }
+
+         // Hapus kelas 'selected' dari semua baris
+         $('#datatable-cogs tbody tr').removeClass('selected');
+        // Tambahkan kelas 'selected' pada baris yang diklik
+        $(this).addClass('selected');
+
+        // Enable edit button when row is selected
+        $('#btn-edit-cogs').prop('disabled', false);
     });
 }
 
 function viewDatatableCogs() {
     tableCogs = $("#datatable-cogs").DataTable({
         ajax: {
-            url: "{{ route('non_ppn/datatablecogs') }}",
+            url: "{{ route('pr_wapu/datatablecogs') }}",
             "type": "post",
             data: {
                 id_projek: "<?php echo $id_projek ?>"
@@ -1795,25 +1749,9 @@ function viewDatatableCogs() {
         },
     });
 
-
-
-      // Handle row selection
-    $('.basic-datatables tbody').off('click', 'tr', function () {
-        // Toggle select/unselect
-        if ($(this).hasClass('selected')) {
-            // Jika row sudah selected, unselect
-            $(this).removeClass('selected');
-        } else {
-            // Jika row belum selected, select row ini dan unselect yang lain
-            $('.basic-datatables tbody tr').removeClass('selected');
-            $(this).addClass('selected');
-        }
-    });
-
-    // Modified tableCogs draw event
+    // Tambahkan event handler untuk enable/disable tombol Add Cogs
     tableCogs.on('draw', function() {
         let dataCount = tableCogs.rows().data().length;
-
         if (dataCount > 0) {
             // Disable tombol Add Cogs jika sudah ada data
             $('button[data-target="#formCogs"]').prop('disabled', true);
@@ -1834,6 +1772,7 @@ function viewDatatableCogs() {
             $('#btn-edit-cogs').prop('disabled', true);
         }
 
+
         // Update subtotal COGS
         updateSubtotalCogs();
         updateSubtotalCost(); // Tambahkan fungsi ini
@@ -1849,13 +1788,10 @@ function viewDatatableCogs() {
 function closeModal() {
     $('#formModal').modal('hide');
     $('#formCogs').modal('hide');
-    setTimeout(function() {
-        $('.modal-backdrop').remove();
-        $('body').removeClass('modal-open');
-        $('body').css('padding-right', '');
-        $('#formModal').hide();
-        $('#formCogs').hide();
-    }, 150);
+    $('#formModal').hide();
+    $('.modal-backdrop').remove();
+    $('body').removeClass('modal-open');
+    $('body').css('padding-right', '');
 }
 
 // Tambahkan fungsi helper di bagian atas script
@@ -1987,6 +1923,11 @@ function getNumberFromDotsFormat(str) {
     return parseFloat(str.replace(/[^,\d]/g, '').replace(',', '.')) || 0;
 }
 
+function unformatRupiah(str) {
+    if (!str) return 0;
+    return str.replace(/[^,\d]/g, '').replace(',', '.');
+}
+
 // Event handler untuk semua input yang perlu format dengan titik (tanpa validasi_payment)
 $('#Unit_price, #total_price, #vendor_price, #unit_price_cv, #total_po_cv, #total_cost, #margin, #expedittion, #add_insentif_fe001a, #instalasi_setting, #other').on('input', function() {
     let value = $(this).val();
@@ -1996,11 +1937,6 @@ $('#Unit_price, #total_price, #vendor_price, #unit_price_cv, #total_po_cv, #tota
     } else {
         $(this).val('');
     }
-
-    // Panggil updateTotalMargin setelah format
-    setTimeout(function() {
-        updateTotalMargin();
-    }, 100);
 });
 
 // Event handler khusus untuk validasi_payment
@@ -2086,22 +2022,33 @@ $('#total_price, #total_cost').on('input', updateMargin);
 $('#margin, #total_po_cv').on('input', updatePersentase);
 
 function updateSubtotalTotalPrice() {
+    const element = $('#subtotal-price');
+    if (element.length === 0) return;
+
     let data = tableDetail.rows().data();
     let subtotal = 0;
     for (let i = 0; i < data.length; i++) {
         let totalPrice = data[i].total_price;
         if (typeof totalPrice === 'string') {
-            totalPrice = parseFloat(totalPrice.replace(/[^,\d]/g, '').replace(',', '.')) || 0;
+            totalPrice = parseFloat(totalPrice.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
         } else if (totalPrice === null || totalPrice === undefined) {
             totalPrice = 0;
         }
         subtotal += totalPrice;
     }
-    $('#subtotal-price').val(formatRupiahWithDots(subtotal, ''));
-    $('#subtotal-ppn').val('Rp ' + formatRupiahWithDots(subtotal, ''));
+    element.val(formatRupiahWithDots(subtotal, ''));
+
+    // Also update subtotal-ppn if it exists
+    const ppnElement = $('#subtotal-ppn');
+    if (ppnElement.length > 0) {
+        ppnElement.val('Rp ' + formatRupiahWithDots(subtotal, ''));
+    }
 }
 
 function updateSubtotalPPN() {
+    const element = $('#subtotal-ppn');
+    if (element.length === 0) return; // Exit if element doesn't exist
+
     let data = tableDetail.rows().data();
     let subtotal = 0;
     for (let i = 0; i < data.length; i++) {
@@ -2115,7 +2062,7 @@ function updateSubtotalPPN() {
             subtotal += totalCost;
         }
     }
-    $('#subtotal-ppn').val('Rp ' + formatRupiahWithDots(subtotal, ''));
+    element.val('Rp ' + formatRupiahWithDots(subtotal, ''));
 }
 
 function updateSubtotalCostPPN() {
@@ -2142,7 +2089,7 @@ function updateSubtotalMarginPPN() {
         if (data[i].jenis_ppn === 'ppn') {
             let totalCost = data[i].margin;
             if (typeof totalCost === 'string') {
-                totalCost = parseFloat(totalCost.replace(/[^,\d]/g, '').replace(',', '.')) || 0;
+                totalCost = parseFloat(totalCost.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
             } else if (totalCost === null || totalCost === undefined) {
                 totalCost = 0;
             }
@@ -2284,7 +2231,6 @@ function updateSubtotalPoCostCV() {
     }
 
     $('#subtotal-po-cost-cv').val('Rp ' + formatRupiahWithDots(totalCostCV.toString(), ''));
-    updateSubtotalCost(); // <-- Tambahkan ini
 }
 
 function updateSubtotalPoMarginCV() {
@@ -2343,6 +2289,24 @@ function updateSubtotalPersentaseCV() {
     $('#subtotal-persentase-cv').val(persentase.toFixed(2) + ' %');
 }
 
+function updateJumlahPPN() {
+    let subtotalPriceText = $('#subtotal-price').val();
+    let subtotalPrice = parseFloat(subtotalPriceText.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
+    let jumlahPPN = subtotalPrice * 0.11;
+    $('#jumlah-ppn').val('Rp ' + formatRupiahWithDots(jumlahPPN.toFixed(0), ''));
+}
+
+function updateTotalVat() {
+    let subtotalPriceText = $('#subtotal-price').val();
+    let jumlahPPNText = $('#jumlah-ppn').val();
+
+    let subtotalPrice = parseFloat(subtotalPriceText.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
+    let jumlahPPN = parseFloat(jumlahPPNText.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
+
+    let totalVat = subtotalPrice + jumlahPPN;
+    $('#total-vat').val('Rp ' + formatRupiahWithDots(totalVat.toString(), ''));
+}
+
 function updateSubtotalCogs() {
     let data = tableCogs.rows().data();
     let subtotal = 0;
@@ -2359,7 +2323,6 @@ function updateSubtotalCogs() {
     }
 
     $('#subtotal_cogs').text('Rp ' + formatRupiahWithDots(subtotal.toString(), ''));
-    updateSubtotalCost(); // <-- Tambahkan ini
 }
 
 function updateSubtotalCost() {
@@ -2405,7 +2368,7 @@ function updateTotalMargin() {
 
     // Ambil nilai subtotal_sp2d
     let subtotalSP2DText = $('#subtotal_sp2d').val();
-    let subtotalSP2D = parseFloat(subtotalSP2DText.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
+    let subtotalSP2D = parseFloat(subtotalSP2DText.replace('Rp ', '').replace(/\./g, '').replace(',', '.')) || 0;
 
     // Ambil nilai subtotal_cost
     let subtotalCostText = $('#subtotal_cost').val();
@@ -2457,15 +2420,14 @@ function updateIncentiveSales() {
 
     // Update elemen incentive_sales
     $('#incentive_sales').val('Rp ' + formatRupiahWithDots(incentiveSales.toFixed(0), ''));
-    updatePersentaseIncentive(); // <--- Tambahkan ini
 
+    // Panggil fungsi untuk update leader sales
     updateLeaderSales();
     updateProvitSharingDirutama();
     updateProvitSharingSim();
     updateProvitSharingKeuangan();
     updateTotalProvitSharing();
     updatePersentaseIncentive();
-
 }
 
 function updatePersentaseIncentive() {
@@ -2485,7 +2447,7 @@ function updatePersentaseIncentive() {
 
 function updatePPHBankFee() {
     let validasiPaymentText = $('#validasi_payment').val();
-    let subTotalpriceText = $('#subtotal-price').val();
+    let subtotalPriceText = $('#subtotal-price').val();
 
     // Jika validasi_payment kosong, isi pph_bank_fee dengan 0 atau '-'
     if (!validasiPaymentText || validasiPaymentText.trim() === '') {
@@ -2494,12 +2456,12 @@ function updatePPHBankFee() {
     }
 
     let validasiPayment = parseFloat(validasiPaymentText.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
-    let subTotalprice = parseFloat(subTotalpriceText.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
+    let subtotalPrice = parseFloat(subtotalPriceText.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
 
-    if (validasiPayment === subTotalprice) {
+    if (validasiPayment === subtotalPrice) {
         $('#pph_bank_fee').val('-');
     } else {
-        let result = subTotalprice - validasiPayment;
+        let result = subtotalPrice - validasiPayment;
         $('#pph_bank_fee').val('Rp ' + formatRupiahWithDots(result.toString(), ''));
     }
 }
@@ -2580,11 +2542,6 @@ $('#form_update_validasi_payment').on('submit', function(e) {
                 $('#incentive_sales').val('Rp ' + formatRupiahWithDots(response.incentive_sales, ''));
             }
 
-            // Tambahkan ini agar tableCogs reload setelah update validasi_payment
-            if (typeof tableCogs !== 'undefined') {
-                tableCogs.ajax.reload();
-            }
-
             Swal.fire({
                 title: 'Sukses',
                 text: response.message,
@@ -2594,6 +2551,9 @@ $('#form_update_validasi_payment').on('submit', function(e) {
                 if (result.isConfirmed) {
                     if (typeof tableDetail !== 'undefined') {
                         tableDetail.ajax.reload();
+                    }
+                    if (typeof tableCogs !== 'undefined') {
+                        tableCogs.ajax.reload();
                     }
                 }
             });
@@ -2619,7 +2579,6 @@ $('#form_update_incentive').on('submit', function(e) {
         type: 'POST',
         data: $(this).serialize(),
         success: function(res) {
-            viewDatatableCogs();
             Swal.fire('Sukses', 'Data berhasil diupdate!', 'success');
         },
         error: function() {
@@ -2667,40 +2626,13 @@ function autoSetJenisApprove() {
 
 // Pastikan fungsi ini dipanggil setiap kali data berubah
 tableDetail.on('draw', function() {
-    // Panggil semua fungsi update yang diperlukan
-    updateSubtotalTotalPrice();
-    updateSubtotalPPN();
-    updateSubtotalCostPPN();
-    updateSubtotalMarginPPN();
-    updateSubtotalNonPPN();
-    updateSubtotalCostNonPPN();
-    updateSubtotalMarginNonPPN();
-    updateSubtotalPoCV();
-    updateSubtotalPoCostCV();
-    updateSubtotalPoMarginCV();
-    updateSubtotalPersentaseCV();
-    updateSubtotalValidasiPayment();
-    updateTotalMargin(); // Tambahkan ini
-    updateTotalPersentaseMargin();
-    updateTotalVat();
-    updateSubtotalCostSP2D();
-    updateSubtotalCost(); // Tambahkan fungsi ini
-    updateSubtotalValidasiPayment(); // Tambahkan fungsi ini
-    updateTotalMargin(); // Tambahkan fungsi ini
-    updateIncentiveSales(); // Tambahkan fungsi ini
-    updatePPHBankFee(); // <-- Tambahkan ini
-    updatePersentaseIncentive();
+    // ...fungsi update lain...
     updateTotalPersentaseMargin();
 });
-
 tableCogs.on('draw', function() {
-    // Panggil semua fungsi update yang diperlukan
-    updateSubtotalCogs();
-    updateSubtotalCost();
-    updateSubtotalValidasiPayment();
-    updateTotalMargin(); // Tambahkan ini
+    // ...fungsi update lain...
     updateTotalPersentaseMargin();
-    updateIncentiveFe001a();
+    updateIncentiveFe001a(); // <-- Tambahkan ini
 });
 
 function updateIncentiveFe001a() {
@@ -2729,34 +2661,27 @@ function updateIncentiveFe001a() {
     }
 }
 
-// Jika ada input manual:
-$('#expedittion, #add_insentif_fe001a, #instalasi_setting, #pph_bank_fee, #other').on('input', function() {
-    updateSubtotalCogs();
-    updateSubtotalCost();
-    updateSubtotalValidasiPayment();
-    updateTotalMargin(); // Tambahkan ini
-});
+function formatRupiah(angka, prefix){
+        var number_string = angka.replace(/[^,\d]/g, '').toString(),
+        split   		= number_string.split(','),
+        sisa     		= split[0].length % 3,
+        rupiah     		= split[0].substr(0, sisa),
+        ribuan     		= split[0].substr(sisa).match(/\d{3}/gi);
 
-function updateTotalVat() {
-    let subtotalPrice = $('#subtotal-price').val();
-    console.log('subtotalPrice:', subtotalPrice); // Debug
-    $('#total-vat').val(subtotalPrice);
-}
+        if(ribuan){
+            var separator = sisa ? '.' : '';
+            rupiah += separator + ribuan.join('.');
+        }
 
-// Pastikan fungsi ini dipanggil setiap kali tabel di-draw
-tableDetail.on('draw', function() {
-    // ...fungsi update lain...
-    updateTotalVat();
-    // ...fungsi update lain...
-});
+        rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+        return prefix == undefined ? rupiah : (rupiah ? 'Rp ' + rupiah : '');
+    }
 
-$('#subtotal-price').on('input', function() {
-    updateTotalVat();
-    updateSubtotalValidasiPayment();
-    updateTotalMargin(); // Tambahkan ini
-});
+    document.getElementById('expedittion').addEventListener('keyup', function(e){
+        this.value = formatRupiah(this.value, 'Rp ');
+    });
 
-
+// Tambahkan fungsi baru untuk menghitung leader sales (30% dari incentive_sales)
 function updateLeaderSales() {
     // Ambil nilai incentive_sales
     let incentiveSalesText = $('#incentive_sales').val();
@@ -2806,12 +2731,27 @@ function updateProvitSharingKeuangan() {
 }
 
 function updateTotalProvitSharing() {
+    // Check if elements exist before accessing them
+    const holdingElement = $('#profit-sharing-holding');
+    const leaderElement = $('#leader_sales');
+    const dirutamaElement = $('#provit-sharing-dirutama');
+    const simElement = $('#provit-sharing-sim');
+    const keuanganElement = $('#provit-sharing-keuangan');
+    const totalElement = $('#total-provit-sharing');
+
+    // If any of these elements don't exist (for sales users), return early
+    if (holdingElement.length === 0 || leaderElement.length === 0 ||
+        dirutamaElement.length === 0 || simElement.length === 0 ||
+        keuanganElement.length === 0 || totalElement.length === 0) {
+        return; // Exit early if elements don't exist
+    }
+
     // Ambil nilai dari semua field profit sharing
-    let holdingText = $('#profit-sharing-holding').val();
-    let leaderText = $('#leader_sales').val();
-    let dirutamaText = $('#provit-sharing-dirutama').val();
-    let simText = $('#provit-sharing-sim').val();
-    let keuanganText = $('#provit-sharing-keuangan').val();
+    let holdingText = holdingElement.val();
+    let leaderText = leaderElement.val();
+    let dirutamaText = dirutamaElement.val();
+    let simText = simElement.val();
+    let keuanganText = keuanganElement.val();
 
     // Parse nilai numerik dari setiap field
     let holding = parseFloat((holdingText || '').replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
@@ -2824,7 +2764,7 @@ function updateTotalProvitSharing() {
     let total = holding + leader + dirutama + sim + keuangan;
 
     // Update field total provit sharing
-    $('#total-provit-sharing').val('Rp ' + formatRupiahWithDots(total.toFixed(0), ''));
+    totalElement.val('Rp ' + formatRupiahWithDots(total.toFixed(0), ''));
 }
 
 </script>

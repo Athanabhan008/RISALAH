@@ -5,6 +5,7 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/css/select2.min.css" integrity="sha512-xrbX64SIXOxo5cMQEDUQ3UyKsCreOEq1Im90z3B7KPoxLJ2ol/tCT0aBhuIzASfmBVdODioUdUPbt5EDEXmD9g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker3.min.css">
 
 <style>
     table.dataTable tbody tr.selected {
@@ -18,53 +19,6 @@
 
     .select2-dropdown {
         z-index: 9999;
-    }
-
-    /* Custom styling untuk datepicker yang lebih besar */
-    .datepicker {
-        font-size: 16px !important;
-    }
-
-    .datepicker table {
-        font-size: 16px !important;
-    }
-
-    .datepicker table tr td,
-    .datepicker table tr th {
-        padding: 8px 12px !important;
-        font-size: 16px !important;
-    }
-
-    .datepicker table tr td.day {
-        width: 40px !important;
-        height: 40px !important;
-        line-height: 10px !important;
-    }
-
-    .datepicker table tr td.day:hover {
-        background-color: #e9ecef !important;
-    }
-
-    .datepicker table tr td.active {
-        background-color: #007bff !important;
-        border-color: #007bff !important;
-    }
-
-    .datepicker table tr td.active:hover {
-        background-color: #0056b3 !important;
-        border-color: #0056b3 !important;
-    }
-
-    .datepicker table tr td.today {
-        background-color: #ffc107 !important;
-        border-color: #ffc107 !important;
-        color: #212529 !important;
-    }
-
-    .datepicker-dropdown {
-        padding: 10px !important;
-        border-radius: 8px !important;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
     }
 </style>
 
@@ -199,7 +153,6 @@
 
   @push('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
@@ -207,12 +160,12 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap4.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/js/select2.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
   <script src="../../admin/assets/js/plugins/bootstrap-datepicker.js"></script>
 
 <script>
     $('#datepicker').datepicker({
     format: 'yyyy-mm-dd',
-    viewMode: 'date',
     minViewMode: 'date',
     autoclose: true,
     startView: 'date'
@@ -463,36 +416,6 @@ $(document).ready(function() {
     // Event handler ketika modal akan ditutup
     $('#formModal').on('hide.bs.modal', function () {
         closeModal();
-    });
-
-
-    $('select[name=cmb_laundry]').on('select2:select', function (e) {
-        var data = e.params.data;
-        var perkalian = $('#harga').val(data.harga);
-        $('#harga').val(toRp(data.harga));
-        $('#total_harga').val(toRp(data.harga));
-    });
-
-    $('#berat').on('input', function (e) {
-        var perkalian = $(this).val();
-        var harga = $('#harga').val().replace(/\./g, '');
-
-        // Set default value to 1 if input is empty or less than 1
-        if (!perkalian || parseInt(perkalian) < 1) {
-            $(this).val(1);
-            perkalian = 1;
-        }
-
-        $('#total_harga').val(toRp(parseInt(harga) * parseInt(perkalian)));
-    });
-
-    // Add blur event to handle when input loses focus
-    $('#berat').on('blur', function() {
-        if (!$(this).val()) {
-            $(this).val(1);
-            var harga = $('#harga').val();
-            $('#total_harga').val(parseInt(harga) * 1);
-        }
     });
 
     collectionS2Search();

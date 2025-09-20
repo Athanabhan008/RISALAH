@@ -537,11 +537,16 @@ function viewDatatable() {
             },
             {
                 data: "status",
+                className: "text-center", // tambahkan ini
                 render: function (data, type, row, meta) {
                     if (data == '' || data == null) {
                         return '-';
+                    } else if (data.toLowerCase() === 'approve') {
+                        return '<span class="badge bg-success">Approve</span>';
+                    } else if (data.toLowerCase() === 'need approve') {
+                        return '<span class="badge bg-danger">Need Approve</span>';
                     } else {
-                        return data;
+                        return '<span class="badge bg-secondary">' + data + '</span>';
                     }
                 }
             }

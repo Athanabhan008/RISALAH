@@ -59,7 +59,7 @@ class QcController extends Controller
         $query = VWQc::query();
 
         // Filter berdasarkan user yang login
-        if ($user->role == '' || $user->role == 'teknisi') {
+        if ($user->role == 'super_admin' || $user->role == 'teknisi') {
             // Jika admin atau teknisi, tampilkan semua data
             // Tidak perlu filter tambahan
         } else {

@@ -5,6 +5,7 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/css/select2.min.css" integrity="sha512-xrbX64SIXOxo5cMQEDUQ3UyKsCreOEq1Im90z3B7KPoxLJ2ol/tCT0aBhuIzASfmBVdODioUdUPbt5EDEXmD9g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker3.min.css">
 
 <style>
     table.dataTable tbody tr.selected {
@@ -68,6 +69,7 @@
                       <tr>
                         <th style="color: white;" class="text-uppercase text-xxs font-weight-bolder opacity-7">No</th>
                         <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nomor Invoice</th>
+                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Tgl Invoice</th>
                         <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nama sales</th>
                         <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nama Client</th>
                         <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nama Projek</th>
@@ -126,10 +128,18 @@
 
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
+                            <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Tanggal QC</span>
+                          </div>
+                          <input id="datepicker" type="text" class="form-control" name="tgl_inv" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+                    </div>
+
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
                             <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Nama Sales</span>
                           </div>
                           <select name="cmb_sales" id="cmb_sales" class="bg-danger"></select>
                     </div>
+
 
                     <div class="input-group-prepend">
                         <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Nomor PR</span>
@@ -167,7 +177,7 @@
                     <div class="input-group mb-3">
                         <div class="input-group">
                             <div class="input-group-prepend">
-                              <span class="input-group-text" style="background-color: rgb(222, 222, 222);">Partnumber/Description</span>
+                              <span class="input-group-text" style="background-color: rgb(222, 222, 222);">Alamat</span>
                             </div>
                             <textarea class="form-control" aria-label="With textarea" name="alamat" id="alamat" style="border: 1px solid black;"></textarea>
                           </div>
@@ -193,7 +203,21 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap4.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/js/select2.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+  <script src="../../admin/assets/js/plugins/bootstrap-datepicker.js"></script>
+
+  <script>
+    $('#datepicker').datepicker({
+    format: 'yyyy-mm-dd',
+    minViewMode: 'date',
+    autoclose: true,
+    startView: 'date'
+  });
+</script>
+
+
 <script>
+
 
 console.log("kipak");
 
@@ -472,6 +496,16 @@ function viewDatatable() {
             },
             {
                 data: "nomor_invoice",
+                render: function (data, type, row, meta) {
+                    if (data == '' || data == null) {
+                        return '-';
+                    } else {
+                        return data;
+                    }
+                }
+            },
+            {
+                data: "tgl_inv",
                 render: function (data, type, row, meta) {
                     if (data == '' || data == null) {
                         return '-';
