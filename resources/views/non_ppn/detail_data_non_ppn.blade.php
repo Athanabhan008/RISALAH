@@ -128,28 +128,31 @@
               </div>
             </div>
             <div class="card-body px-0 pt-0 pb-2">
-              <div class="table-responsive p-0">
-                <table id="datatable" class="table table-striped table-bordered basic-datatables">
-                    <thead>
-                      <tr>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">#</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Jenis PPN</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Partnumber</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Item Description</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Vendor</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">QTY</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Selling Price/Unit</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Total Selling Price</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Vendor Price / Unit</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Unit Price CV</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Total PO CV</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Total DPP</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Total Margin</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Persentase</th>
-                      </tr>
-                    </thead>
-                    <tbody></tbody>
-                  </table>
+              <div class="table-responsive">
+
+                <div class="table-responsive" style="max-height: 400px; overflow-y: scroll;">
+                    <table id="datatable" class="table table-striped table-bordered basic-datatables">
+                        <thead>
+                          <tr>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">#</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Jenis PPN</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Partnumber</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Item Description</th>
+                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Vendor</th>
+                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">QTY</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Selling Price/Unit</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Total Selling Price</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Vendor Price / Unit</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Unit Price CV</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Total PO CV</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Total DPP</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Total Margin</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Persentase</th>
+                          </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
 
 
                   <div class="card-header pb-0">
@@ -1465,7 +1468,7 @@ function viewDatatable() {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
         },
-        dom: 't<"d-flex justify-content-end mt-3"p>',
+        dom: 't',
         pagingType: "simple_numbers",
         "bInfo" : false,
         destroy: true,
@@ -1481,7 +1484,13 @@ function viewDatatable() {
             targets: [0]
         }],
         columns: [
-          { data: "id_projek", className: "text-center align-middle" },
+            {
+            data: null,
+            className: "text-center align-middle",
+            render: function(data, type, row, meta) {
+              return meta.row + meta.settings._iDisplayStart + 1;
+            }
+          },
           { data: "jenis_ppn", className: "text-center align-middle" },
           { data: "part_number", className: "text-left align-middle" },
           {

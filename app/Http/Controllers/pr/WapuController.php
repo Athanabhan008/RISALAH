@@ -572,9 +572,7 @@ class WapuController extends Controller
         $total = $query->count();
 
         // Apply pagination
-        $results = $query->offset($start)
-                        ->limit($length)
-                        ->get();
+        $results = $query->get();
 
         return response()->json([
             'draw' => $draw,
