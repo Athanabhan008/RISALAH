@@ -863,6 +863,7 @@
                                 <input type="text" name="total_po_cv" id="total_po_cv" class="form-control pl-2" style="border: 1px solid black;" readonly>
                             </div>
                         </div>
+
                         <div class="col-6">
                             <div class="input-group mb-3">
                                 <div class="input-group-prepend">
@@ -1952,18 +1953,48 @@ $('#validasi_payment').on('input', function() {
     updatePPHBankFee();
 });
 
+// Fungsi untuk membulatkan nilai ke atas jika ada nilai di belakang koma
+function roundUpIfDecimal(value) {
+    // Konversi ke number jika masih string
+    let num = parseFloat(value);
+
+    // Debug: log nilai untuk memastikan
+    console.log('Original value:', value, 'Parsed:', num, 'Has decimal:', num % 1 !== 0);
+
+    // Cek apakah ada nilai di belakang koma (bukan bilangan bulat)
+    if (num % 1 !== 0) {
+        let rounded = Math.ceil(num);
+        console.log('Rounded up from', num, 'to', rounded);
+        return rounded;
+    }
+
+    // Jika sudah bilangan bulat, return as is
+    console.log('No rounding needed:', num);
+    return num;
+}
+
 // Modifikasi semua fungsi perhitungan agar ambil angka asli dari input
 function updateTotalPrice() {
     var qty = parseFloat($('#qty').val()) || 0;
     var unitPrice = getNumberFromDotsFormat($('#Unit_price').val());
     var total = qty * unitPrice;
-    $('#total_price').val(formatRupiahWithDots(total.toString(), ''));
+
+    console.log('updateTotalPrice - qty:', qty, 'unitPrice:', unitPrice, 'total:', total);
+
+    // Gunakan fungsi pembulatan baru
+    var roundedTotal = roundUpIfDecimal(total);
+    $('#total_price').val(formatRupiahWithDots(roundedTotal.toString(), ''));
 }
 
 function updateUnitPriceCV() {
     var vendorPrice = getNumberFromDotsFormat($('#vendor_price').val());
     var unitPriceCV = vendorPrice + (vendorPrice * 0.02);
-    $('#unit_price_cv').val(formatRupiahWithDots(unitPriceCV.toFixed(0), ''));
+
+    console.log('updateUnitPriceCV - vendorPrice:', vendorPrice, 'unitPriceCV:', unitPriceCV);
+
+    // Gunakan fungsi pembulatan baru
+    var roundedUnitPriceCV = roundUpIfDecimal(unitPriceCV);
+    $('#unit_price_cv').val(formatRupiahWithDots(roundedUnitPriceCV.toString(), ''));
     updateTotalPoKeCV();
 }
 
@@ -1971,7 +2002,12 @@ function updateTotalPoKeCV() {
     var qty = parseFloat($('#qty').val()) || 0;
     var unitPriceCV = getNumberFromDotsFormat($('#unit_price_cv').val());
     var totalPO = qty * unitPriceCV;
-    $('#total_po_cv').val(formatRupiahWithDots(totalPO.toString(), ''));
+
+    console.log('updateTotalPoKeCV - qty:', qty, 'unitPriceCV:', unitPriceCV, 'totalPO:', totalPO);
+
+    // Gunakan fungsi pembulatan baru
+    var roundedTotalPO = roundUpIfDecimal(totalPO);
+    $('#total_po_cv').val(formatRupiahWithDots(roundedTotalPO.toString(), ''));
     updateTotalCost();
 }
 
@@ -1985,7 +2021,12 @@ function updateTotalCost() {
     } else {
         totalCost = totalPO;
     }
-    $('#total_cost').val(formatRupiahWithDots(totalCost.toFixed(0), ''));
+
+    console.log('updateTotalCost - totalPO:', totalPO, 'jenisPPN:', jenisPPN, 'totalCost:', totalCost);
+
+    // Gunakan fungsi pembulatan baru
+    var roundedTotalCost = roundUpIfDecimal(totalCost);
+    $('#total_cost').val(formatRupiahWithDots(roundedTotalCost.toString(), ''));
     updateMargin();
 }
 
@@ -1998,7 +2039,12 @@ function updateMargin() {
     var totalPrice = getNumberFromDotsFormat($('#total_price').val());
     var totalCost = getNumberFromDotsFormat($('#total_cost').val());
     var margin = totalPrice - totalCost;
-    $('#margin').val(formatRupiahWithDots(margin.toFixed(0), ''));
+
+    console.log('updateMargin - totalPrice:', totalPrice, 'totalCost:', totalCost, 'margin:', margin);
+
+    // Gunakan fungsi pembulatan baru
+    var roundedMargin = roundUpIfDecimal(margin);
+    $('#margin').val(formatRupiahWithDots(roundedMargin.toString(), ''));
     updatePersentase();
 }
 

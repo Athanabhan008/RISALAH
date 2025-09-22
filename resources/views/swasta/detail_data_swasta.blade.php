@@ -477,7 +477,7 @@
         </div>
 
 
-        @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'manager','admin','sales']))
+        @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'manager','admin']))
         <div class="row gx-3 gy-3">
             <!-- VALIDASI PAYMENT -->
             <div class="card mb-4 col-md-12">
@@ -601,11 +601,9 @@
                         </div>
                     </div>
 
-                    @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'manager','admin']))
                     <div class="text-right">
                         <button type="submit" class="btn btn-primary btn-sm mt-2">Simpan Perubahan</button>
                       </div>
-                    @endif
 
                     </div>
                 </form>
@@ -811,7 +809,7 @@
                         </div>
                         <div class="col-md-4 mb-3">
                             <label for="Unit_price" class="form-label">Selling Price/Unit</label>
-                            <input type="text" class="form-control" id="Unit_price" name="unit_price" placeholder="Harga per unit" inputmode="decimal">
+                            <input type="text" class="form-control" id="Unit_price" name="unit_price" placeholder="Harga per unit">
                         </div>
                         <div class="col-md-4 mb-3">
                             <div class="input-group-prepend">
@@ -1001,11 +999,7 @@ $(document).ready(function() {
 
     $('#btn-edit-cogs').prop('disabled', true);
 
-    // Pindahkan updateTotalProvitSharing() ke sini agar dipanggil saat halaman load
     updateTotalProvitSharing();
-
-    // Tambahkan inisialisasi perhitungan untuk semua role
-    initializeCalculations();
 
     $("#btn-back").on("click", function () {
         window.location.href = defaultUrl;
@@ -1393,18 +1387,18 @@ $('#formCogs').on('show.bs.modal', function () {
 });
 
 $('#expedittion').on('input', function() {
-    let expedittionValue = parseFloat($(this).val().replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
+    let expedittionValue = parseFloat($(this).val().replace(/[^,\d]/g, '').replace(',', '.')) || 0;
     let total = baseCostCogs + expedittionValue;
     $('#total_cost_cogs').text('Rp ' + formatRupiahWithDots(total.toString(), ''));
 });
 
 // Tambahkan event handler untuk semua input COGS
 $('#add_insentif_fe001a, #instalasi_setting, #pph_bank_fee, #other').on('input', function() {
-    let expedittionValue = parseFloat($('#expedittion').val().replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
-    let addInsentifValue = parseFloat($('#add_insentif_fe001a').val().replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
-    let instalasiValue = parseFloat($('#instalasi_setting').val().replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
-    let pphValue = parseFloat($('#pph_bank_fee').val().replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
-    let otherValue = parseFloat($('#other').val().replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
+    let expedittionValue = parseFloat($('#expedittion').val().replace(/[^,\d]/g, '').replace(',', '.')) || 0;
+    let addInsentifValue = parseFloat($('#add_insentif_fe001a').val()) || 0;
+    let instalasiValue = parseFloat($('#instalasi_setting').val().replace(/[^,\d]/g, '').replace(',', '.')) || 0;
+    let pphValue = parseFloat($('#pph_bank_fee').val().replace(/[^,\d]/g, '').replace(',', '.')) || 0;
+    let otherValue = parseFloat($('#other').val().replace(/[^,\d]/g, '').replace(',', '.')) || 0;
 
     let total = baseCostCogs + expedittionValue + addInsentifValue + instalasiValue + pphValue + otherValue;
     $('#total_cost_cogs').text('Rp ' + formatRupiahWithDots(total.toString(), ''));
@@ -1480,7 +1474,13 @@ function viewDatatable() {
             targets: [0]
         }],
         columns: [
-          { data: "id_projek", className: "text-center align-middle" },
+            {
+            data: null,
+            className: "text-center align-middle",
+            render: function(data, type, row, meta) {
+              return meta.row + meta.settings._iDisplayStart + 1;
+            }
+          },
           { data: "jenis_ppn", className: "text-center align-middle" },
           { data: "part_number", className: "text-left align-middle" },
           {
@@ -1601,47 +1601,13 @@ function viewDatatable() {
                 "font-weight": "normal",
                 width: "5%",
             });
-
-             // Tambahkan ini:
-    $('.basic-datatables tbody').off('click', 'tr').on('click', 'tr', function () {
-        if ($(this).hasClass('selected')) {
-            $(this).removeClass('selected');
-        } else {
-            $('.basic-datatables tbody tr').removeClass('selected');
-            $(this).addClass('selected');
-        }
-    });
-
             // $("td", row).last().css({ width: "7%", "text-align": "center", });
             //Default
-        },
-        drawCallback: function() {
-            // Jalankan perhitungan setiap kali tabel di-draw
-            updateSubtotalTotalPrice();
-            updateSubtotalPPN();
-            updateSubtotalCostPPN();
-            updateSubtotalMarginPPN();
-            updateSubtotalNonPPN();
-            updateSubtotalCostNonPPN();
-            updateSubtotalMarginNonPPN();
-            updateSubtotalPoCV();
-            updateSubtotalPoCostCV();
-            updateSubtotalPoMarginCV();
-            updateSubtotalPersentaseCV();
-            updateJumlahPPN();
-            updateTotalVat();
-            updateSubtotalCost();
-            updateSubtotalValidasiPayment();
-            updateTotalMargin();
-            updateIncentiveSales();
-            updatePPHBankFee();
-            updatePersentaseIncentive();
-            updateTotalPersentaseMargin();
         },
     });
 
     // Handle row selection
-    $('.basic-datatables tbody').off('click', 'tr', function () {
+    $('.basic-datatables tbody').on('click', 'tr', function () {
         // Toggle select/unselect
         if ($(this).hasClass('selected')) {
             $(this).removeClass('selected');
@@ -1781,16 +1747,6 @@ function viewDatatableCogs() {
             });
             // $("td", row).last().css({ width: "7%", "text-align": "center", });
             //Default
-        },
-        drawCallback: function() {
-            // Update subtotal COGS
-            updateSubtotalCogs();
-            updateSubtotalCost();
-            updateSubtotalValidasiPayment();
-            updateTotalMargin();
-            updateIncentiveSales();
-            updateTotalPersentaseMargin();
-            updateIncentiveFe001a();
         },
     });
 
@@ -1963,29 +1919,130 @@ function formatRupiahWithDots(angka, prefix = '') {
     return (isNegative ? '-' : '') + prefix + rupiah;
 }
 
-// Helper untuk ambil angka dari input format dengan titik (pertahankan minus)
+// Helper untuk ambil angka dari input format dengan titik
 function getNumberFromDotsFormat(str) {
-    return parseFloat((str || '').replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
+    return parseFloat(str.replace(/[^,\d]/g, '').replace(',', '.')) || 0;
 }
 
 function unformatRupiah(str) {
     if (!str) return 0;
-    return str.replace(/[^-\d,]/g, '').replace(',', '.');
+    return str.replace(/[^,\d]/g, '').replace(',', '.');
 }
 
 // Event handler untuk semua input yang perlu format dengan titik (tanpa validasi_payment)
-$('#total_price, #vendor_price, #unit_price_cv, #total_po_cv, #total_cost, #margin, #expedittion, #add_insentif_fe001a, #instalasi_setting, #other, #Unit_price').on('input', function() {
-    let value = $(this).val() || '';
-    let isNegative = value.trim().startsWith('-');
-    let cleaned = value.replace(/[^-\d,]/g, '');
-    cleaned = (isNegative ? '-' : '') + cleaned.replace(/-/g, '').replace(/^,/, '');
-    let numericValue = cleaned.replace(/\./g, '').replace(',', '.');
-    if (numericValue && numericValue !== '-' ) {
+$('#Unit_price, #total_price, #vendor_price, #unit_price_cv, #total_po_cv, #total_cost, #margin, #expedittion, #add_insentif_fe001a, #instalasi_setting, #other').on('input', function() {
+    let value = $(this).val();
+    let numericValue = value.replace(/[^,\d]/g, '').replace(',', '.');
+    if (numericValue) {
         $(this).val(formatRupiahWithDots(numericValue, ''));
     } else {
-        $(this).val(isNegative ? '-' : '');
+        $(this).val('');
     }
 });
+
+// Event handler khusus untuk validasi_payment
+$('#validasi_payment').on('input', function() {
+    let value = $(this).val();
+    let numericValue = value.replace(/[^,\d]/g, '').replace(',', '.');
+    if (numericValue) {
+        $(this).val(formatRupiahWithDots(numericValue, ''));
+    } else {
+        $(this).val('');
+    }
+    // Panggil updatePPHBankFee setelah format
+    updatePPHBankFee();
+});
+
+function roundIfTwoDecimals(value) {
+    // Konversi ke number jika masih string
+    let num = parseFloat(value);
+
+    // Cek apakah ada 2 angka di belakang koma
+    let decimalPart = (num % 1).toFixed(2);
+    let decimalString = decimalPart.substring(2); // Ambil bagian setelah koma
+
+    // Jika ada 2 angka di belakang koma dan bukan '00', bulatkan ke atas
+    if (decimalString.length === 2 && decimalString !== '00') {
+        return Math.ceil(num);
+    }
+
+    // Jika tidak ada 2 angka di belakang koma atau sudah bulat, return as is
+    return Math.round(num);
+}
+
+// Modifikasi semua fungsi perhitungan agar ambil angka asli dari input
+function updateTotalPrice() {
+    var qty = parseFloat($('#qty').val()) || 0;
+    var unitPrice = getNumberFromDotsFormat($('#Unit_price').val());
+    var total = qty * unitPrice;
+    var roundedTotal = roundIfTwoDecimals(total);
+    $('#total_price').val(formatRupiahWithDots(roundedTotal.toString(), ''));
+}
+
+function updateUnitPriceCV() {
+    var vendorPrice = getNumberFromDotsFormat($('#vendor_price').val());
+    var unitPriceCV = vendorPrice + (vendorPrice * 0.02);
+    var roundedUnitPriceCV = roundIfTwoDecimals(unitPriceCV);
+    $('#unit_price_cv').val(formatRupiahWithDots(roundedUnitPriceCV.toString(), ''));
+    updateTotalPoKeCV();
+}
+
+function updateTotalPoKeCV() {
+    var qty = parseFloat($('#qty').val()) || 0;
+    var unitPriceCV = getNumberFromDotsFormat($('#unit_price_cv').val());
+    var totalPO = qty * unitPriceCV;
+    var roundedTotalPO = roundIfTwoDecimals(totalPO);
+    $('#total_po_cv').val(formatRupiahWithDots(roundedTotalPO.toString(), ''));
+    updateTotalCost();
+}
+
+function updateTotalCost() {
+    var totalPO = getNumberFromDotsFormat($('#total_po_cv').val());
+    var jenisPPN = $('#inputGroupSelect01').val();
+    var totalCost;
+
+    if (jenisPPN === 'ppn') {
+        totalCost = totalPO / 1.11;
+    } else {
+        totalCost = totalPO;
+    }
+    var roundedTotalCost = roundIfTwoDecimals(totalCost);
+    $('#total_cost').val(formatRupiahWithDots(roundedTotalCost.toString(), ''));
+    updateMargin();
+}
+
+// Tambahkan event listener untuk select jenis PPN
+$('#inputGroupSelect01').on('change', function() {
+    updateTotalCost();
+});
+
+function updateMargin() {
+    var totalPrice = getNumberFromDotsFormat($('#total_price').val());
+    var totalCost = getNumberFromDotsFormat($('#total_cost').val());
+    var margin = totalPrice - totalCost;
+    var roundedMargin = roundIfTwoDecimals(margin);
+    $('#margin').val(formatRupiahWithDots(roundedMargin.toString(), ''));
+    updatePersentase();
+}
+
+// Persentase tetap angka biasa
+function updatePersentase() {
+    var margin = getNumberFromDotsFormat($('#margin').val());
+    var totalPO = getNumberFromDotsFormat($('#total_po_cv').val());
+    var persentase = 0;
+    if (totalPO !== 0) {
+        persentase = (margin / totalPO) * 100;
+    }
+    $('#persentase').val(persentase.toFixed(2));
+}
+
+// Event listener tetap sama
+$('#qty, #Unit_price').on('input', updateTotalPrice);
+$('#vendor_price').on('input', updateUnitPriceCV);
+$('#qty').on('input', updateTotalPoKeCV);
+$('#total_po_cv').on('input', updateTotalCost);
+$('#total_price, #total_cost').on('input', updateMargin);
+$('#margin, #total_po_cv').on('input', updatePersentase);
 
 function updateSubtotalTotalPrice() {
     let data = tableDetail.rows().data();
@@ -1993,7 +2050,7 @@ function updateSubtotalTotalPrice() {
     for (let i = 0; i < data.length; i++) {
         let totalPrice = data[i].total_price;
         if (typeof totalPrice === 'string') {
-            totalPrice = parseFloat(totalPrice.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
+            totalPrice = parseFloat(totalPrice.replace(/[^,\d]/g, '').replace(',', '.')) || 0;
         } else if (totalPrice === null || totalPrice === undefined) {
             totalPrice = 0;
         }
@@ -2010,7 +2067,7 @@ function updateSubtotalPPN() {
         if (data[i].jenis_ppn === 'ppn') {
             let totalCost = data[i].total_po_cv;
             if (typeof totalCost === 'string') {
-                totalCost = parseFloat(totalCost.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
+                totalCost = parseFloat(totalCost.replace(/[^,\d]/g, '').replace(',', '.')) || 0;
             } else if (totalCost === null || totalCost === undefined) {
                 totalCost = 0;
             }
@@ -2027,7 +2084,7 @@ function updateSubtotalCostPPN() {
         if (data[i].jenis_ppn === 'ppn') {
             let totalCost = data[i].total_cost;
             if (typeof totalCost === 'string') {
-                totalCost = parseFloat(totalCost.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
+                totalCost = parseFloat(totalCost.replace(/[^,\d]/g, '').replace(',', '.')) || 0;
             } else if (totalCost === null || totalCost === undefined) {
                 totalCost = 0;
             }
@@ -2044,7 +2101,7 @@ function updateSubtotalMarginPPN() {
         if (data[i].jenis_ppn === 'ppn') {
             let totalCost = data[i].margin;
             if (typeof totalCost === 'string') {
-                totalCost = parseFloat(totalCost.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
+                totalCost = parseFloat(totalCost.replace(/[^,\d]/g, '').replace(',', '.')) || 0;
             } else if (totalCost === null || totalCost === undefined) {
                 totalCost = 0;
             }
@@ -2061,7 +2118,7 @@ function updateSubtotalNonPPN() {
         if (data[i].jenis_ppn === 'non_ppn') {
             let totalCost = data[i].total_cost;
             if (typeof totalCost === 'string') {
-                totalCost = parseFloat(totalCost.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
+                totalCost = parseFloat(totalCost.replace(/[^,\d]/g, '').replace(',', '.')) || 0;
             } else if (totalCost === null || totalCost === undefined) {
                 totalCost = 0;
             }
@@ -2078,7 +2135,7 @@ function updateSubtotalCostNonPPN() {
         if (data[i].jenis_ppn === 'non_ppn') {
             let totalCost = data[i].total_cost;
             if (typeof totalCost === 'string') {
-                totalCost = parseFloat(totalCost.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
+                totalCost = parseFloat(totalCost.replace(/[^,\d]/g, '').replace(',', '.')) || 0;
             } else if (totalCost === null || totalCost === undefined) {
                 totalCost = 0;
             }
@@ -2573,7 +2630,7 @@ function autoSetJenisApprove() {
     let totalPersentaseMarginText = $('#total_margin').val();
     let persentase = parseFloat((totalPersentaseMarginText || '').replace(/[^0-9\.\-]/g, '')) || 0;
 
-    if (persentase > 5) {
+    if (persentase > 6) {
         $('#jenis_approve').val('approve');
     } else {
         $('#jenis_approve').val('need_approve');
@@ -2707,84 +2764,6 @@ function updateTotalProvitSharing() {
     // Update field total provit sharing
     $('#total-provit-sharing').val('Rp ' + formatRupiahWithDots(total.toFixed(0), ''));
 }
-
-// Tambahkan fungsi baru untuk inisialisasi perhitungan
-function initializeCalculations() {
-    // Pastikan perhitungan dijalankan setelah data dimuat
-    setTimeout(function() {
-        updateSubtotalTotalPrice();
-        updateSubtotalPPN();
-        updateSubtotalCostPPN();
-        updateSubtotalMarginPPN();
-        updateSubtotalNonPPN();
-        updateSubtotalCostNonPPN();
-        updateSubtotalMarginNonPPN();
-        updateSubtotalPoCV();
-        updateSubtotalPoCostCV();
-        updateSubtotalPoMarginCV();
-        updateSubtotalPersentaseCV();
-        updateJumlahPPN();
-        updateTotalVat();
-        updateSubtotalCost();
-        updateSubtotalValidasiPayment();
-        updateTotalMargin();
-        updateIncentiveSales();
-        updatePPHBankFee();
-        updatePersentaseIncentive();
-        updateTotalPersentaseMargin();
-        updateIncentiveFe001a();
-    }, 1000); // Delay 1 detik untuk memastikan data sudah dimuat
-}
-
-// Tambahkan event listener untuk memastikan perhitungan dijalankan saat data berubah
-$(document).on('DOMContentLoaded', function() {
-    // Jalankan perhitungan awal
-    initializeCalculations();
-});
-
-// Tambahkan event listener untuk input yang mempengaruhi perhitungan
-$(document).on('input change', '#validasi_payment, #expedittion, #add_insentif_fe001a, #instalasi_setting, #other', function() {
-    // Jalankan perhitungan ulang saat input berubah
-    setTimeout(function() {
-        updateSubtotalCost();
-        updateSubtotalValidasiPayment();
-        updateTotalMargin();
-        updateIncentiveSales();
-        updatePPHBankFee();
-        updatePersentaseIncentive();
-        updateTotalPersentaseMargin();
-    }, 100);
-});
-
-$(document).ready(function(){
-    $('.decimal-format').on('input', function(){
-        let value = $(this).val().replace(/[^0-9]/g, '');
-        $(this).val(value.replace(/\B(?=(\d{3})+(?!\d))/g, ","));
-    });
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-    // Untuk semua input dengan class decimal-format
-    document.querySelectorAll('.decimal-format').forEach(function(input) {
-        input.addEventListener('input', function(e) {
-            // Hapus semua karakter selain angka
-            let value = this.value.replace(/[^0-9.]/g, '');
-            // Format dengan koma ribuan
-            if (value) {
-                this.value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-            } else {
-                this.value = '';
-            }
-        });
-    });
-});
-
-$('#Unit_price').on('blur', function() {
-    var raw = $(this).val() || '';
-    var num = getNumberFromDotsFormat(raw); // ambil angka dari input (abaikan huruf)
-    $(this).val(num ? formatRupiahWithDots(num.toString(), '') : '');
-    updateTotalPrice(); // pastikan total terupdate setelah format
-});
 
 </script>
   @endpush
