@@ -108,7 +108,7 @@
         <!-- BARANG/PRODUK -->
           <div class="card mb-4">
             <div class="card-header pb-0">
-              <h6>Data PR Wapu - Detail</h6>
+              <h6>Data PR Swasta - Detail</h6>
               <div style="display: flex; justify-content: space-between; align-items: center;">
                   <div class="ml-auto">
                     <button type="button" class="btn btn-info" id="btn-back">
@@ -229,7 +229,7 @@
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Gross Provit</span>
                                                 </div>
-                                                <input type="text" class="form-control font-weight-bold text-right" id="subtotal_sp2d" name="gross_provit" value="Rp 0" readonly>
+                                                <input type="text" class="form-control font-weight-bold text-right" id="gross_provit" name="gross_provit" value="Rp 0" readonly>
                                             </div>
 
                                         </div>
@@ -343,7 +343,7 @@
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Validasi Payment</span>
                                             </div>
-                                            <input type="text" class="form-control font-weight-bold text-right" id="validasi_payment" name="validasi_payment" value="{{ isset($validasi_payment) && $validasi_payment !== '' ? 'Rp ' . number_format($validasi_payment, 0, ',', '.') : '' }}" @if(!in_array(Auth::user()->role, ['super_admin', 'manager', 'admin', 'sales'])) readonly @endif>
+                                            <input type="text" class="form-control font-weight-bold text-right" id="validasi_payment" name="validasi_payment" value="{{ isset($validasi_payment) && $validasi_payment !== '' ? 'Rp ' . number_format($validasi_payment, 0, ',', '.') : '' }}" @if(Auth::user()->role !== 'super_admin') readonly @endif>
                                         </div>
                                     </div>
 
@@ -477,7 +477,7 @@
         </div>
 
 
-        @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'manager','admin','sales']))
+        @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'manager','admin']))
         <div class="row gx-3 gy-3">
             <!-- VALIDASI PAYMENT -->
             <div class="card mb-4 col-md-12">
@@ -601,11 +601,9 @@
                         </div>
                     </div>
 
-                    @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'manager','admin']))
                     <div class="text-right">
                         <button type="submit" class="btn btn-primary btn-sm mt-2">Simpan Perubahan</button>
                       </div>
-                    @endif
 
                     </div>
                 </form>
@@ -615,7 +613,7 @@
             </div>
 
           </div>
-        @endif
+          @endif
 
 
 
@@ -631,7 +629,7 @@
                 <h6 class="text-center font-weight-bold">SHARE MARGIN HOLDING, DIREKSI & INVESTOR</h6>
               </div>
               <div class="card-body px-0 pt-0 pb-2">
-                <form id="form-update-provit-sharing" method="POST" action="{{ url('/pr_wapu/createsharingprovit') }}">
+              <form id="form-update-provit-sharing" method="POST" action="{{ url('/pr_wapu/createsharingprovit') }}">
                     @csrf
                     <input type="hidden" name="id_projek" value="{{ $id_projek ?? '' }}">
 
@@ -725,7 +723,7 @@
               </div>
             </div>
           </div>
-        @endif
+          @endif
         </div>
 
       </div>
@@ -1001,11 +999,7 @@ $(document).ready(function() {
 
     $('#btn-edit-cogs').prop('disabled', true);
 
-    // Only call updateTotalProvitSharing if user has admin role
-    const userRole = '{{ Auth::user()->role ?? "" }}';
-    if (['super_admin', 'manager', 'admin'].includes(userRole)) {
-        updateTotalProvitSharing();
-    }
+    updateTotalProvitSharing();
 
     $("#btn-back").on("click", function () {
         window.location.href = defaultUrl;
@@ -1052,18 +1046,33 @@ $(document).ready(function() {
         $('#part_number').val(selected.part_number);
         $('#partnumber_description').val(selected.partnumber_description);
         $('#Unit_price').val(selected.unit_price);
-        $('#total_price').val(selected.total_price);
-        $('#qty').val(selected.qty);
-        $('#vendor_price').val(selected.vendor_price);
-        $('#unit_price_cv').val(selected.unit_price_cv);
-        $('#total_po_cv').val(selected.total_po_cv);
-        $('#total_cost').val(selected.total_cost);
-        $('#margin').val(selected.margin);
-        $('#persentase').val(selected.persentase);
+$('#total_price').val(selected.total_price);
+$('#qty').val(selected.qty);
+$('#vendor_price').val(selected.vendor_price);
+
+// Terapkan pembulatan kustom saat set nilai dari selected
+// Terapkan pembulatan kustom saat set nilai dari selected
+var selUnitPriceCV = getNumberFromDotsFormat(selected.unit_price_cv?.toString() || '0');
+$('#unit_price_cv').val(formatRupiahWithDots(roundCustom(selUnitPriceCV).toString(), ''));
+
+var selTotalPOCV = selected.total_po_cv != null ? getNumberFromDotsFormat(selected.total_po_cv.toString()) : null;
+$('#total_po_cv').val(
+  selTotalPOCV != null ? formatRupiahWithDots(roundCustom(selTotalPOCV).toString(), '') : ''
+);
+
+// Hapus overwrite berikut (ini yang membatalkan pembulatan sebelumnya):
+// $('#unit_price_cv').val(selected.unit_price_cv);
+// $('#total_po_cv').val(
+//   selected.total_po_cv != null
+//     ? formatRupiahWithDots(parseFloat(selected.total_po_cv).toFixed(2), '')
+//     : ''
+// );
+
+$('#total_cost').val(selected.total_cost);
 
         resetErrors();
         modal.modal("show");
-    });
+        });
 
     $("#btn-edit-cogs").on("click", function () {
         let selected = tableCogs.row('.selected').data();
@@ -1606,8 +1615,9 @@ function viewDatatable() {
         },
     });
 
-    // Tambahkan ini:
-    $('.basic-datatables tbody').off('click', 'tr').on('click', 'tr', function () {
+    // Handle row selection
+    $('.basic-datatables tbody').on('click', 'tr', function () {
+        // Toggle select/unselect
         if ($(this).hasClass('selected')) {
             $(this).removeClass('selected');
         } else {
@@ -1890,6 +1900,7 @@ function collectionS2Search() {
 }
 
 // Fungsi format rupiah dengan titik sebagai pemisah ribuan (tanpa Rp)
+// Fungsi format rupiah dengan titik sebagai pemisah ribuan (tanpa Rp)
 function formatRupiahWithDots(angka, prefix = '') {
     if (!angka || angka === null || angka === undefined) {
         return prefix + '0';
@@ -1902,6 +1913,9 @@ function formatRupiahWithDots(angka, prefix = '') {
         isNegative = true;
         number_string = number_string.slice(1);
     }
+
+    // Pastikan desimal titik (.) dari hasil perhitungan diubah ke koma (,)
+    number_string = number_string.replace(/\./g, ',');
 
     number_string = number_string.replace(/[^,\d]/g, '');
     let split = number_string.split(',');
@@ -1919,8 +1933,19 @@ function formatRupiahWithDots(angka, prefix = '') {
 }
 
 // Helper untuk ambil angka dari input format dengan titik
+// Helper untuk ambil angka dari input format dengan titik
 function getNumberFromDotsFormat(str) {
     return parseFloat(str.replace(/[^,\d]/g, '').replace(',', '.')) || 0;
+}
+
+// Pembulatan kustom: jika 2 angka di belakang koma > 50 → bulatkan ke atas, selain itu → ke bawah
+function roundCustom(value) {
+    var sign = value < 0 ? -1 : 1;
+    var abs = Math.abs(value);
+    var intPart = Math.floor(abs);
+    var cents = Math.floor(abs * 100) - (intPart * 100); // ambil 2 digit desimal tanpa pembulatan
+    var result = cents > 50 ? Math.ceil(abs) : Math.floor(abs);
+    return sign * result;
 }
 
 function unformatRupiah(str) {
@@ -1940,6 +1965,7 @@ $('#Unit_price, #total_price, #vendor_price, #unit_price_cv, #total_po_cv, #tota
 });
 
 // Event handler khusus untuk validasi_payment
+// Event handler khusus untuk validasi_payment
 $('#validasi_payment').on('input', function() {
     let value = $(this).val();
     let numericValue = value.replace(/[^,\d]/g, '').replace(',', '.');
@@ -1950,49 +1976,32 @@ $('#validasi_payment').on('input', function() {
     }
     // Panggil updatePPHBankFee setelah format
     updatePPHBankFee();
+    // Recalculate gross_provit sesuai kondisi
+    updateSubtotalValidasiPayment();
 });
-
-function roundIfTwoDecimals(value) {
-    // Konversi ke number jika masih string
-    let num = parseFloat(value);
-
-    // Cek apakah ada 2 angka di belakang koma
-    let decimalPart = (num % 1).toFixed(2);
-    let decimalString = decimalPart.substring(2); // Ambil bagian setelah koma
-
-    // Jika ada 2 angka di belakang koma dan bukan '00', bulatkan ke atas
-    if (decimalString.length === 2 && decimalString !== '00') {
-        return Math.ceil(num);
-    }
-
-    // Jika tidak ada 2 angka di belakang koma atau sudah bulat, return as is
-    return Math.round(num);
-}
-
-
 
 // Modifikasi semua fungsi perhitungan agar ambil angka asli dari input
 function updateTotalPrice() {
     var qty = parseFloat($('#qty').val()) || 0;
     var unitPrice = getNumberFromDotsFormat($('#Unit_price').val());
     var total = qty * unitPrice;
-    var roundedTotal = roundIfTwoDecimals(total);
-    $('#total_price').val(formatRupiahWithDots(roundedTotal.toString(), ''));
+    $('#total_price').val(formatRupiahWithDots(total.toString(), ''));
 }
 
 function updateUnitPriceCV() {
     var vendorPrice = getNumberFromDotsFormat($('#vendor_price').val());
     var unitPriceCV = vendorPrice + (vendorPrice * 0.02);
-    var roundedUnitPriceCV = roundIfTwoDecimals(unitPriceCV);
+    var roundedUnitPriceCV = roundCustom(unitPriceCV);
     $('#unit_price_cv').val(formatRupiahWithDots(roundedUnitPriceCV.toString(), ''));
     updateTotalPoKeCV();
 }
 
 function updateTotalPoKeCV() {
     var qty = parseFloat($('#qty').val()) || 0;
-    var unitPriceCV = getNumberFromDotsFormat($('#unit_price_cv').val());
-    var totalPO = qty * unitPriceCV;
-    var roundedTotalPO = roundIfTwoDecimals(totalPO);
+    var vendorPrice = getNumberFromDotsFormat($('#vendor_price').val());
+    var rawUnit = vendorPrice + (vendorPrice * 0.02); // unit price mentah (tanpa pembulatan tampilan)
+    var totalPO = qty * rawUnit;
+    var roundedTotalPO = roundCustom(totalPO);
     $('#total_po_cv').val(formatRupiahWithDots(roundedTotalPO.toString(), ''));
     updateTotalCost();
 }
@@ -2007,8 +2016,7 @@ function updateTotalCost() {
     } else {
         totalCost = totalPO;
     }
-    var roundedTotalCost = roundIfTwoDecimals(totalCost);
-    $('#total_cost').val(formatRupiahWithDots(roundedTotalCost.toString(), ''));
+    $('#total_cost').val(formatRupiahWithDots(totalCost.toFixed(0), ''));
     updateMargin();
 }
 
@@ -2021,8 +2029,7 @@ function updateMargin() {
     var totalPrice = getNumberFromDotsFormat($('#total_price').val());
     var totalCost = getNumberFromDotsFormat($('#total_cost').val());
     var margin = totalPrice - totalCost;
-    var roundedMargin = roundIfTwoDecimals(margin);
-    $('#margin').val(formatRupiahWithDots(roundedMargin.toString(), ''));
+    $('#margin').val(formatRupiahWithDots(margin.toFixed(0), ''));
     updatePersentase();
 }
 
@@ -2046,33 +2053,22 @@ $('#total_price, #total_cost').on('input', updateMargin);
 $('#margin, #total_po_cv').on('input', updatePersentase);
 
 function updateSubtotalTotalPrice() {
-    const element = $('#subtotal-price');
-    if (element.length === 0) return;
-
     let data = tableDetail.rows().data();
     let subtotal = 0;
     for (let i = 0; i < data.length; i++) {
         let totalPrice = data[i].total_price;
         if (typeof totalPrice === 'string') {
-            totalPrice = parseFloat(totalPrice.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
+            totalPrice = parseFloat(totalPrice.replace(/[^,\d]/g, '').replace(',', '.')) || 0;
         } else if (totalPrice === null || totalPrice === undefined) {
             totalPrice = 0;
         }
         subtotal += totalPrice;
     }
-    element.val(formatRupiahWithDots(subtotal, ''));
-
-    // Also update subtotal-ppn if it exists
-    const ppnElement = $('#subtotal-ppn');
-    if (ppnElement.length > 0) {
-        ppnElement.val('Rp ' + formatRupiahWithDots(subtotal, ''));
-    }
+    $('#subtotal-price').val(formatRupiahWithDots(subtotal, ''));
+    $('#subtotal-ppn').val('Rp ' + formatRupiahWithDots(subtotal, ''));
 }
 
 function updateSubtotalPPN() {
-    const element = $('#subtotal-ppn');
-    if (element.length === 0) return; // Exit if element doesn't exist
-
     let data = tableDetail.rows().data();
     let subtotal = 0;
     for (let i = 0; i < data.length; i++) {
@@ -2086,7 +2082,7 @@ function updateSubtotalPPN() {
             subtotal += totalCost;
         }
     }
-    element.val('Rp ' + formatRupiahWithDots(subtotal, ''));
+    $('#subtotal-ppn').val('Rp ' + formatRupiahWithDots(subtotal, ''));
 }
 
 function updateSubtotalCostPPN() {
@@ -2113,7 +2109,7 @@ function updateSubtotalMarginPPN() {
         if (data[i].jenis_ppn === 'ppn') {
             let totalCost = data[i].margin;
             if (typeof totalCost === 'string') {
-                totalCost = parseFloat(totalCost.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
+                totalCost = parseFloat(totalCost.replace(/[^,\d]/g, '').replace(',', '.')) || 0;
             } else if (totalCost === null || totalCost === undefined) {
                 totalCost = 0;
             }
@@ -2295,7 +2291,7 @@ function updateSubtotalPoMarginCV() {
         totalMarginCV = ppnValue + nonPpnValue;
     }
 
-    $('#subtotal-margin-cv').val('Rp ' + formatRupiahWithDots(totalMarginCV.toString(), ''));
+    $('#subtotal-margin-cv').val('Rp ' + formatRupiahWithDots(totalMarginCV.toFixed(2), ''));
 }
 
 function updateSubtotalPersentaseCV() {
@@ -2366,19 +2362,22 @@ function updateSubtotalCost() {
 }
 
 function updateSubtotalValidasiPayment() {
-    // Ambil nilai dari subtotal-price
-    let subtotalText = $('#subtotal-price').val();
-    let subtotalPrice = parseFloat(subtotalText.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
-
-    // Ambil nilai dari subtotal_cost
+    // Ambil nilai subtotal_cost
     let subtotalCostText = $('#subtotal_cost').val();
-    let subtotalCost = parseFloat(subtotalCostText.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
+    let subtotalCost = parseFloat((subtotalCostText || '').replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
 
-    // Hitung selisih: subtotal-price - subtotal_cost
-    let subtotalSP2D = subtotalPrice - subtotalCost;
+    // Tentukan basis pengurang: validasi_payment jika ada nilai, selain itu subtotal-price
+    let validasiPaymentText = $('#validasi_payment').val();
+    let useValidasi = !!(validasiPaymentText && validasiPaymentText.trim() !== '');
 
-    // Update elemen subtotal_sp2d
-    $('#subtotal_sp2d').val('Rp ' + formatRupiahWithDots(subtotalSP2D.toString(), ''));
+    let baseText = useValidasi ? validasiPaymentText : $('#subtotal-price').val();
+    let baseValue = parseFloat((baseText || '').replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
+
+    // Hitung gross_provit
+    let grossProvit = baseValue - subtotalCost;
+
+    // Update elemen gross_provit
+    $('#gross_provit').val('Rp ' + formatRupiahWithDots(grossProvit.toString(), ''));
 
     // Panggil fungsi untuk update total margin
     updateTotalMargin();
@@ -2390,8 +2389,8 @@ function updateTotalMargin() {
     let subtotalPriceText = $('#subtotal-price').val();
     let subtotalPrice = parseFloat(subtotalPriceText.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
 
-    // Ambil nilai subtotal_sp2d
-    let subtotalSP2DText = $('#subtotal_sp2d').val();
+    // Ambil nilai gross_provit
+    let subtotalSP2DText = $('#gross_provit').val();
     let subtotalSP2D = parseFloat(subtotalSP2DText.replace('Rp ', '').replace(/\./g, '').replace(',', '.')) || 0;
 
     // Ambil nilai subtotal_cost
@@ -2402,7 +2401,7 @@ function updateTotalMargin() {
 
     // Kondisi: jika subtotal-price tidak sama dengan 0
     if (subtotalPrice !== 0) {
-        // Hitung persentase: (subtotal_sp2d / subtotal_cost) * 100
+        // Hitung persentase: (gross_provit / subtotal_cost) * 100
         if (subtotalCost !== 0) {
             totalMarginPercent = (subtotalSP2D / subtotalCost) * 100;
         }
@@ -2421,24 +2420,24 @@ function updateIncentiveSales() {
     let totalMarginText = $('#total_margin').val();
     let totalMarginPercent = parseFloat(totalMarginText.replace('%', '')) || 0;
 
-    // Ambil nilai subtotal_sp2d
-    let subtotalSP2DText = $('#subtotal_sp2d').val();
+    // Ambil nilai gross_provit
+    let subtotalSP2DText = $('#gross_provit').val();
     let subtotalSP2D = parseFloat(subtotalSP2DText.replace('Rp ', '').replace(/\./g, '').replace(',', '.')) || 0;
 
     let incentiveSales = 0;
 
     // Kondisi perhitungan incentive sales berdasarkan total_margin
     if (totalMarginPercent < 10) {
-        // Jika total_margin < 10%, maka subtotal_sp2d * 6.25%
+        // Jika total_margin < 10%, maka gross_provit * 6.25%
         incentiveSales = subtotalSP2D * 0.0625;
     } else if (totalMarginPercent >= 10 && totalMarginPercent < 15) {
-        // Jika total_margin >= 10% dan < 15%, maka subtotal_sp2d * 12.5%
+        // Jika total_margin >= 10% dan < 15%, maka gross_provit * 12.5%
         incentiveSales = subtotalSP2D * 0.125;
     } else if (totalMarginPercent >= 15 && totalMarginPercent < 20) {
-        // Jika total_margin >= 15% dan < 20%, maka subtotal_sp2d * 15%
+        // Jika total_margin >= 15% dan < 20%, maka gross_provit * 15%
         incentiveSales = subtotalSP2D * 0.15;
     } else if (totalMarginPercent >= 20) {
-        // Jika total_margin >= 20%, maka subtotal_sp2d * 20%
+        // Jika total_margin >= 20%, maka gross_provit * 20%
         incentiveSales = subtotalSP2D * 0.20;
     }
 
@@ -2451,12 +2450,13 @@ function updateIncentiveSales() {
     updateProvitSharingSim();
     updateProvitSharingKeuangan();
     updateTotalProvitSharing();
+
     updatePersentaseIncentive();
 }
 
 function updatePersentaseIncentive() {
     let incentiveSalesText = $('#incentive_sales').val();
-    let subtotalSP2DText = $('#subtotal_sp2d').val();
+    let subtotalSP2DText = $('#gross_provit').val();
 
     let incentiveSales = parseFloat((incentiveSalesText || '').replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
     let subtotalSP2D = parseFloat((subtotalSP2DText || '').replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
@@ -2471,7 +2471,7 @@ function updatePersentaseIncentive() {
 
 function updatePPHBankFee() {
     let validasiPaymentText = $('#validasi_payment').val();
-    let subtotalPriceText = $('#subtotal-price').val();
+    let subtotalPriceText = $('#total-vat').val();
 
     // Jika validasi_payment kosong, isi pph_bank_fee dengan 0 atau '-'
     if (!validasiPaymentText || validasiPaymentText.trim() === '') {
@@ -2615,7 +2615,7 @@ function updateTotalPersentaseMargin() {
     let subtotalPriceText = $('#subtotal-price').val();
     let subtotalPrice = parseFloat((subtotalPriceText || '').replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
 
-    let subtotalMarginCVText = $('#subtotal_sp2d').val();
+    let subtotalMarginCVText = $('#gross_provit').val();
     let subtotalPoCostCVText = $('#subtotal_cost').val();
 
     let subtotalMarginCV = parseFloat((subtotalMarginCVText || '').replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
@@ -2755,27 +2755,12 @@ function updateProvitSharingKeuangan() {
 }
 
 function updateTotalProvitSharing() {
-    // Check if elements exist before accessing them
-    const holdingElement = $('#profit-sharing-holding');
-    const leaderElement = $('#leader_sales');
-    const dirutamaElement = $('#provit-sharing-dirutama');
-    const simElement = $('#provit-sharing-sim');
-    const keuanganElement = $('#provit-sharing-keuangan');
-    const totalElement = $('#total-provit-sharing');
-
-    // If any of these elements don't exist (for sales users), return early
-    if (holdingElement.length === 0 || leaderElement.length === 0 ||
-        dirutamaElement.length === 0 || simElement.length === 0 ||
-        keuanganElement.length === 0 || totalElement.length === 0) {
-        return; // Exit early if elements don't exist
-    }
-
     // Ambil nilai dari semua field profit sharing
-    let holdingText = holdingElement.val();
-    let leaderText = leaderElement.val();
-    let dirutamaText = dirutamaElement.val();
-    let simText = simElement.val();
-    let keuanganText = keuanganElement.val();
+    let holdingText = $('#profit-sharing-holding').val();
+    let leaderText = $('#leader_sales').val();
+    let dirutamaText = $('#provit-sharing-dirutama').val();
+    let simText = $('#provit-sharing-sim').val();
+    let keuanganText = $('#provit-sharing-keuangan').val();
 
     // Parse nilai numerik dari setiap field
     let holding = parseFloat((holdingText || '').replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
@@ -2788,7 +2773,7 @@ function updateTotalProvitSharing() {
     let total = holding + leader + dirutama + sim + keuangan;
 
     // Update field total provit sharing
-    totalElement.val('Rp ' + formatRupiahWithDots(total.toFixed(0), ''));
+    $('#total-provit-sharing').val('Rp ' + formatRupiahWithDots(total.toFixed(0), ''));
 }
 
 </script>
