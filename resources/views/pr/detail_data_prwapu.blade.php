@@ -1489,7 +1489,13 @@ function viewDatatable() {
             targets: [0]
         }],
         columns: [
-          { data: "id_projek", className: "text-center align-middle" },
+            {
+            data: null,
+            className: "text-center align-middle",
+            render: function(data, type, row, meta) {
+              return meta.row + meta.settings._iDisplayStart + 1;
+            }
+          },
           { data: "jenis_ppn", className: "text-center align-middle" },
           { data: "part_number", className: "text-left align-middle" },
           {
