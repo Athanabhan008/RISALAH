@@ -343,7 +343,9 @@
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Validasi Payment</span>
                                             </div>
-                                            <input type="text" class="form-control font-weight-bold text-right" id="validasi_payment" name="validasi_payment" value="{{ isset($validasi_payment) && $validasi_payment !== '' ? 'Rp ' . number_format($validasi_payment, 0, ',', '.') : '' }}" @if(!in_array(Auth::user()->role, ['super_admin','admin'])) readonly @endif>                                    </div>
+                                            <input type="text" class="form-control font-weight-bold text-right" id="validasi_payment" name="validasi_payment" value="{{ isset($validasi_payment) && $validasi_payment !== '' ? 'Rp ' . number_format($validasi_payment, 0, ',', '.') : '' }}" @if(!in_array(Auth::user()->role, ['super_admin','admin'])) readonly @endif>
+                                        </div>
+                                        </div>
 
                                     <div class="col-6">
                                         <div class="input-group mb-3">
@@ -769,7 +771,7 @@
                                 <div class="input-group-prepend">
                                   <label class="input-group-text" for="inputGroupSelect01">Jenis PPN</label>
                                 </div>
-                                <select class="custom-select" name="jenis_ppn" id="inputGroupSelect01">
+                                <select class="custom-select" name="jenis_ppn" id="inputGroupSelect01" required>
                                   <option selected>Choose...</option>
                                   <option value="ppn">PPN</option>
                                   <option value="non_ppn">NON PPN</option>
@@ -795,7 +797,7 @@
                                 <div class="input-group-prepend">
                                   <span class="input-group-text" style="background-color: rgb(222, 222, 222);">Partnumber/Description</span>
                                 </div>
-                                <textarea class="form-control" aria-label="With textarea" name="partnumber_description" id="partnumber_description" style="border: 1px solid black;"></textarea>
+                                <textarea class="form-control" aria-label="With textarea" name="partnumber_description" id="partnumber_description" style="border: 1px solid black;" required></textarea>
                               </div>
                         </div>
                     </div>
@@ -803,11 +805,11 @@
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <label for="qty" class="form-label">QTY</label>
-                            <input type="number" class="form-control" id="qty" name="qty" placeholder="Masukkan jumlah">
+                            <input type="number" class="form-control" id="qty" name="qty" placeholder="Masukkan jumlah" required>
                         </div>
                         <div class="col-md-4 mb-3">
                             <label for="Unit_price" class="form-label">Selling Price/Unit</label>
-                            <input type="text" class="form-control" id="Unit_price" name="unit_price" placeholder="Harga per unit">
+                            <input type="text" class="form-control" id="Unit_price" name="unit_price" placeholder="Harga per unit" required>
                         </div>
                         <div class="col-md-4 mb-3">
                             <div class="input-group-prepend">
@@ -837,7 +839,7 @@
                                 <div class="input-group-prepend">
                                   <span class="input-group-text" style="height: 35px; background-color: rgb(222, 222, 222);">Vendor Price/Unit</span>
                                 </div>
-                                <input type="text" name="vendor_price" id="vendor_price" class="form-control pl-2" style="border: 1px solid black;">
+                                <input type="text" name="vendor_price" id="vendor_price" class="form-control pl-2" style="border: 1px solid black;" required>
                             </div>
                         </div>
                         <div class="col-6">
@@ -1620,15 +1622,14 @@ function viewDatatable() {
     });
 
     // Handle row selection
-    $('.basic-datatables tbody').on('click', 'tr', function () {
-        // Toggle select/unselect
-        if ($(this).hasClass('selected')) {
-            $(this).removeClass('selected');
-        } else {
-            $('.basic-datatables tbody tr').removeClass('selected');
-            $(this).addClass('selected');
-        }
-    });
+    $('.basic-datatables tbody').off('click', 'tr').on('click', 'tr', function () {
+    if ($(this).hasClass('selected')) {
+        $(this).removeClass('selected');
+    } else {
+        $('.basic-datatables tbody tr').removeClass('selected');
+        $(this).addClass('selected');
+    }
+});
 
     $('#datatable-cogs tbody').on('click', 'tr', function () {
         // Toggle select/unselect
@@ -2445,18 +2446,21 @@ function updateIncentiveSales() {
         incentiveSales = subtotalSP2D * 0.20;
     }
 
-    // Update elemen incentive_sales
-    $('#incentive_sales').val('Rp ' + formatRupiahWithDots(incentiveSales.toFixed(0), ''));
+       // Update elemen incentive_sales
+       $('#incentive_sales').val('Rp ' + formatRupiahWithDots(incentiveSales.toFixed(0), ''));
 
-    // Panggil fungsi untuk update leader sales
-    updateLeaderSales();
-    updateProvitSharingDirutama();
-    updateProvitSharingSim();
-    updateProvitSharingKeuangan();
-    updateTotalProvitSharing();
+        // Sinkronkan ke Profit Sharing Holding
+        $('#profit-sharing-holding').val('Rp ' + formatRupiahWithDots(incentiveSales.toFixed(0), ''));
 
-    updatePersentaseIncentive();
-}
+        // Panggil fungsi untuk update leader sales
+        updateLeaderSales();
+        updateProvitSharingDirutama();
+        updateProvitSharingSim();
+        updateProvitSharingKeuangan();
+        updateTotalProvitSharing();
+
+        updatePersentaseIncentive();
+    }
 
 function updatePersentaseIncentive() {
     let incentiveSalesText = $('#incentive_sales').val();
@@ -2565,9 +2569,11 @@ $('#form_update_validasi_payment').on('submit', function(e) {
                 );
             }
 
-            // Update kolom incentive_sales jika ada di response
-            if (response.incentive_sales !== undefined && response.incentive_sales !== null) {
+                // Update kolom incentive_sales jika ada di response
+                if (response.incentive_sales !== undefined && response.incentive_sales !== null) {
                 $('#incentive_sales').val('Rp ' + formatRupiahWithDots(response.incentive_sales, ''));
+                // Sinkronkan ke Profit Sharing Holding
+                $('#profit-sharing-holding').val('Rp ' + formatRupiahWithDots(response.incentive_sales, ''));
             }
 
             Swal.fire({
@@ -2778,6 +2784,15 @@ function updateTotalProvitSharing() {
 
     // Update field total provit sharing
     $('#total-provit-sharing').val('Rp ' + formatRupiahWithDots(total.toFixed(0), ''));
+
+    $(function() {
+    // Sinkron awal saat page load
+    var initIncentive = $('#incentive_sales').val();
+    if (initIncentive) {
+        $('#profit-sharing-holding').val(initIncentive);
+        updateTotalProvitSharing();
+    }
+});
 }
 
 </script>

@@ -74,7 +74,6 @@
                         <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nama Vendor</th>
                         <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Lampiran</th>
                         <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Sales Vendor</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Note</th>
                       </tr>
                     </thead>
                     <tbody></tbody>
@@ -107,7 +106,7 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Form - Data Projek</h5>
+          <h5 class="modal-title" id="exampleModalLabel">Form - Purchase Order</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -174,10 +173,12 @@
                     </div>
 
                     <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                          <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Note</span>
-                        </div>
-                        <input type="text" name="note" id="note" class="form-control" style="border: 1px solid black;">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                              <span class="input-group-text" style="background-color: rgb(222, 222, 222);">Note</span>
+                            </div>
+                            <textarea class="form-control" aria-label="With textarea" name="note" id="note" style="border: 1px solid black;"></textarea>
+                          </div>
                     </div>
 
                 </div>
@@ -540,16 +541,6 @@ function viewDatatable() {
             },
             {
                 data: "sales_vendor",
-                render: function (data, type, row, meta) {
-                    if (data == '' || data == null) {
-                        return '-';
-                    } else {
-                        return data;
-                    }
-                }
-            },
-            {
-                data: "note",
                 render: function (data, type, row, meta) {
                     if (data == '' || data == null) {
                         return '-';
