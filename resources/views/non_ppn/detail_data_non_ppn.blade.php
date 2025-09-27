@@ -1465,6 +1465,9 @@ function koleksiSelect2() {
 
 function viewDatatable() {
     tableDetail = $(".basic-datatables").DataTable({
+        scrollY: '300px', // Membuat tabel bisa di-scroll vertikal
+        pageLength: 10,   // Menampilkan 10 data saja
+        paging: false,    // Hilangkan pagination, hanya scroll
         ajax: {
             url: "{{ route('pr_wapu/datatabledetail') }}",
             "type": "post",
@@ -2643,7 +2646,7 @@ function autoSetJenisApprove() {
     let totalPersentaseMarginText = $('#total_margin').val();
     let persentase = parseFloat((totalPersentaseMarginText || '').replace(/[^0-9\.\-]/g, '')) || 0;
 
-    if (persentase > 6) {
+    if (persentase > 5) {
         $('#jenis_approve').val('approve');
     } else {
         $('#jenis_approve').val('need_approve');
@@ -2681,7 +2684,7 @@ function updateIncentiveFe001a() {
     }
 
     if (persentase > 25) {
-        $('#persentase_fe001a').val('-');
+        $('#persentase_fe001a').val('Need Apporve');
     } else {
         $('#persentase_fe001a').val(persentase.toFixed(2) + ' %');
     }

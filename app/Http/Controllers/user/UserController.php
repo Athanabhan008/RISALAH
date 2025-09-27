@@ -48,6 +48,7 @@ class UserController extends Controller
             $user->name                = $request->name;
             $user->email               = $request->email;
             $user->role                = $request->role;
+            $user->divisi              = $request->divisi;
             $user->password            = password_hash($request->password, PASSWORD_DEFAULT);
             $user->updated_at = null;
             $user->save();
@@ -74,6 +75,7 @@ class UserController extends Controller
             $user->name = $request->name;
             $user->email    = $request->email;
             $user->role    = $request->role;
+            $user->divisi   = $request->divisi;
             $user->save();
 
             return response()->json([

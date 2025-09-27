@@ -443,7 +443,7 @@
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Approval By</span>
                                             </div>
-                                            <input type="text" name="approval" id="approval" class="form-control pl-2" style="border: 1px solid black;" value="{{ isset($approval) && $approval !== '' && $approval !== 0 ? 'Rp ' . number_format($approval, 0, ',', '.') : 'Agus Sopyan' }}" readonly>
+                                            <input type="text" name="approval" id="approval" class="form-control pl-2" style="border: 1px solid black;" value="{{ $approval ?? 'Agus Sopyan' }}" readonly>
                                         </div>
                                     </div>
 
@@ -636,6 +636,7 @@
                 <div class="row mt-5">
 
                     <div class="row">
+
                         <div class="col-md-4">
 
                             <div class="input-group mb-3">
@@ -1463,6 +1464,9 @@ function koleksiSelect2() {
 
 function viewDatatable() {
     tableDetail = $(".basic-datatables").DataTable({
+        scrollY: '400px', // Membuat tabel bisa di-scroll vertikal
+        pageLength: 10,   // Menampilkan 10 data saja
+        paging: false,    // Hilangkan pagination, hanya scroll
         ajax: {
             url: "{{ route('pr_wapu/datatabledetail') }}",
             "type": "post",
@@ -2162,11 +2166,11 @@ function updateSubtotalMarginNonPPN() {
         if (data[i].jenis_ppn === 'non_ppn') {
             let totalCost = data[i].margin;
             if (typeof totalCost === 'string') {
-                totalCost = parseFloat(totalCost.replace(/[^,\d]/g, '').replace(',', '.')) || 0;
+                totalCost = parseFloat(totalCost.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
             } else if (totalCost === null || totalCost === undefined) {
                 totalCost = 0;
             }
-            subtotal += totalCost;
+            subtotal += totalCost; // angka minus otomatis mengurangi subtotal
         }
     }
     $('#subtotal-margin-non-ppn').val('Rp ' + formatRupiahWithDots(subtotal, ''));
@@ -2349,7 +2353,7 @@ function updateSubtotalCogs() {
 
 function updateSubtotalCost() {
     // Ambil nilai dari subtotal-po-cost-cv
-    let subtotalPoCostCVText = $('#subtotal-po-cost-cv').val();
+    let subtotalPoCostCVText = $('#subtotal-po-cv').val();
     let subtotalPoCostCV = parseFloat(subtotalPoCostCVText.replace('Rp ', '').replace(/\./g, '').replace(',', '.')) || 0;
 
     // Ambil nilai dari subtotal_cogs
@@ -2442,6 +2446,8 @@ function updateIncentiveSales() {
 
     // Update elemen incentive_sales
     $('#incentive_sales').val('Rp ' + formatRupiahWithDots(incentiveSales.toFixed(0), ''));
+    // Update juga profit-sharing-holding
+    $('#profit-sharing-holding').val('Rp ' + formatRupiahWithDots(incentiveSales.toFixed(0), ''));
 
     // Panggil fungsi untuk update leader sales
     updateLeaderSales();
@@ -2640,7 +2646,7 @@ function autoSetJenisApprove() {
     let totalPersentaseMarginText = $('#total_margin').val();
     let persentase = parseFloat((totalPersentaseMarginText || '').replace(/[^0-9\.\-]/g, '')) || 0;
 
-    if (persentase > 6) {
+    if (persentase > 5) {
         $('#jenis_approve').val('approve');
     } else {
         $('#jenis_approve').val('need_approve');
@@ -2678,7 +2684,7 @@ function updateIncentiveFe001a() {
     }
 
     if (persentase > 25) {
-        $('#persentase_fe001a').val('-');
+        $('#persentase_fe001a').val('Need Approve');
     } else {
         $('#persentase_fe001a').val(persentase.toFixed(2) + ' %');
     }

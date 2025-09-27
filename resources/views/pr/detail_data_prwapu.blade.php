@@ -443,7 +443,7 @@
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Approval By</span>
                                             </div>
-                                            <input type="text" name="approval" id="approval" class="form-control pl-2" style="border: 1px solid black;" value="{{ isset($approval) && $approval !== '' && $approval !== 0 ? 'Rp ' . number_format($approval, 0, ',', '.') : 'Agus Sopyan' }}" readonly>
+                                            <input type="text" name="approval" id="approval" class="form-control pl-2" style="border: 1px solid black;" value="{{ $approval ?? 'Agus Sopyan' }}" readonly>
                                         </div>
                                     </div>
 
@@ -1463,6 +1463,9 @@ function koleksiSelect2() {
 
 function viewDatatable() {
     tableDetail = $(".basic-datatables").DataTable({
+        scrollY: '100px', // Membuat tabel bisa di-scroll vertikal
+        pageLength: 10,   // Menampilkan 10 data saja
+        paging: false,    // Hilangkan pagination, hanya scroll
         ajax: {
             url: "{{ route('pr_wapu/datatabledetail') }}",
             "type": "post",
@@ -2479,7 +2482,7 @@ function updatePersentaseIncentive() {
 
 function updatePPHBankFee() {
     let validasiPaymentText = $('#validasi_payment').val();
-    let subtotalPriceText = $('#total-vat').val();
+    let subtotalPriceText = $('#subtotal-price').val();
 
     // Jika validasi_payment kosong, isi pph_bank_fee dengan 0 atau '-'
     if (!validasiPaymentText || validasiPaymentText.trim() === '') {
@@ -2651,7 +2654,7 @@ function autoSetJenisApprove() {
     let totalPersentaseMarginText = $('#total_margin').val();
     let persentase = parseFloat((totalPersentaseMarginText || '').replace(/[^0-9\.\-]/g, '')) || 0;
 
-    if (persentase > 6) {
+    if (persentase > 5) {
         $('#jenis_approve').val('approve');
     } else {
         $('#jenis_approve').val('need_approve');
@@ -2689,7 +2692,7 @@ function updateIncentiveFe001a() {
     }
 
     if (persentase > 25) {
-        $('#persentase_fe001a').val('-');
+        $('#persentase_fe001a').val('Need Approve');
     } else {
         $('#persentase_fe001a').val(persentase.toFixed(2) + ' %');
     }
