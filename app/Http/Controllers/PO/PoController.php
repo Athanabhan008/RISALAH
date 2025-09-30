@@ -76,15 +76,21 @@ class PoController extends Controller
     }
 
     public function getSales()
-    {
-        $result = User::all();
+{
+    $result = User::query()
+        ->whereIn('role', ['sales', 'manager'])
+        ->when(request('q'), function ($query, $term) {
+            $query->where('name', 'like', '%' . $term . '%');
+        })
+        ->orderBy('name')
+        ->get(['id', 'name']);
 
-        return response()->json([
-            'error' => 0,
-            'message' => 'Success',
-            'data'=> $result
-        ]);
-    }
+    return response()->json([
+        'error' => 0,
+        'message' => 'Success',
+        'data'=> $result
+    ]);
+}
 
     public function getPr()
     {

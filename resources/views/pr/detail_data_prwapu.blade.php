@@ -108,7 +108,7 @@
         <!-- BARANG/PRODUK -->
           <div class="card mb-4">
             <div class="card-header pb-0">
-              <h6>Data PR Swasta - Detail</h6>
+              <h6>Data PR Wapu - Detail</h6>
               <div style="display: flex; justify-content: space-between; align-items: center;">
                   <div class="ml-auto">
                     <button type="button" class="btn btn-info" id="btn-back">
@@ -151,6 +151,22 @@
                     <tbody></tbody>
                   </table>
 
+                  <!-- Loading Modal for Datatable -->
+                  <div class="modal fade" id="loadingModal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+                      <div class="modal-content">
+                        <div class="modal-body text-center">
+                          <div class="d-flex flex-column justify-content-center align-items-center py-3">
+                            <div class="spinner-border text-primary" role="status" style="width: 2.5rem; height: 2.5rem;">
+                              <span class="sr-only">Loading...</span>
+                            </div>
+                            <div class="mt-3 text-muted">Memuat data...</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
 
                   <div class="card-header pb-0">
                     <h6>Additional Cost</h6>
@@ -178,7 +194,19 @@
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Other</th>
                           </tr>
                         </thead>
-                        <tbody></tbody>
+                        <tbody>
+                          <!-- Loading row akan ditampilkan di sini -->
+                          <tr id="loading-row-cogs" style="display: none;">
+                            <td colspan="6" class="text-center py-4">
+                              <div class="d-flex justify-content-center align-items-center">
+                                <div class="spinner-border text-primary mr-3" role="status" style="width: 1.5rem; height: 1.5rem;">
+                                  <span class="sr-only">Loading...</span>
+                                </div>
+                                <span class="text-muted">Memuat data...</span>
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
                       </table>
                 </div>
 
@@ -652,7 +680,7 @@
                             <div class="input-group mb-3">
                                 <div class="input-group-prepend">
                                   <span class="input-group-text" style="background-color: rgb(222, 222, 222);">
-                                    {{ ucfirst($currentUser->divisi ?? '-') }}
+                                    {{ ucfirst($projectDivisi ?? $currentUser->divisi ?? '-') }}
                                   </span>
                                   <span class="input-group-text" style="background-color: rgb(222, 222, 222);">30.00%</span>
                                 </div>
@@ -974,6 +1002,35 @@
     </div>
   </div>
 
+  {{-- Modal Loading --}}
+  <div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="loadingModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body text-center py-4">
+          <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+            <span class="sr-only">Loading...</span>
+          </div>
+          <h5 class="mb-0">Data berhasil disimpan!</h5>
+          <p class="text-muted mt-2">Sedang memproses...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Loading -->
+  <div class="modal fade" id="loadingCOGS" tabindex="-1" aria-labelledby="loadingModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body text-center py-4">
+          <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+            <span class="sr-only">Loading...</span>
+          </div>
+          <h5 class="mb-2">Memproses Data...</h5>
+          <p class="text-muted mb-0">Mohon tunggu, data sedang diproses dan akan ditampilkan dalam tabel.</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
   @push('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -985,6 +1042,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/js/select2.min.js" defer></script>
 <script>
 window.defaultUrl = `{{ url('/pr_wapu/') }}/`;
+
+// Tambahkan variabel untuk menyimpan data divisi
+var projectDivisi = "{{ $projectDivisi ?? $currentUser->divisi ?? '' }}";
 
 let modal = $("#formModal");
 let modalCogs = $("#formCogs");
@@ -1210,47 +1270,72 @@ $('#total_cost').val(selected.total_cost);
             data: $(this).serialize() + "&id_projek=" + "<?php echo $id_projek ?>",
             dataType: 'json',
             success: function(response) {
-                // Tampilkan SweetAlert
-                viewDatatable();
-                Swal.fire({
-                    title: 'Sukses',
-                    text: response.message,
-                    icon: 'success',
-                    confirmButtonText: 'OK'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Reset seluruh form
-                        $('#form_cogs')[0].reset();
-                        // Hilangkan titik pada semua input text di form COGS
-                        $('#form_cogs input[type="text"]').each(function() {
-                            let val = $(this).val();
-                            if (val) {
-                                $(this).val(val.replace(/\./g, ''));
-                            }
-                        });
-                        // Kosongkan input readonly
-                        $('#expedittion').val('');
-                        $('#add_insetif_fe001a').val('');
-                        $('#instalasi_setting').val('');
-                        $('#pph_bank_fee').val('');
-                        $('#other').val('');
-                        // Kembalikan _type ke create
-                        $("input[name=_type]").val("create");
-                        // Reload datatable
-                        tableCogs.ajax.reload();
-                        // Update total COGS di modal
-                        $('#total_cost_cogs').text('Rp 0');
-                        baseCostCogs = 0;
+                // Tampilkan modal loading
+                $('#loadingModal').modal('show');
 
-                        $('#formCogs').modal('hide');
-                        setTimeout(function() {
-                            $('.modal-backdrop').remove();
-                            $('body').removeClass('modal-open');
-                            $('body').css('padding-right', '');
-                            $('#formCogs').hide();
-                        }, 150);
-                    }
-                });
+                // Tampilkan SweetAlert setelah delay
+                setTimeout(function() {
+                    $('#loadingModal').modal('hide');
+
+                    viewDatatable();
+                    Swal.fire({
+                        title: 'Sukses',
+                        text: response.message,
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+
+                            $('#loadingCOGS').modal('show');
+
+                            // Reset seluruh form
+                            $('#form_cogs')[0].reset();
+                            // Hilangkan titik pada semua input text di form COGS
+                            $('#form_cogs input[type="text"]').each(function() {
+                                let val = $(this).val();
+                                if (val) {
+                                    $(this).val(val.replace(/\./g, ''));
+                                }
+                            });
+                            // Kosongkan input readonly
+                            $('#expedittion').val('');
+                            $('#add_insetif_fe001a').val('');
+                            $('#instalasi_setting').val('');
+                            $('#pph_bank_fee').val('');
+                            $('#other').val('');
+                            // Kembalikan _type ke create
+                            $("input[name=_type]").val("create");
+                           // Reload datatable dan tunggu sampai data muncul
+                        tableCogs.ajax.reload(null, false);
+
+                        // Cek apakah data sudah muncul di tabel
+                        let checkDataLoaded = function() {
+                            let dataCount = tableCogs.rows().data().length;
+                            if (dataCount > 0) {
+                                // Data sudah muncul, sembunyikan loading modal
+                                $('#loadingCOGS').modal('hide');
+                                // Update total COGS di modal
+                                $('#total_cost_cogs').text('Rp 0');
+                                baseCostCogs = 0;
+                            } else {
+                                // Data belum muncul, cek lagi setelah 500ms
+                                setTimeout(checkDataLoaded, 500);
+                            }
+                        };
+
+                        // Mulai pengecekan data
+                        setTimeout(checkDataLoaded, 100);
+
+                            $('#formCogs').modal('hide');
+                            setTimeout(function() {
+                                $('.modal-backdrop').remove();
+                                $('body').removeClass('modal-open');
+                                $('body').css('padding-right', '');
+                                $('#formCogs').hide();
+                            }, 150);
+                        }
+                    });
+                }, 2000); // Delay 2 detik untuk menampilkan loading
             },
             error: function(jqXHR) {
                 if (jqXHR && jqXHR.responseJSON && jqXHR.responseJSON.errors) {
@@ -1463,7 +1548,7 @@ function koleksiSelect2() {
 
 function viewDatatable() {
     tableDetail = $(".basic-datatables").DataTable({
-        scrollY: '100px', // Membuat tabel bisa di-scroll vertikal
+        scrollY: '400px', // Membuat tabel bisa di-scroll vertikal
         pageLength: 10,   // Menampilkan 10 data saja
         paging: false,    // Hilangkan pagination, hanya scroll
         ajax: {
@@ -1475,6 +1560,15 @@ function viewDatatable() {
             headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
+            beforeSend: function() {
+                $('#loadingModal').modal('show');
+            },
+            complete: function() {
+                $('#loadingModal').modal('hide');
+            },
+            error: function() {
+                $('#loadingModal').modal('hide');
+            }
         },
         dom: 't<"d-flex justify-content-end mt-3"p>',
         pagingType: "simple_numbers",
@@ -1624,6 +1718,11 @@ function viewDatatable() {
         },
     });
 
+    // Sembunyikan modal loading pada draw pertama sebagai jaring pengaman tambahan
+    tableDetail.one('draw', function() {
+        $('#loadingModal').modal('hide');
+    });
+
     // Handle row selection
     $('.basic-datatables tbody').off('click', 'tr').on('click', 'tr', function () {
     if ($(this).hasClass('selected')) {
@@ -1654,6 +1753,9 @@ function viewDatatable() {
 }
 
 function viewDatatableCogs() {
+    // Tampilkan loading row saat tabel dimuat
+    $('#loading-row-cogs').show();
+
     tableCogs = $("#datatable-cogs").DataTable({
         ajax: {
             url: "{{ route('pr_wapu/datatablecogs') }}",
@@ -1664,6 +1766,16 @@ function viewDatatableCogs() {
             headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
+            // Tambahkan callback untuk loading state
+            beforeSend: function() {
+                $('#loading-row-cogs').show();
+            },
+            complete: function() {
+                $('#loading-row-cogs').hide();
+            },
+            error: function() {
+                $('#loading-row-cogs').hide();
+            }
         },
         dom: 't<"d-flex justify-content-end mt-3"p>',
         pagingType: "simple_numbers",
@@ -1680,6 +1792,12 @@ function viewDatatableCogs() {
             searchable: false,
             targets: [0]
         }],
+        // Tambahkan language untuk custom loading message
+        language: {
+            processing: '<div class="d-flex justify-content-center align-items-center"><div class="spinner-border text-primary mr-3" role="status" style="width: 1.5rem; height: 1.5rem;"><span class="sr-only">Loading...</span></div><span class="text-muted">Memuat data...</span></div>',
+            emptyTable: '<div class="text-center py-4"><span class="text-muted">Tidak ada data tersedia</span></div>',
+            zeroRecords: '<div class="text-center py-4"><span class="text-muted">Tidak ada data yang cocok</span></div>'
+        },
         columns: [{
                 "data": "id_projek",
                 render: function (data, type, row, meta) {
@@ -1790,7 +1908,6 @@ function viewDatatableCogs() {
             $('#btn-edit-cogs').prop('disabled', true);
         }
 
-
         // Update subtotal COGS
         updateSubtotalCogs();
         updateSubtotalCost(); // Tambahkan fungsi ini
@@ -1799,6 +1916,15 @@ function viewDatatableCogs() {
         updateIncentiveSales(); // Tambahkan fungsi ini
         updateTotalPersentaseMargin();
         updateIncentiveFe001a(); // <-- Tambahkan ini
+    });
+
+    // Event handler untuk loading state
+    tableCogs.on('processing.dt', function(e, settings, processing) {
+        if (processing) {
+            $('#loading-row-cogs').show();
+        } else {
+            $('#loading-row-cogs').hide();
+        }
     });
 }
 
@@ -2720,6 +2846,13 @@ function formatRupiah(angka, prefix){
 
 // Tambahkan fungsi baru untuk menghitung leader sales (30% dari incentive_sales)
 function updateLeaderSales() {
+    // Cek apakah divisi kosong atau tidak
+    if (!projectDivisi || projectDivisi.trim() === '' || projectDivisi === '-') {
+        // Jika divisi kosong, set leader_sales menjadi 0
+        $('#leader_sales').val('Rp 0');
+        return;
+    }
+
     // Ambil nilai incentive_sales
     let incentiveSalesText = $('#incentive_sales').val();
     let incentiveSales = parseFloat((incentiveSalesText || '').replace(/[^-\d,]/g, '').replace(',', '.')) || 0;

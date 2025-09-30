@@ -20,6 +20,61 @@
     .select2-dropdown {
         z-index: 9999;
     }
+
+    /* Styling untuk row total */
+    .total-row {
+        background-color: #f8f9fa !important;
+        font-weight: bold !important;
+        border-top: 2px solid #dee2e6 !important;
+        border-bottom: 1px solid #dee2e6 !important;
+    }
+
+    .total-row td {
+        background-color: #f8f9fa !important;
+        font-weight: bold !important;
+    }
+
+    .total-row:hover {
+        background-color: #e9ecef !important;
+    }
+
+    .total-row:hover td {
+        background-color: #e9ecef !important;
+    }
+
+    /* Styling untuk grand total row */
+    .grand-total-row {
+        background-color: #e3f2fd !important;
+        font-weight: bold !important;
+        border-top: 3px solid #2196f3 !important;
+        border-bottom: 2px solid #2196f3 !important;
+    }
+
+    .grand-total-row td {
+        background-color: #e3f2fd !important;
+        font-weight: bold !important;
+    }
+
+    .grand-total-row:hover {
+        background-color: #bbdefb !important;
+    }
+
+    .grand-total-row:hover td {
+        background-color: #bbdefb !important;
+    }
+
+    /* Mencegah row total dan grand total bisa dipilih */
+    .total-row, .grand-total-row {
+        cursor: default !important;
+    }
+
+    .total-row:hover, .grand-total-row:hover {
+        background-color: #f8f9fa !important;
+    }
+
+    .grand-total-row:hover {
+        background-color: #e3f2fd !important;
+    }
 </style>
 
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
@@ -88,6 +143,7 @@
                                             <th style="color: white;" class="text-uppercase text-xxs font-weight-bolder opacity-7">No</th>
                                             <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nama Client</th>
                                             <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nomor PR</th>
+                                            <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Divisi</th>
                                             <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Profit Holding</th>
                                             <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Profit Leader</th>
                                             <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Profit Dirutama</th>
@@ -620,6 +676,148 @@ function viewDatatable(callback) {
             searchable: false,
             targets: [0]
         }],
+        // Modifikasi drawCallback untuk menambahkan row total di antara data
+        drawCallback: function(settings) {
+            var api = this.api();
+            var data = api.rows({page: 'current'}).data();
+
+            // Hapus row total yang sudah ada sebelumnya
+            $('.total-row').remove();
+            $('.grand-total-row').remove(); // Hapus grand total yang sudah ada
+
+            if (data.length > 0) {
+                var currentDivisi = null;
+                var divisiTotals = {};
+                var divisiData = []; // Array untuk menyimpan data per divisi
+
+                // Fungsi helper untuk parse nilai dari string "Rp 482.603" menjadi angka
+                function parseNumericValue(value) {
+                    if (!value || value === null || value === undefined) {
+                        return 0;
+                    }
+
+                    // Jika sudah berupa number, return langsung
+                    if (typeof value === 'number') {
+                        return value;
+                    }
+
+                    // Konversi ke string
+                    var stringValue = value.toString();
+
+                    // Hapus semua karakter non-numeric kecuali koma dan titik
+                    var cleanValue = stringValue.replace(/[^0-9.,]/g, '');
+
+                    // Jika tidak ada koma, berarti titik adalah pemisah ribuan (format Indonesia)
+                    if (cleanValue.indexOf(',') === -1) {
+                        // Hapus semua titik karena ini pemisah ribuan
+                        cleanValue = cleanValue.replace(/\./g, '');
+                    } else {
+                        // Jika ada koma, berarti koma adalah pemisah desimal
+                        // Ganti koma dengan titik untuk parsing, hapus titik ribuan
+                        cleanValue = cleanValue.replace(/\./g, '').replace(',', '.');
+                    }
+
+                    var parsed = parseFloat(cleanValue);
+                    return isNaN(parsed) ? 0 : parsed;
+                }
+
+                // Kelompokkan data berdasarkan divisi
+                for (var i = 0; i < data.length; i++) {
+                    var divisi = data[i].divisi || 'Unknown';
+
+                    if (!divisiTotals[divisi]) {
+                        divisiTotals[divisi] = {
+                            profit_holding: 0,
+                            profit_leader: 0,
+                            profit_dirutama: 0,
+                            profit_sim: 0,
+                            profit_keuangan: 0,
+                            total_profit: 0,
+                            count: 0,
+                            startIndex: i
+                        };
+                        divisiData.push({
+                            divisi: divisi,
+                            startIndex: i,
+                            endIndex: i
+                        });
+                    }
+
+                    // Update endIndex untuk divisi ini
+                    divisiData[divisiData.length - 1].endIndex = i;
+
+                    // Parse nilai dengan fungsi helper
+                    var profitHolding = parseNumericValue(data[i].profit_holding);
+                    var profitLeader = parseNumericValue(data[i].profit_leader);
+                    var profitDirutama = parseNumericValue(data[i].profit_dirutama);
+                    var profitSim = parseNumericValue(data[i].profit_sim);
+                    var profitKeuangan = parseNumericValue(data[i].profit_keuangan);
+                    var totalProfit = parseNumericValue(data[i].total_profit);
+
+                    divisiTotals[divisi].profit_holding += profitHolding;
+                    divisiTotals[divisi].profit_leader += profitLeader;
+                    divisiTotals[divisi].profit_dirutama += profitDirutama;
+                    divisiTotals[divisi].profit_sim += profitSim;
+                    divisiTotals[divisi].profit_keuangan += profitKeuangan;
+                    divisiTotals[divisi].total_profit += totalProfit;
+                    divisiTotals[divisi].count++;
+                }
+
+                // Debug: log hasil perhitungan
+                console.log('Divisi Totals:', divisiTotals);
+
+                // Hitung grand total dari semua divisi
+                var grandTotal = {
+                    profit_holding: 0,
+                    profit_leader: 0,
+                    profit_dirutama: 0,
+                    profit_sim: 0,
+                    profit_keuangan: 0,
+                    total_profit: 0,
+                    total_count: 0
+                };
+
+                // Jumlahkan semua divisi
+                for (var divisi in divisiTotals) {
+                    grandTotal.profit_holding += divisiTotals[divisi].profit_holding;
+                    grandTotal.profit_leader += divisiTotals[divisi].profit_leader;
+                    grandTotal.profit_dirutama += divisiTotals[divisi].profit_dirutama;
+                    grandTotal.profit_sim += divisiTotals[divisi].profit_sim;
+                    grandTotal.profit_keuangan += divisiTotals[divisi].profit_keuangan;
+                    grandTotal.total_profit += divisiTotals[divisi].total_profit;
+                    grandTotal.total_count += divisiTotals[divisi].count;
+                }
+
+                console.log('Grand Total:', grandTotal);
+
+                // Tambahkan row total setelah setiap grup divisi
+                var tbody = $(api.table().body());
+                var rows = tbody.find('tr');
+
+                // Loop mundur untuk menghindari masalah index yang berubah
+                for (var i = divisiData.length - 1; i >= 0; i--) {
+                    var divisiInfo = divisiData[i];
+                    var divisi = divisiInfo.divisi;
+                    var endIndex = divisiInfo.endIndex;
+
+                    // Buat row total
+                    var totalRow = createTotalRow(divisi, divisiTotals[divisi]);
+
+                    // Sisipkan row total setelah baris terakhir dari divisi ini
+                    if (endIndex < rows.length - 1) {
+                        // Sisipkan sebelum baris berikutnya
+                        $(rows[endIndex]).after(totalRow);
+                    } else {
+                        // Jika ini adalah divisi terakhir, tambahkan di akhir
+                        tbody.append(totalRow);
+                    }
+                }
+
+                // Tambahkan grand total di paling bawah
+                var grandTotalRow = createGrandTotalRow(grandTotal);
+                tbody.append(grandTotalRow);
+            }
+        },
         columns: [{
                 "data": "id",
                 render: function (data, type, row, meta) {
@@ -638,6 +836,16 @@ function viewDatatable(callback) {
             },
             {
                 data: "nomor_pr",
+                render: function (data, type, row, meta) {
+                    if (data == '' || data == null) {
+                        return '-';
+                    } else {
+                        return data;
+                    }
+                }
+            },
+            {
+                data: "divisi",
                 render: function (data, type, row, meta) {
                     if (data == '' || data == null) {
                         return '-';
@@ -774,8 +982,13 @@ function viewDatatable(callback) {
         alert('0');
     });
 
-    // Handle row selection
+    // Handle row selection - modifikasi untuk mengabaikan row total dan grand total
     $('.basic-datatables tbody').off('click', 'tr').on('click', 'tr', function () {
+        // Jangan pilih row total atau grand total
+        if ($(this).hasClass('total-row') || $(this).hasClass('grand-total-row')) {
+            return;
+        }
+
         if ($(this).hasClass('selected')) {
             $(this).removeClass('selected');
             $('#btn-ubah').addClass('disabled');
@@ -785,6 +998,42 @@ function viewDatatable(callback) {
             $('#btn-ubah').removeClass('disabled');
         }
     });
+}
+
+// Fungsi untuk membuat row total
+function createTotalRow(divisi, totals) {
+    console.log('Totals data:', totals);
+
+    var totalRow = $('<tr class="total-row" style="background-color: #f8f9fa; font-weight: bold; border-top: 2px solid #dee2e6; border-bottom: 1px solid #dee2e6;">');
+
+    totalRow.append('<td colspan="4" style="color: #6c757d; font-style: italic;">TOTAL '+ divisi +'</td>');
+    totalRow.append('<td style="text-align: right; color: #28a745; font-weight: bold;">' + formatRupiah(totals.profit_holding) + '</td>');
+    totalRow.append('<td style="text-align: right; color: #28a745; font-weight: bold;">' + formatRupiah(totals.profit_leader) + '</td>');
+    totalRow.append('<td style="text-align: right; color: #28a745; font-weight: bold;">' + formatRupiah(totals.profit_dirutama) + '</td>');
+    totalRow.append('<td style="text-align: right; color: #28a745; font-weight: bold;">' + formatRupiah(totals.profit_sim) + '</td>');
+    totalRow.append('<td style="text-align: right; color: #28a745; font-weight: bold;">' + formatRupiah(totals.profit_keuangan) + '</td>');
+    totalRow.append('<td style="text-align: right; color: #28a745; font-weight: bold;">' + formatRupiah(totals.total_profit) + '</td>');
+    totalRow.append('<td style="text-align: center; color: #6c757d; font-style: italic;">-</td>');
+
+    return totalRow;
+}
+
+// Fungsi untuk membuat grand total row
+function createGrandTotalRow(grandTotal) {
+    console.log('Grand Total data:', grandTotal);
+
+    var grandTotalRow = $('<tr class="grand-total-row" style="background-color: #e3f2fd; font-weight: bold; border-top: 3px solid #2196f3; border-bottom: 2px solid #2196f3;">');
+
+    grandTotalRow.append('<td colspan="4" style="color: #1976d2; font-style: italic; font-size: 14px; font-weight: bold;">GRAND TOTAL</td>');
+    grandTotalRow.append('<td style="text-align: right; color: #1976d2; font-weight: bold; font-size: 14px;">' + formatRupiah(grandTotal.profit_holding) + '</td>');
+    grandTotalRow.append('<td style="text-align: right; color: #1976d2; font-weight: bold; font-size: 14px;">' + formatRupiah('-') + '</td>');
+    grandTotalRow.append('<td style="text-align: right; color: #1976d2; font-weight: bold; font-size: 14px;">' + formatRupiah(grandTotal.profit_dirutama) + '</td>');
+    grandTotalRow.append('<td style="text-align: right; color: #1976d2; font-weight: bold; font-size: 14px;">' + formatRupiah(grandTotal.profit_sim) + '</td>');
+    grandTotalRow.append('<td style="text-align: right; color: #1976d2; font-weight: bold; font-size: 14px;">' + formatRupiah(grandTotal.profit_keuangan) + '</td>');
+    grandTotalRow.append('<td style="text-align: right; color: #1976d2; font-weight: bold; font-size: 14px;">' + formatRupiah(grandTotal.total_profit) + '</td>');
+    grandTotalRow.append('<td style="text-align: center; color: #1976d2; font-style: italic; font-size: 14px;">-</td>');
+
+    return grandTotalRow;
 }
 
 // Tambahkan fungsi helper untuk handle modal
@@ -877,6 +1126,28 @@ function generateNomorPR() {
             });
         }
     });
+}
+
+// Fungsi untuk format rupiah
+function formatRupiah(angka) {
+    if (!angka || angka === null || angka === undefined || isNaN(angka)) {
+        return 'Rp 0';
+    }
+
+    // Pastikan angka berupa number
+    var numValue = typeof angka === 'number' ? angka : parseFloat(angka);
+
+    if (isNaN(numValue)) {
+        return 'Rp 0';
+    }
+
+    // Format dengan pemisah ribuan menggunakan titik (format Indonesia)
+    var formatted = numValue.toLocaleString('id-ID', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    });
+
+    return 'Rp ' + formatted;
 }
 
 </script>

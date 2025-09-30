@@ -320,6 +320,10 @@ class WapuController extends Controller
 
                 $prwapu = Wapu::findOrFail($request->id_projek);
 
+                // Ambil data user yang terkait dengan projek melalui id_sales
+                $projectUser = User::find($prwapu->id_sales);
+                $projectDivisi = $projectUser ? $projectUser->divisi : null;
+
                 // Ambil pph_bank_fee dari tabel cogs, bukan dari prwapus
                 $cogs = Cogs::where('id_projek', $request->id_projek)->first();
                 $pph_bank_fee = $cogs ? $cogs->pph_bank_fee : null;
@@ -390,6 +394,7 @@ class WapuController extends Controller
                     'pph_bank_fee' => $pph_bank_fee ?? '',
                     'incentive_sales' => $incentive_sales ?? 0,
                     'currentUser' => $currentUser, // Tambahkan data user yang login
+                    'projectDivisi' => $projectDivisi, // Tambahkan divisi dari projek
                 ]);
             } catch (\Exception $e) {
                 return redirect()->back()->with('error', 'Gagal memuat data: ' . $e->getMessage());
@@ -405,6 +410,10 @@ class WapuController extends Controller
                 $subtotal_cogs = DB::select("CALL sp_subtotal_cogs(?)", [$request->id_projek]);
 
                 $prwapu = Wapu::findOrFail($request->id_projek);
+
+                   // Ambil data user yang terkait dengan projek melalui id_sales
+                   $projectUser = User::find($prwapu->id_sales);
+                   $projectDivisi = $projectUser ? $projectUser->divisi : null;
 
                 // Ambil pph_bank_fee dari tabel cogs, bukan dari prwapus
                 $cogs = Cogs::where('id_projek', $request->id_projek)->first();
@@ -472,6 +481,7 @@ class WapuController extends Controller
                     'validasi_payment' => $prwapu->validasi_payment ?? '',
                     'pph_bank_fee' => $pph_bank_fee ?? '',
                     'incentive_sales' => $incentive_sales ?? 0,
+                    'projectDivisi' => $projectDivisi,
                 ]);
             } catch (\Exception $e) {
                 return redirect()->back()->with('error', 'Gagal memuat data: ' . $e->getMessage());
@@ -485,15 +495,19 @@ class WapuController extends Controller
                 $subtotal = DB::select("CALL sp_subtotal(?)", [$request->id_projek]);
                 $subtotal_cogs = DB::select("CALL sp_subtotal_cogs(?)", [$request->id_projek]);
 
-                $non_pppn = Wapu::findOrFail($request->id_projek);
+                $non_ppn = Wapu::findOrFail($request->id_projek);
+
+                  // Ambil data user yang terkait dengan projek melalui id_sales
+                  $projectUser = User::find($non_ppn->id_sales);
+                  $projectDivisi = $projectUser ? $projectUser->divisi : null;
 
                 // Ambil pph_bank_fee dari tabel cogs, bukan dari non_pppns
                 $cogs = Cogs::where('id_projek', $request->id_projek)->first();
                 $pph_bank_fee = $cogs ? $cogs->pph_bank_fee : null;
 
                 // Jika pph_bank_fee kosong, hitung berdasarkan validasi_payment dan subtotal_price
-                if (!$pph_bank_fee && $non_pppn->validasi_payment && $non_pppn->subtotal_price) {
-                    $pph_bank_fee = $non_pppn->subtotal_price - $non_pppn->validasi_payment;
+                if (!$pph_bank_fee && $non_ppn->validasi_payment && $non_ppn->subtotal_price) {
+                    $pph_bank_fee = $non_ppn->subtotal_price - $non_ppn->validasi_payment;
                 }
 
                 // Hitung subtotal_price dari data prwapu_detail
@@ -553,6 +567,7 @@ class WapuController extends Controller
                     'validasi_payment' => $non_pppn->validasi_payment ?? '',
                     'pph_bank_fee' => $pph_bank_fee ?? '',
                     'incentive_sales' => $incentive_sales ?? 0,
+                    'projectDivisi' => $projectDivisi,
                 ]);
             } catch (\Exception $e) {
                 return redirect()->back()->with('error', 'Gagal memuat data: ' . $e->getMessage());
