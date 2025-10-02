@@ -443,7 +443,7 @@
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Approval By</span>
                                             </div>
-                                            <input type="text" name="approval" id="approval" class="form-control pl-2" style="border: 1px solid black;" value="{{ $approval ?? 'Agus Sopyan' }}" readonly>
+                                            <input type="text" name="approval" id="approval" class="form-control pl-2" style="border: 1px solid black;" value="{{ !empty($projectDivisi) ? $projectDivisi : 'Agus Sopyan' }}" readonly>
                                         </div>
                                     </div>
 
@@ -477,7 +477,7 @@
         </div>
 
 
-        @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'manager','admin']))
+        @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'manager','admin','sales']))
         <div class="row gx-3 gy-3">
             <!-- VALIDASI PAYMENT -->
             <div class="card mb-4 col-md-12">
@@ -976,22 +976,6 @@
   </div>
 
 
-  <!-- Modal Loading -->
-  <div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="loadingModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-body text-center py-4">
-          <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
-            <span class="sr-only">Loading...</span>
-          </div>
-          <h5 class="mb-2">Memproses Data...</h5>
-          <p class="text-muted mb-0">Mohon tunggu, data sedang diproses dan akan ditampilkan dalam tabel.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-
   @push('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
@@ -1237,9 +1221,6 @@ $('#total_cost').val(selected.total_cost);
                     confirmButtonText: 'OK'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // Tampilkan modal loading
-                        $('#loadingModal').modal('show');
-
                         // Reset seluruh form
                         $('#form_cogs')[0].reset();
                         // Hilangkan titik pada semua input text di form COGS
@@ -1257,27 +1238,11 @@ $('#total_cost').val(selected.total_cost);
                         $('#other').val('');
                         // Kembalikan _type ke create
                         $("input[name=_type]").val("create");
-
-                        // Reload datatable dan tunggu sampai data muncul
-                        tableCogs.ajax.reload(null, false);
-
-                        // Cek apakah data sudah muncul di tabel
-                        let checkDataLoaded = function() {
-                            let dataCount = tableCogs.rows().data().length;
-                            if (dataCount > 0) {
-                                // Data sudah muncul, sembunyikan loading modal
-                                $('#loadingModal').modal('hide');
-                                // Update total COGS di modal
-                                $('#total_cost_cogs').text('Rp 0');
-                                baseCostCogs = 0;
-                            } else {
-                                // Data belum muncul, cek lagi setelah 500ms
-                                setTimeout(checkDataLoaded, 500);
-                            }
-                        };
-
-                        // Mulai pengecekan data
-                        setTimeout(checkDataLoaded, 100);
+                        // Reload datatable
+                        tableCogs.ajax.reload();
+                        // Update total COGS di modal
+                        $('#total_cost_cogs').text('Rp 0');
+                        baseCostCogs = 0;
 
                         $('#formCogs').modal('hide');
                         setTimeout(function() {
@@ -1512,15 +1477,6 @@ function viewDatatable() {
             headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
-            beforeSend: function() {
-                $('#loadingModal').modal('show');
-            },
-            complete: function() {
-                $('#loadingModal').modal('hide');
-            },
-            error: function() {
-                $('#loadingModal').modal('hide');
-            }
         },
         dom: 't<"d-flex justify-content-end mt-3"p>',
         pagingType: "simple_numbers",
@@ -1668,11 +1624,6 @@ function viewDatatable() {
             // $("td", row).last().css({ width: "7%", "text-align": "center", });
             //Default
         },
-    });
-
-    // Sembunyikan modal loading pada draw pertama sebagai jaring pengaman tambahan
-    tableDetail.one('draw', function() {
-        $('#loadingModal').modal('hide');
     });
 
     // Handle row selection

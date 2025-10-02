@@ -15,7 +15,10 @@ class SharingProfitModel extends Model
         'nama_admin',
         'is_approve',
         'id_approve',
-        'user_approve'
+        'user_approve',
+        'is_pelunasan',
+        'id_pelunasan',
+        'user_pelunasan'
     ];
     protected $table = 'sharing_profit';
 }
