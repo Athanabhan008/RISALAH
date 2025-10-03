@@ -103,6 +103,12 @@
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
     <div class="container-fluid py-4">
       <div class="row" style="background-color: rgb(172, 172, 172)">
+
+        <div class="d-block p-2 bg-danger">
+            <h4 class="text-white">NOTE!</h4>
+            <span class="text-white">Jika sudah selesai input data diharapkan untuk refresh halaman website</span>
+        </div>
+
         <div class="col-12">
 
         <!-- BARANG/PRODUK -->
@@ -823,12 +829,14 @@
                             <label for="Unit_price" class="form-label">Selling Price/Unit</label>
                             <input type="text" class="form-control" id="Unit_price" name="unit_price" placeholder="Harga per unit" required>
                         </div>
+
                         <div class="col-md-4 mb-3">
                             <div class="input-group-prepend">
                                 <label for="Unit_price" class="form-label">Vendor</label>
                               </div>
                               <select name="cmb_vendor" id="cmb_vendor" class="bg-danger"></select>
                         </div>
+
                     </div>
 
 
@@ -994,6 +1002,37 @@
   <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap4.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/js/select2.min.js" defer></script>
+
+  <script>
+    $(document).ready(function() {
+        $('#cmb_vendor').select2({
+            placeholder: 'Pilih Vendor',
+            allowClear: true,
+            ajax: {
+                url: '{{ route("vendor.search") }}', // Buat route ini di web.php
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        q: params.term // search term
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                id: item.id,
+                                text: item.nama_vendor
+                            }
+                        })
+                    };
+                },
+                cache: true
+            }
+        });
+    });
+    </script>
+
 <script>
 window.defaultUrl = `{{ url('/pr_wapu/') }}/`;
 
@@ -1478,6 +1517,7 @@ function koleksiSelect2() {
 function viewDatatable() {
     tableDetail = $(".basic-datatables").DataTable({
         scrollY: '400px', // Membuat tabel bisa di-scroll vertikal
+        scrollX: '400px', // Membuat tabel bisa di-scroll vertikal
         pageLength: 10,   // Menampilkan 10 data saja
         paging: false,    // Hilangkan pagination, hanya scroll
         ajax: {

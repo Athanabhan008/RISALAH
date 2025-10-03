@@ -144,6 +144,7 @@ Route::middleware(['UserAkses:sales,admin,super_admin,manager'])->group(function
     Route::post('/pr_wapu/detailUpdateCogs/{id}',                      [WapuController::class, 'detailUpdateCogs'])->name('pr_wapu/detailUpdateCogs');
 
     Route::post('/pr_wapu/detailUpdate',                               [WapuController::class, 'detailUpdate'])->name('pr_wapu.detailUpdate');
+    Route::get('/vendor/search',                                       [WapuController::class, 'search'])->name('vendor.search');
 
 });
 

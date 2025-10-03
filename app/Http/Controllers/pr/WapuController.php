@@ -43,6 +43,13 @@ class WapuController extends Controller
         ]);
     }
 
+    public function search(Request $request)
+{
+    $search = $request->q;
+    $vendors = Vendor::where('nama_vendor', 'like', "%$search%")->get();
+    return response()->json($vendors);
+}
+
     public function datatable()
     {
         $draw = request()->get('draw');

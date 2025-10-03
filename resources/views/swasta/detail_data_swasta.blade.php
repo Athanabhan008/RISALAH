@@ -103,6 +103,10 @@
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
     <div class="container-fluid py-4">
       <div class="row" style="background-color: rgb(172, 172, 172)">
+        <div class="d-block p-2 bg-danger">
+            <h4 class="text-white">NOTE!</h4>
+            <span class="text-white">Jika sudah selesai input data diharapkan untuk refresh halaman website</span>
+        </div>
         <div class="col-12">
 
         <!-- BARANG/PRODUK -->
@@ -1466,6 +1470,7 @@ function koleksiSelect2() {
 function viewDatatable() {
     tableDetail = $(".basic-datatables").DataTable({
         scrollY: '400px', // Membuat tabel bisa di-scroll vertikal
+        scrollX: '400px', // Membuat tabel bisa di-scroll vertikal
         pageLength: 10,   // Menampilkan 10 data saja
         paging: false,    // Hilangkan pagination, hanya scroll
         ajax: {
