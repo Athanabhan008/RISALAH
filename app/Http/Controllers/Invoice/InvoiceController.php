@@ -412,15 +412,15 @@ class InvoiceController extends Controller
         $this->fpdf->Cell(6.4, 0.5,$data_result[0]['nama_client'], 0, 0, 'L');
         $this->fpdf->SetFont('helvetica', 'B', 7.5);
 
-        $this->fpdf->Cell(4.7 , 0.5, "Invoice No", 0, 0, 'R');
+        $this->fpdf->Cell(7.5 , 0.5, "Invoice No", 0, 0, 'R');
         $this->fpdf->Cell(5 , 0.5, ": " . $data_result[0]['nomor_invoice'], 0, 0, 'R');
 		$this->fpdf->Ln(0.5);
-        $this->fpdf->Cell(10.4, 0.5, "Date", 0, 0, 'R');
-        $this->fpdf->Cell(5.4, 0.5, ": " . $this->formatDateIndonesian($data_result[0]['tgl_inv']), 0, 0, 'R');
+        $this->fpdf->Cell(13.2, 0.5, "Date", 0, 0, 'R');
+        $this->fpdf->Cell(5, 0.5, ": " . $this->formatDateIndonesian($data_result[0]['tgl_inv']), 0, 0, 'R');
 		$this->fpdf->Ln(0.7);
 
-        $this->fpdf->Cell(10.7, 0.5, "PO No.", 0, 0, 'R');
-        $this->fpdf->Cell(2.6, 0.5, ": ", 0, 0, 'R');
+        $this->fpdf->Cell(13.5, 0.5, "PO No.", 0, 0, 'R');
+        $this->fpdf->Cell(2.8, 0.5, ": ", 0, 0, 'R');
 		$this->fpdf->Ln(0.4);
 
         // Move address closer to client name - right after the date
@@ -668,17 +668,17 @@ class InvoiceController extends Controller
         $this->fpdf->Ln(1);
 
         $this->fpdf->SetFont('Arial', 'B', 8);
-        $this->fpdf->Cell(14.6, 0, "Subtotal :", 0, 0, 'R');
+        $this->fpdf->Cell(16.1, 0, "Subtotal :", 0, 0, 'R');
         $this->fpdf->Cell(3, 0,  number_format($data_result[0]['subtotal_price'], 0, ',', '.'), 0, 0, 'R');
         $this->fpdf->Ln(0.8);
 
         $this->fpdf->SetFont('Arial', 'B', 8);
-        $this->fpdf->Cell(14.6, 0, "PPN 11% :", 0, 0, 'R');
-        $this->fpdf->Cell(2.9, 0, number_format($data_result[0]['jumlah_ppn'], 0, ',', ','), 0, 0, 'R');
+        $this->fpdf->Cell(16.2, 0, "PPN 11% :", 0, 0, 'R');
+        $this->fpdf->Cell(2.7, 0, number_format($data_result[0]['jumlah_ppn'], 0, ',', ','), 0, 0, 'R');
         $this->fpdf->Ln(0.8);
 
         $this->fpdf->SetFont('Arial', 'B', 8);
-        $this->fpdf->Cell(14.7, 0, "Grand Total :", 0, 0, 'R');
+        $this->fpdf->Cell(16.2, 0, "Grand Total :", 0, 0, 'R');
         $this->fpdf->Cell(2.8, 0, number_format($data_result[0]['total_vat'], 0, ',', ','), 0, 0, 'R');
         $this->fpdf->Ln(0.8);
 

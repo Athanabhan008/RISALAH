@@ -128,7 +128,7 @@
 
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
-                            <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Tanggal QC</span>
+                            <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Tanggal Invoice</span>
                           </div>
                           <input id="datepicker" type="text" class="form-control" name="tgl_inv" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
                     </div>

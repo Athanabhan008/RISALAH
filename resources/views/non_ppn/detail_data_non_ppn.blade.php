@@ -1056,9 +1056,14 @@ $(document).ready(function() {
         $('#part_number').val(selected.part_number);
         $('#partnumber_description').val(selected.partnumber_description);
         $('#Unit_price').val(selected.unit_price);
-$('#total_price').val(selected.total_price);
-$('#qty').val(selected.qty);
-$('#vendor_price').val(selected.vendor_price);
+        $('#total_price').val(selected.total_price);
+        $('#qty').val(selected.qty);
+        $('#vendor_price').val(selected.vendor_price);
+        $('#unit_price_cv').val(selected.unit_price_cv);
+        $('#total_po_cv').val(selected.total_po_cv);
+        $('#total_cost').val(selected.total_cost);
+        $('#margin').val(selected.margin);
+        $('#persentase').val(selected.persentase);
 
 // Terapkan pembulatan kustom saat set nilai dari selected
 // Terapkan pembulatan kustom saat set nilai dari selected
@@ -2002,6 +2007,8 @@ function updateTotalPrice() {
     var unitPrice = getNumberFromDotsFormat($('#Unit_price').val());
     var total = qty * unitPrice;
     $('#total_price').val(formatRupiahWithDots(total.toString(), ''));
+
+    updateMargin();
 }
 
 function updateUnitPriceCV() {
