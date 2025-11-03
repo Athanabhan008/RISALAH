@@ -1087,12 +1087,12 @@ $(document).ready(function() {
         $("select[name=jenis_ppn]").val(selected.jenis_ppn);
 
 
-        $("select[name=cmb_vendor]").select2("trigger", "select", {
-            data: {
-                id: selected.id_vendor,
-                text: selected.nama_vendor
-            }
-        });
+        if ($("select[name=cmb_vendor] option[value='" + selected.id_vendor + "']").length === 0) {
+             var newOption = new Option(selected.nama_vendor, selected.id_vendor, false, true);
+            $("select[name=cmb_vendor]").append(newOption).trigger('change');
+        } else {
+            $("select[name=cmb_vendor]").val(selected.id_vendor).trigger('change');
+        }
 
 
         $('#jenis_ppn').val(selected.jenis_ppn);

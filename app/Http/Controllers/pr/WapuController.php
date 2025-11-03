@@ -360,7 +360,6 @@ class WapuController extends Controller
                     $subtotalCost += ($cogs->expedittion ?? 0) +
                                     ($cogs->add_insentif_fe001a ?? 0) +
                                     ($cogs->instalasi_setting ?? 0) +
-                                    ($cogs->pph_bank_fee ?? 0) +
                                     ($cogs->other ?? 0);
                 }
 
@@ -936,12 +935,7 @@ class WapuController extends Controller
             'total_cost_ppn' => 'required',
             'total_margin_ppn' => 'required',
         ]);
-
-        // Hilangkan format Rp dan titik pada input, pastikan hasilnya integer
-        $pph_bank_fee = (int) preg_replace('/[^\d]/', '', $request->pph_bank_fee);
-
         $prwapu = Wapu::findOrFail($request->id_projek);
-        $prwapu->pph_bank_fee = $pph_bank_fee;
 
         $prwapu->save();
 
@@ -968,7 +962,6 @@ class WapuController extends Controller
             $request->validate([
                 'id_projek' => 'required|exists:prwapus,id',
                 'validasi_payment' => 'nullable',
-                'pph_bank_fee' => 'nullable',
             ]);
 
             // Clean and parse the input values
@@ -982,24 +975,10 @@ class WapuController extends Controller
                 $validasiPayment = null;
             }
 
-            // Remove Rp and dots from pph_bank_fee if it's not empty
-            if (!empty($pphBankFee) && $pphBankFee !== '-') {
-                $pphBankFee = (int) preg_replace('/[^\d]/', '', $pphBankFee);
-            } else {
-                $pphBankFee = null;
-            }
-
             // Update prwapus table (validasi_payment)
             $prwapu = Wapu::findOrFail($request->id_projek);
             $prwapu->validasi_payment = $validasiPayment;
             $prwapu->save();
-
-            // Update cogs table (pph_bank_fee)
-            $cogs = Cogs::where('id_projek', $request->id_projek)->first();
-            if ($cogs) {
-                $cogs->pph_bank_fee = $pphBankFee;
-                $cogs->save();
-            }
 
             // Hitung subtotal_price dari data prwapu_detail
             $subtotalPrice = 0;
@@ -1014,15 +993,6 @@ class WapuController extends Controller
             foreach ($prwapuDetails as $detail) {
                 $totalCost = (int) preg_replace('/[^\d]/', '', $detail->total_cost);
                 $subtotalCost += $totalCost;
-            }
-
-            // Tambahkan total COGS
-            if ($cogs) {
-                $subtotalCost += ($cogs->expedittion ?? 0) +
-                                ($cogs->add_insentif_fe001a ?? 0) +
-                                ($cogs->instalasi_setting ?? 0) +
-                                ($cogs->pph_bank_fee ?? 0) +
-                                ($cogs->other ?? 0);
             }
 
             // Hitung incentive_sales berdasarkan logika yang ada di frontend
@@ -1054,7 +1024,6 @@ class WapuController extends Controller
                 'success' => true,
                 'message' => 'Data berhasil diupdate!',
                 'validasi_payment' => $validasiPayment,
-                'pph_bank_fee' => $pphBankFee,
                 'incentive_sales' => $incentiveSales
             ]);
 
