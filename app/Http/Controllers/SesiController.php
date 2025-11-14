@@ -17,8 +17,8 @@ class SesiController extends Controller
             'name' => 'required',
             'password' => 'required'
         ],[
-            'name.reuired' => 'name Wajid Diisi',
-            'password.reuired' => 'Password Wajid Diisi',
+            'name.required' => 'name Wajid Diisi',
+            'password.required' => 'Password Wajid Diisi',
         ]);
 
         $infologin = [

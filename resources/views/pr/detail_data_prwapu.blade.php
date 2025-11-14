@@ -2136,7 +2136,14 @@ function updatePersentase() {
     if (totalPO !== 0) {
         persentase = (margin / totalPO) * 100;
     }
+    // Tampilkan nilai minus apa adanya
     $('#persentase').val(persentase.toFixed(2));
+    // Tambahkan efek visual jika minus
+    if (persentase < 0) {
+        $('#persentase').css('color', 'red');
+    } else {
+        $('#persentase').css('color', 'black');
+    }
 }
 
 // Event listener tetap sama
@@ -2153,7 +2160,7 @@ function updateSubtotalTotalPrice() {
     for (let i = 0; i < data.length; i++) {
         let totalPrice = data[i].total_price;
         if (typeof totalPrice === 'string') {
-            totalPrice = parseFloat(totalPrice.replace(/[^,\d]/g, '').replace(',', '.')) || 0;
+            totalPrice = parseFloat(totalPrice.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
         } else if (totalPrice === null || totalPrice === undefined) {
             totalPrice = 0;
         }
@@ -2170,7 +2177,7 @@ function updateSubtotalPPN() {
         if (data[i].jenis_ppn === 'ppn') {
             let totalCost = data[i].total_po_cv;
             if (typeof totalCost === 'string') {
-                totalCost = parseFloat(totalCost.replace(/[^,\d]/g, '').replace(',', '.')) || 0;
+                totalCost = parseFloat(totalCost.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
             } else if (totalCost === null || totalCost === undefined) {
                 totalCost = 0;
             }
@@ -2187,7 +2194,7 @@ function updateSubtotalCostPPN() {
         if (data[i].jenis_ppn === 'ppn') {
             let totalCost = data[i].total_cost;
             if (typeof totalCost === 'string') {
-                totalCost = parseFloat(totalCost.replace(/[^,\d]/g, '').replace(',', '.')) || 0;
+                totalCost = parseFloat(totalCost.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
             } else if (totalCost === null || totalCost === undefined) {
                 totalCost = 0;
             }
@@ -2204,7 +2211,7 @@ function updateSubtotalMarginPPN() {
         if (data[i].jenis_ppn === 'ppn') {
             let totalCost = data[i].margin;
             if (typeof totalCost === 'string') {
-                totalCost = parseFloat(totalCost.replace(/[^,\d]/g, '').replace(',', '.')) || 0;
+                totalCost = parseFloat(totalCost.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
             } else if (totalCost === null || totalCost === undefined) {
                 totalCost = 0;
             }
@@ -2221,7 +2228,7 @@ function updateSubtotalNonPPN() {
         if (data[i].jenis_ppn === 'non_ppn') {
             let totalCost = data[i].total_cost;
             if (typeof totalCost === 'string') {
-                totalCost = parseFloat(totalCost.replace(/[^,\d]/g, '').replace(',', '.')) || 0;
+                totalCost = parseFloat(totalCost.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
             } else if (totalCost === null || totalCost === undefined) {
                 totalCost = 0;
             }
@@ -2238,7 +2245,7 @@ function updateSubtotalCostNonPPN() {
         if (data[i].jenis_ppn === 'non_ppn') {
             let totalCost = data[i].total_cost;
             if (typeof totalCost === 'string') {
-                totalCost = parseFloat(totalCost.replace(/[^,\d]/g, '').replace(',', '.')) || 0;
+                totalCost = parseFloat(totalCost.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
             } else if (totalCost === null || totalCost === undefined) {
                 totalCost = 0;
             }
@@ -2255,7 +2262,7 @@ function updateSubtotalMarginNonPPN() {
         if (data[i].jenis_ppn === 'non_ppn') {
             let totalCost = data[i].margin;
             if (typeof totalCost === 'string') {
-                totalCost = parseFloat(totalCost.replace(/[^,\d]/g, '').replace(',', '.')) || 0;
+                totalCost = parseFloat(totalCost.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
             } else if (totalCost === null || totalCost === undefined) {
                 totalCost = 0;
             }
