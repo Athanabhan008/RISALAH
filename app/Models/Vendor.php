@@ -11,5 +11,7 @@ class Vendor extends Model
 
     protected $table = 'master_vendor';
 
-
+    protected $fillable = [
+        'nama_vendor'
+    ];
 }

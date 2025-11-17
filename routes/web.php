@@ -112,6 +112,8 @@ Route::middleware(['UserAkses:sales,admin,super_admin,manager'])->group(function
     Route::post('/pr_wapu/datatablesharing',                           [WapuController::class, 'datatablesharing'])->name('create');
     Route::get('/pr_wapu/create',                                      [WapuController::class, 'create'])->name('create');
     Route::post('/pr_wapu/create',                                     [WapuController::class, 'create'])->name('create');
+    Route::get('/pr_wapu/createvendor',                                [WapuController::class, 'createvendor'])->name('createvendor');
+    Route::post('/pr_wapu/createvendor',                               [WapuController::class, 'createvendor'])->name('createvendor');
     Route::get('/pr_wapu/update/{id}',                                 [WapuController::class, 'update'])->name('update');
     Route::post('/pr_wapu/update/{id}',                                [WapuController::class, 'update'])->name('update');
     Route::get('/pr_wapu/delete/{id}',                                 [WapuController::class, 'delete'])->name('delete');

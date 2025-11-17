@@ -1123,6 +1123,40 @@ class WapuController extends Controller
     }
 
 
+    public function createvendor(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'nama_vendor' => 'required|string|max:255|unique:master_vendor,nama_vendor'
+            ], [
+                'nama_vendor.required' => 'Nama vendor wajib diisi',
+                'nama_vendor.unique' => 'Nama vendor sudah terdaftar'
+            ]);
+
+            $vendor = Vendor::create([
+                'nama_vendor' => $validated['nama_vendor']
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Vendor berhasil disimpan',
+                'data' => $vendor
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menyimpan vendor',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function getvendor()
     {
 

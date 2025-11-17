@@ -832,9 +832,14 @@
 
                         <div class="col-md-4 mb-3">
                             <div class="input-group-prepend">
-                                <label for="Unit_price" class="form-label">Vendor</label>
-                              </div>
-                              <select name="cmb_vendor" id="cmb_vendor" class="bg-danger"></select>
+                                <label for="cmb_vendor" class="form-label">Vendor</label>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <select name="cmb_vendor" id="cmb_vendor" class="bg-danger flex-grow-1"></select>
+                                <button type="button" class="btn btn-primary ml-2" id="btn-add-vendor" data-toggle="modal" data-target="#vendorModal">
+                                    <i class="fa fa-plus"></i>
+                                </button>
+                            </div>
                         </div>
 
                     </div>
@@ -924,6 +929,33 @@
     </div>
   </div>
 
+  <div class="modal fade" id="vendorModal" tabindex="-1" aria-labelledby="vendorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="vendorModalLabel">Tambah Vendor</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <form id="form_vendor">
+            @csrf
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="nama_vendor" class="form-label">Nama Vendor</label>
+                    <input type="text" class="form-control" id="nama_vendor" name="nama_vendor" required>
+                    <div class="invalid-feedback"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                {{-- <button type="button" class="btn btn-secondary" id="btn_vendor_batal" data-dismiss="vendorModal">Batal</button> --}}
+                <button type="submit" class="btn btn-success" id="btn_vendor_submit">Simpan</button>
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   {{-- form modalCOGS --}}
   <div class="modal fade" id="formCogs" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -1003,6 +1035,7 @@
   <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap4.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/js/select2.min.js" defer></script>
 
+
   <script>
     $(document).ready(function() {
         $('#cmb_vendor').select2({
@@ -1059,14 +1092,88 @@ $(document).ready(function() {
     });
 
 
-    $('select[name=cmb_vendor]').val(null).trigger('change');
+    const vendorSelect = $('select[name=cmb_vendor]');
+    const vendorForm = $('#form_vendor');
+    const vendorModal = $('#vendorModal');
 
+    vendorSelect.val(null).trigger('change');
 
     $('select[name=cmb_vendor').on('select2:select', function (e) {
         var data = e.params.data;
         // alert(data)
         // $('#total_harga').val();
     });
+
+    if (vendorForm.length) {
+        const vendorNameInput = $('#nama_vendor');
+
+        const resetVendorFormState = () => {
+            vendorNameInput.removeClass('is-invalid');
+            vendorNameInput.next('.invalid-feedback').text('');
+        };
+
+        vendorModal.on('show.bs.modal', function () {
+            vendorForm[0].reset();
+            resetVendorFormState();
+        });
+
+        vendorNameInput.on('input', function () {
+            resetVendorFormState();
+        });
+
+        vendorForm.on('submit', function (ev) {
+            ev.preventDefault();
+
+            let submitButton = $('#btn_vendor_submit');
+            let originalContent = submitButton.html();
+            submitButton.html('<i class="fa fa-spin fa-spinner"></i> Menyimpan...');
+            submitButton.prop("disabled", true);
+
+            $.ajax({
+                url: defaultUrl + "createvendor",
+                type: 'POST',
+                data: vendorForm.serialize(),
+                success: function(response) {
+                    Swal.fire({
+                        title: 'Sukses',
+                        text: response.message || 'Vendor berhasil disimpan',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        if (response.data) {
+                            const newOption = new Option(response.data.nama_vendor, response.data.id, true, true);
+                            vendorSelect.append(newOption).trigger('change');
+                        }
+                        vendorModal.modal('hide');
+                    });
+                },
+                error: function(jqXHR) {
+                    if (jqXHR && jqXHR.status === 422 && jqXHR.responseJSON && jqXHR.responseJSON.errors) {
+                        const errors = jqXHR.responseJSON.errors;
+                        if (errors.nama_vendor) {
+                            vendorNameInput.addClass('is-invalid');
+                            vendorNameInput.next('.invalid-feedback').text(errors.nama_vendor[0]);
+                        }
+                    } else {
+                        Swal.fire('Error', 'Terjadi kesalahan saat menyimpan vendor', 'error');
+                    }
+                },
+                complete: function() {
+                    submitButton.html(originalContent);
+                    submitButton.prop("disabled", false);
+                }
+            });
+        });
+
+        // Event handler untuk tombol Batal pada vendorModal
+        $('#btn_vendor_batal').on('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            vendorModal.modal('hide');
+            return false;
+        });
+    }
 
 
     $("#btn-edit").on("click", function () {
@@ -1390,7 +1497,11 @@ $.ajax({
     });
 
     // Tambahkan event handler untuk tombol close
-    $('.close, .btn-secondary').click(function() {
+    $('.close, .btn-secondary').click(function(e) {
+        // Jangan tutup formModal jika yang diklik adalah tombol di vendorModal
+        if ($(e.target).closest('#vendorModal').length > 0) {
+            return;
+        }
         closeModal();
     });
 
@@ -2160,6 +2271,7 @@ function updateSubtotalTotalPrice() {
     for (let i = 0; i < data.length; i++) {
         let totalPrice = data[i].total_price;
         if (typeof totalPrice === 'string') {
+             //PERHITUNGAN KETIKA ADA NILAI PADA TABEL YANG MINUS
             totalPrice = parseFloat(totalPrice.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
         } else if (totalPrice === null || totalPrice === undefined) {
             totalPrice = 0;
@@ -2177,6 +2289,7 @@ function updateSubtotalPPN() {
         if (data[i].jenis_ppn === 'ppn') {
             let totalCost = data[i].total_po_cv;
             if (typeof totalCost === 'string') {
+                 //PERHITUNGAN KETIKA ADA NILAI PADA TABEL YANG MINUS
                 totalCost = parseFloat(totalCost.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
             } else if (totalCost === null || totalCost === undefined) {
                 totalCost = 0;
@@ -2194,6 +2307,7 @@ function updateSubtotalCostPPN() {
         if (data[i].jenis_ppn === 'ppn') {
             let totalCost = data[i].total_cost;
             if (typeof totalCost === 'string') {
+                 //PERHITUNGAN KETIKA ADA NILAI PADA TABEL YANG MINUS
                 totalCost = parseFloat(totalCost.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
             } else if (totalCost === null || totalCost === undefined) {
                 totalCost = 0;
@@ -2211,6 +2325,7 @@ function updateSubtotalMarginPPN() {
         if (data[i].jenis_ppn === 'ppn') {
             let totalCost = data[i].margin;
             if (typeof totalCost === 'string') {
+                 //PERHITUNGAN KETIKA ADA NILAI PADA TABEL YANG MINUS
                 totalCost = parseFloat(totalCost.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
             } else if (totalCost === null || totalCost === undefined) {
                 totalCost = 0;
@@ -2228,6 +2343,7 @@ function updateSubtotalNonPPN() {
         if (data[i].jenis_ppn === 'non_ppn') {
             let totalCost = data[i].total_cost;
             if (typeof totalCost === 'string') {
+                 //PERHITUNGAN KETIKA ADA NILAI PADA TABEL YANG MINUS
                 totalCost = parseFloat(totalCost.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
             } else if (totalCost === null || totalCost === undefined) {
                 totalCost = 0;
@@ -2245,6 +2361,7 @@ function updateSubtotalCostNonPPN() {
         if (data[i].jenis_ppn === 'non_ppn') {
             let totalCost = data[i].total_cost;
             if (typeof totalCost === 'string') {
+                 //PERHITUNGAN KETIKA ADA NILAI PADA TABEL YANG MINUS
                 totalCost = parseFloat(totalCost.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
             } else if (totalCost === null || totalCost === undefined) {
                 totalCost = 0;
@@ -2262,6 +2379,7 @@ function updateSubtotalMarginNonPPN() {
         if (data[i].jenis_ppn === 'non_ppn') {
             let totalCost = data[i].margin;
             if (typeof totalCost === 'string') {
+                //PERHITUNGAN KETIKA ADA NILAI PADA TABEL YANG MINUS
                 totalCost = parseFloat(totalCost.replace(/[^-\d,]/g, '').replace(',', '.')) || 0;
             } else if (totalCost === null || totalCost === undefined) {
                 totalCost = 0;
