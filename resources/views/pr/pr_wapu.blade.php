@@ -5,6 +5,8 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/css/select2.min.css" integrity="sha512-xrbX64SIXOxo5cMQEDUQ3UyKsCreOEq1Im90z3B7KPoxLJ2ol/tCT0aBhuIzASfmBVdODioUdUPbt5EDEXmD9g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker3.min.css">
+
 
 <style>
     table.dataTable tbody tr.selected {
@@ -64,6 +66,7 @@
                     <thead style="background-color: #1E3135; color: white;">
                       <tr>
                         <th style="color: white;" class="text-uppercase text-xxs font-weight-bolder opacity-7">No</th>
+                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Bulan</th>
                         <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nama Client</th>
                         <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nama Projek</th>
                         <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Jenis PR</th>
@@ -180,17 +183,14 @@
                     <input type="hidden" name="id" id="id" value="">
 
                     <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                          <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">NIP</span>
-                        </div>
-                        <select name="cmb_nip" id="cmb_nip" class="bg-danger"></select>
+                        <input type="text" name="periode_start" id="periode_start" class="form-control form-control-lg pl-3 yearmonthpicker" placeholder="Pilih Bulan (YYYYMM)" autocomplete="off">
                     </div>
 
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
                           <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Nama Sales</span>
                         </div>
-                        <input type="text" name="name" id="name" class="form-control" style="border: 1px solid black;" readonly>
+                        <select name="cmb_sales" id="cmb_sales" class="bg-danger"></select>
                     </div>
 
                 </div>
@@ -212,6 +212,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap4.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+  <script src="../../admin/assets/js/plugins/bootstrap-datepicker.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/js/select2.min.js" defer></script>
 <script>
 
@@ -221,6 +223,13 @@ window.defaultUrl = '{{ url('/pr_wapu/') }}/';
 
 let modal = $("#formModal");
 let table;
+
+$('.yearmonthpicker').datepicker({
+    format: "yyyy-mm",
+    minViewMode: "months",
+    startView: "years",
+    autoclose: true
+});
 
 $(document).ready(function() {
     viewDatatable();
@@ -250,7 +259,12 @@ $(document).ready(function() {
     });
 
     $('.submit-filter').on('click', function() {
-        viewDatatable();
+        // Reload datatable dengan filter baru
+        if (table) {
+            table.ajax.reload();
+        } else {
+            viewDatatable();
+        }
     });
 
     $('#btn-generate-pr').on('click', function() {
@@ -496,6 +510,16 @@ function viewDatatable() {
                 }
             },
             {
+                data: "created_at",
+                render: function (data, type, row, meta) {
+                    if (data == '' || data == null) {
+                        return '-';
+                    } else {
+                        return moment(data).format('DD-MM-YYYY');
+                    }
+                }
+            },
+            {
                 data: "nama_client",
                 render: function (data, type, row, meta) {
                     if (data == '' || data == null) {
@@ -629,7 +653,7 @@ function showNotification(type, message) {
 }
 
 function collectionS2Search() {
-    $('select[name=cmb_nip]').select2({
+    $('select[name=cmb_sales]').select2({
         dropdownParent: $('#formFilter'),
         allowClear: true,
         width: '72.5%',
@@ -647,9 +671,8 @@ function collectionS2Search() {
                 return {
                     results: $.map(data.data, function (item) {
                         return {
-                            text: item.nip,
-                            name: item.name,
-                            id: item.nip
+                            text: item.name,
+                            id: item.id
                         }
                     }),
                     pagination: {
@@ -662,10 +685,10 @@ function collectionS2Search() {
     });
 
      // Event handler for when kategori changes
-     $('select[name=cmb_nip]').on('select2:select', function (e) {
+     $('select[name=cmb_sales]').on('select2:select', function (e) {
         var data = e.params.data;
 
-        $('#name').val(data.name);
+        $('#cmb_sales').val(data.id);
     });
 }
 

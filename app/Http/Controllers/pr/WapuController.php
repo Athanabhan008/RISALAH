@@ -56,9 +56,28 @@ class WapuController extends Controller
         $start = request()->get('start');
         $length = request()->get('length');
         $id_user = request()->get('cmb_nip');
+        $periode_start = request()->get('periode_start');
+        $cmb_sales = request()->get('cmb_sales');
 
         $user = auth()->user();
         $query = Wapu::query();
+
+        // Filter berdasarkan bulan (periode_start)
+        if ($periode_start) {
+            // Format dari frontend: "yyyy-mm" (contoh: "2024-01")
+            $year = substr($periode_start, 0, 4);
+            $month = substr($periode_start, 5, 2);
+
+            $startDate = \Carbon\Carbon::createFromFormat('Y-m', "$year-$month")->startOfMonth();
+            $endDate = \Carbon\Carbon::createFromFormat('Y-m', "$year-$month")->endOfMonth();
+
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+
+        // Filter berdasarkan sales (cmb_sales)
+        if ($cmb_sales) {
+            $query->where('id_sales', $cmb_sales);
+        }
 
         if ($id_user) {
             $query->where('nip_user', $id_user);
@@ -128,7 +147,13 @@ class WapuController extends Controller
 
     public function getSales()
     {
-        $result = User::all();
+        $result = User::query()
+            ->where('role', 'sales')
+            ->when(request('q'), function ($query, $term) {
+                $query->where('name', 'like', '%' . $term . '%');
+            })
+            ->orderBy('name')
+            ->get(['id', 'name']);
 
         return response()->json([
             'error' => 0,
