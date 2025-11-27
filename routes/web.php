@@ -21,8 +21,10 @@ use App\Http\Controllers\Invoice\InvoiceController;
 use App\Http\Controllers\pr\WapuController;
 use App\Http\Controllers\pr\SwastaController;
 use App\Http\Controllers\pr\NonppnController;
+use App\Http\Controllers\ProfitController as ControllersProfitController;
 use App\Http\Controllers\qc\QcController;
 use App\Http\Controllers\user\UserController;
+use App\Http\Controllers\profit\ProfitController;
 use App\Http\Controllers\StokbarangController;
 use Illuminate\Support\Facades\Route;
 
@@ -246,6 +248,49 @@ Route::middleware(['UserAkses:admin,super_admin'])->group(function() {
     Route::post('/invoice/cetakPT',                                            [InvoiceController::class, 'cetakPT'])->name('invoice/cetakPT');
 
 });
+
+
+//PROFIT
+Route::middleware(['UserAkses:admin,super_admin'])->group(function() {
+    // Route::get('/manager',[ManagerController::class, 'index']);
+    Route::get('/profit',                                                     [ProfitController::class, 'index']);
+    Route::get('/profit/datatable',                                           [ProfitController::class, 'datatable'])->name('profit/datatable');
+    Route::post('/profit/datatable',                                          [ProfitController::class, 'datatable'])->name('create');
+    Route::get('/profit/generate-nomor-inv',                                  [ProfitController::class, 'generateNomorInv'])->name('profit.generate_nomor_inv');
+    Route::get('/profit/getSales',                                            [ProfitController::class, 'getSales'])->name('profit/getSales');
+    Route::post('/profit/getSales',                                           [ProfitController::class, 'getSales'])->name('profit/getSales');
+    Route::get('/profit/getPr',                                               [ProfitController::class, 'getPr'])->name('profit/getPr');
+    Route::post('/profit/getPr',                                              [ProfitController::class, 'getPr'])->name('profit/getPr');
+    Route::get('/profit/create',                                              [ProfitController::class, 'create'])->name('create');
+    Route::post('/profit/create',                                             [ProfitController::class, 'create'])->name('create');
+    Route::get('/profit/cetakCV',                                             [ProfitController::class, 'cetakCV'])->name('profit/cetakCV');
+    Route::post('/profit/cetakCV',                                            [ProfitController::class, 'cetakCV'])->name('profit/cetakCV');
+    Route::get('/profit/cetakPT',                                             [ProfitController::class, 'cetakPT'])->name('profit/cetakPT');
+    Route::post('/profit/cetakPT',                                            [ProfitController::class, 'cetakPT'])->name('profit/cetakPT');
+
+});
+
+
+//OMSET
+Route::middleware(['UserAkses:admin,super_admin'])->group(function() {
+    // Route::get('/manager',[ManagerController::class, 'index']);
+    Route::get('/omset',                                                     [InvoiceController::class, 'index']);
+    Route::get('/omset/datatable',                                           [InvoiceController::class, 'datatable'])->name('omset/datatable');
+    Route::post('/omset/datatable',                                          [InvoiceController::class, 'datatable'])->name('create');
+    Route::get('/omset/generate-nomor-inv',                                  [InvoiceController::class, 'generateNomorInv'])->name('omset.generate_nomor_inv');
+    Route::get('/omset/getSales',                                            [InvoiceController::class, 'getSales'])->name('omset/getSales');
+    Route::post('/omset/getSales',                                           [InvoiceController::class, 'getSales'])->name('omset/getSales');
+    Route::get('/omset/getPr',                                               [InvoiceController::class, 'getPr'])->name('omset/getPr');
+    Route::post('/omset/getPr',                                              [InvoiceController::class, 'getPr'])->name('omset/getPr');
+    Route::get('/omset/create',                                              [InvoiceController::class, 'create'])->name('create');
+    Route::post('/omset/create',                                             [InvoiceController::class, 'create'])->name('create');
+    Route::get('/omset/cetakCV',                                             [InvoiceController::class, 'cetakCV'])->name('omset/cetakCV');
+    Route::post('/omset/cetakCV',                                            [InvoiceController::class, 'cetakCV'])->name('omset/cetakCV');
+    Route::get('/omset/cetakPT',                                             [InvoiceController::class, 'cetakPT'])->name('omset/cetakPT');
+    Route::post('/omset/cetakPT',                                            [InvoiceController::class, 'cetakPT'])->name('omset/cetakPT');
+
+});
+
 
 //QUALITY CONTROL
 Route::middleware(['UserAkses:teknisi,super_admin'])->group(function() {

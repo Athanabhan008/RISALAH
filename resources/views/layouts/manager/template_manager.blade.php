@@ -168,6 +168,24 @@
                   </a>
                 </li>
 
+                <li class="nav-item">
+                    <a class="nav-link {{ ($active === "approval") ? 'active' : '' }}" href="{{ url('/approval') }}">
+                      <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                        <i class="fa-solid fa-hand-holding-dollar" style="color: {{ ($active === "approval") ? 'white' : 'black' }};"></i>
+                      </div>
+                      <span class="nav-link-text ms-1">Laporan Omset</span>
+                    </a>
+                  </li>
+
+                  <li class="nav-item">
+                    <a class="nav-link {{ ($active === "profit") ? 'active' : '' }}" href="{{ url('/profit') }}">
+                      <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                        <i class="fa-solid fa-sack-dollar" style="color: {{ ($active === "profit") ? 'white' : 'black' }};"></i>
+                      </div>
+                      <span class="nav-link-text ms-1">Laporan Profit</span>
+                    </a>
+                  </li>
+
                 @endif
         @endif
 

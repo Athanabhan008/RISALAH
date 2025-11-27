@@ -415,6 +415,7 @@ class WapuController extends Controller
 
                 // Ambil data user yang sedang login
                 $currentUser = auth()->user();
+                $isProfitSharingLocked = SharingProfit::where('id_projek', $request->id_projek)->exists();
 
                 return view('pr.detail_data_prwapu', [
                     'active'=> 'pr_wapu',
@@ -426,6 +427,7 @@ class WapuController extends Controller
                     'incentive_sales' => $incentive_sales ?? 0,
                     'currentUser' => $currentUser, // Tambahkan data user yang login
                     'projectDivisi' => $projectDivisi, // Tambahkan divisi dari projek
+                    'isProfitSharingLocked' => $isProfitSharingLocked,
                 ]);
             } catch (\Exception $e) {
                 return redirect()->back()->with('error', 'Gagal memuat data: ' . $e->getMessage());
@@ -918,6 +920,14 @@ class WapuController extends Controller
                 'profit_keuangan.required' => 'Profit Keuangan Wajib Diisi',
                 'total_profit.required' => 'Total Profit Wajib Diisi',
             ]);
+
+            $isAlreadySubmitted = SharingProfit::where('id_projek', $request->id_projek)->exists();
+            if ($isAlreadySubmitted) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Profit sharing sudah disubmit untuk projek ini.'
+                ], 409);
+            }
 
             $pr_wapu = new SharingProfit();
             $pr_wapu->id_projek = $request->id_projek;

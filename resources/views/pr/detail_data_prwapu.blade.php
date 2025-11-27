@@ -326,7 +326,11 @@
 
 
                     <div class="text-right">
-                        <button type="submit" class="btn btn-primary btn-sm mt-2">Simpan Perubahan</button>
+                        <button type="submit"
+                                class="btn btn-primary btn-sm mt-2"
+                                @if($isProfitSharingLocked) disabled @endif>
+                            {{ $isProfitSharingLocked ? 'Sudah Disubmit' : 'Simpan Perubahan' }}
+                        </button>
                       </div>
                   </div>
                 </form>
@@ -647,7 +651,13 @@
                 <h6 class="text-center font-weight-bold">SHARE MARGIN HOLDING, DIREKSI & INVESTOR</h6>
               </div>
               <div class="card-body px-0 pt-0 pb-2">
-              <form id="form-update-provit-sharing" method="POST" action="{{ url('/pr_wapu/createsharingprovit') }}">
+              @php
+                  $isProfitSharingLocked = $isProfitSharingLocked ?? false;
+              @endphp
+              <form id="form-update-provit-sharing"
+                    data-locked="{{ $isProfitSharingLocked ? 'true' : 'false' }}"
+                    method="POST"
+                    action="{{ url('/pr_wapu/createsharingprovit') }}">
                     @csrf
                     <input type="hidden" name="id_projek" value="{{ $id_projek ?? '' }}">
 
@@ -2743,17 +2753,51 @@ $('#form-update-po').on('submit', function(e) {
     });
 });
 
+$(function() {
+    var profitSharingForm = $('#form-update-provit-sharing');
+    var profitSharingButton = profitSharingForm.find('button[type="submit"]');
+
+    if (profitSharingForm.data('locked') === true || profitSharingForm.data('locked') === 'true') {
+        profitSharingButton.prop('disabled', true).text('Sudah Disubmit');
+    }
+});
+
 $('#form-update-provit-sharing').on('submit', function(e) {
     e.preventDefault();
+
+    var form = $(this);
+    var submitButton = form.find('button[type="submit"]');
+    var isLocked = form.data('locked') === true || form.data('locked') === 'true';
+
+    if (isLocked) {
+        return;
+    }
+
+    var originalText = submitButton.text();
+    submitButton.prop('disabled', true).text('Menyimpan...');
+
     $.ajax({
-        url: $(this).attr('action'),
+        url: form.attr('action'),
         type: 'POST',
-        data: $(this).serialize(),
+        data: form.serialize(),
         success: function(res) {
-            Swal.fire('Sukses', 'Data berhasil diupdate!', 'success');
+            var successMessage = (res && res.message) ? res.message : 'Data berhasil diupdate!';
+            Swal.fire('Sukses', successMessage, 'success');
+            form.data('locked', true);
+            submitButton.text('Sudah Disubmit');
         },
-        error: function() {
-            Swal.fire('Error', 'Gagal update data', 'error');
+        error: function(xhr) {
+            var message = 'Gagal update data';
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                message = xhr.responseJSON.message;
+            }
+            Swal.fire('Error', message, 'error');
+        },
+        complete: function() {
+            var lockedState = form.data('locked') === true || form.data('locked') === 'true';
+            if (!lockedState) {
+                submitButton.prop('disabled', false).text(originalText);
+            }
         }
     });
 });
