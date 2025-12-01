@@ -502,16 +502,24 @@ $(document).ready(function() {
 });
 
 function viewDatatable() {
-    table = $('.basic-datatables').DataTable({
+    tableDetail = $(".basic-datatables").DataTable({
+        scrollY: '400px',
+        scrollX: true,
+        pageLength: 10,
+        paging: false,
+        serverSide: false,      // FIX
+        processing: false,      // FIX
+
         ajax: {
             url: "{{ route('profit/datatable') }}",
-            "type": "post",
-            "data": function (d) {
+            type: "post",
+            dataSrc: "",  // penting untuk non-serverSide
+            data: function (d) {
                 var formData = $("#form_filter").serializeArray();
                 $.each(formData, function (key, val) {
                     d[val.name] = val.value;
                 });
-                // Pastikan cmb_sales dikirim dengan benar
+
                 var selectedSales = $('#cmb_sales').val();
                 if (selectedSales) {
                     d['cmb_sales'] = selectedSales;
@@ -519,16 +527,12 @@ function viewDatatable() {
                 d['_token'] = '{{ csrf_token() }}';
             }
         },
-        dom: 't<"d-flex justify-content-end mt-3"p>',
-        pagingType: "simple_numbers",
-        "bInfo" : false,
+
+        dom: 't',
+        bInfo: false,
         destroy: true,
-        serverSide: true,
-        processing: true,
         responsive: true,
-        select: {
-            style: 'single'
-        },
+        select: { style: 'single' },
         aaSorting: [],
         footerCallback: function (row, data, start, end, display) {
             var api = this.api();
