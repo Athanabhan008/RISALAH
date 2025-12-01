@@ -25,6 +25,7 @@ use App\Http\Controllers\ProfitController as ControllersProfitController;
 use App\Http\Controllers\qc\QcController;
 use App\Http\Controllers\user\UserController;
 use App\Http\Controllers\profit\ProfitController;
+use App\Http\Controllers\omset\OmsetController;
 use App\Http\Controllers\StokbarangController;
 use Illuminate\Support\Facades\Route;
 
@@ -274,20 +275,20 @@ Route::middleware(['UserAkses:admin,super_admin'])->group(function() {
 //OMSET
 Route::middleware(['UserAkses:admin,super_admin'])->group(function() {
     // Route::get('/manager',[ManagerController::class, 'index']);
-    Route::get('/omset',                                                     [InvoiceController::class, 'index']);
-    Route::get('/omset/datatable',                                           [InvoiceController::class, 'datatable'])->name('omset/datatable');
-    Route::post('/omset/datatable',                                          [InvoiceController::class, 'datatable'])->name('create');
-    Route::get('/omset/generate-nomor-inv',                                  [InvoiceController::class, 'generateNomorInv'])->name('omset.generate_nomor_inv');
-    Route::get('/omset/getSales',                                            [InvoiceController::class, 'getSales'])->name('omset/getSales');
-    Route::post('/omset/getSales',                                           [InvoiceController::class, 'getSales'])->name('omset/getSales');
-    Route::get('/omset/getPr',                                               [InvoiceController::class, 'getPr'])->name('omset/getPr');
-    Route::post('/omset/getPr',                                              [InvoiceController::class, 'getPr'])->name('omset/getPr');
-    Route::get('/omset/create',                                              [InvoiceController::class, 'create'])->name('create');
-    Route::post('/omset/create',                                             [InvoiceController::class, 'create'])->name('create');
-    Route::get('/omset/cetakCV',                                             [InvoiceController::class, 'cetakCV'])->name('omset/cetakCV');
-    Route::post('/omset/cetakCV',                                            [InvoiceController::class, 'cetakCV'])->name('omset/cetakCV');
-    Route::get('/omset/cetakPT',                                             [InvoiceController::class, 'cetakPT'])->name('omset/cetakPT');
-    Route::post('/omset/cetakPT',                                            [InvoiceController::class, 'cetakPT'])->name('omset/cetakPT');
+    Route::get('/omset',                                                     [OmsetController::class, 'index']);
+    Route::get('/omset/datatable',                                           [OmsetController::class, 'datatable'])->name('omset/datatable');
+    Route::post('/omset/datatable',                                          [OmsetController::class, 'datatable'])->name('create');
+    Route::get('/omset/generate-nomor-inv',                                  [OmsetController::class, 'generateNomorInv'])->name('omset.generate_nomor_inv');
+    Route::get('/omset/getSales',                                            [OmsetController::class, 'getSales'])->name('omset/getSales');
+    Route::post('/omset/getSales',                                           [OmsetController::class, 'getSales'])->name('omset/getSales');
+    Route::get('/omset/getPr',                                               [OmsetController::class, 'getPr'])->name('omset/getPr');
+    Route::post('/omset/getPr',                                              [OmsetController::class, 'getPr'])->name('omset/getPr');
+    Route::get('/omset/create',                                              [OmsetController::class, 'create'])->name('create');
+    Route::post('/omset/create',                                             [OmsetController::class, 'create'])->name('create');
+    Route::get('/omset/cetakCV',                                             [OmsetController::class, 'cetakCV'])->name('omset/cetakCV');
+    Route::post('/omset/cetakCV',                                            [OmsetController::class, 'cetakCV'])->name('omset/cetakCV');
+    Route::get('/omset/cetakPT',                                             [OmsetController::class, 'cetakPT'])->name('omset/cetakPT');
+    Route::post('/omset/cetakPT',                                            [OmsetController::class, 'cetakPT'])->name('omset/cetakPT');
 
 });
 

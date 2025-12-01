@@ -45,15 +45,21 @@
           <div class="card mb-4">
             <div class="card-header pb-0">
                 <h6>
-                    LAPORAN PROFIT PERUSAHAAN
+                    LAPORAN OMSET PERUSAHAAN
                     <script> document.write(new Date().getFullYear())</script>
                 </h6>
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div class="ml-auto">
                         @if(Auth::user() && Auth::user()->role === 'super_admin' || Auth::user() && Auth::user()->role == 'admin' || Auth::user() && Auth::user()->role == 'manager')
-                            <button type="button" class="btn btn-warning" id="btn-filter" data-toggle="modal" data-target="#formFilter">
-                                <i class="fa-solid fa-book fa-lg" style="margin-right: 10px"></i>Filter Profit
-                              </button>
+
+                        <button type="button" class="btn btn-primary" id="btn-reset-filter">
+                            <i class="fa-solid fa-rotate-right fa-lg" style="margin-right: 10px"></i>Reset
+                        </button>
+
+                        <button type="button" class="btn btn-warning" id="btn-filter" data-toggle="modal" data-target="#formFilter">
+                            <i class="fa-solid fa-book fa-lg" style="margin-right: 10px"></i>Filter Omset
+                        </button>
+
                         @endif
                     </div>
                 </div>
@@ -64,13 +70,13 @@
                     <thead style="background-color: #1E3135; color: white;">
                       <tr>
                         <th style="color: white;" class="text-uppercase text-xxs font-weight-bolder opacity-7">No</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Tanggal</th>
+                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Tanggal DO</th>
                         <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nama Customer</th>
                         <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Jenis Barang</th>
                         <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nomor PR</th>
                         <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Revenue</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Profit</th>
-                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Profit %</th>
+                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">AE</th>
+                        <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Keterangan</th>
                       </tr>
                     </thead>
                     <tbody></tbody>
@@ -82,8 +88,6 @@
                         <th></th>
                         <th style="text-align: center;">Total:</th>
                         <th style="text-align: center;" id="total-revenue">-</th>
-                        <th style="text-align: center;" id="total-profit">-</th>
-                        <th style="text-align: center;" id="total-persentase"></th>
                       </tr>
                     </tfoot>
                   </table>
@@ -194,19 +198,11 @@
                     <input type="hidden" name="id" id="id" value="">
 
                     <div class="input-group mb-3">
-                        <input type="text" name="tgl_bayar" id="tgl_bayar" class="form-control form-control-lg pl-3 yearmonthpicker" placeholder="Pilih Bulan (YYYYMM)" autocomplete="off">
-                    </div>
-
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                          <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Nama Sales</span>
-                        </div>
-                        <select name="cmb_sales" id="cmb_sales" class="bg-danger"></select>
+                        <input type="text" name="created_at" id="created_at" class="form-control form-control-lg pl-3 yearmonthpicker" placeholder="Pilih Bulan (YYYYMM)" autocomplete="off">
                     </div>
 
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-warning" id="btn-reset-filter">Reset Filter</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
                     <button type="button" class="btn btn-success submit-filter" data-dismiss="modal">Simpan</button>
                 </div>
@@ -231,7 +227,7 @@
 
 console.log("kipak");
 
-window.defaultUrl = '{{ url('/profit/') }}/';
+window.defaultUrl = '{{ url('/omset/') }}/';
 
 let modal = $("#formModal");
 let table;
@@ -283,7 +279,7 @@ $(document).ready(function() {
     $('#btn-reset-filter').on('click', function() {
         $('#form_filter')[0].reset();
         $('#cmb_sales').val(null).trigger('change');
-        $('#tgl_bayar').val('');
+        $('#created_at').val('');
 
         // Reload datatable tanpa filter
         if (table) {
@@ -504,7 +500,7 @@ $(document).ready(function() {
 function viewDatatable() {
     table = $('.basic-datatables').DataTable({
         ajax: {
-            url: "{{ route('profit/datatable') }}",
+            url: "{{ route('omset/datatable') }}",
             "type": "post",
             "data": function (d) {
                 var formData = $("#form_filter").serializeArray();
@@ -575,7 +571,7 @@ function viewDatatable() {
                 }
             },
             {
-                data: "tgl_bayar",
+                data: "created_at",
                 render: function (data, type, row, meta) {
                     if (data == '' || data == null) {
                         return '-';
@@ -630,41 +626,30 @@ function viewDatatable() {
                 }
             },
             {
-                data: "gross_provit",
+                data: "name",
                 render: function (data, type, row, meta) {
-                    if (data == '' || data == null || data == undefined || data == 0) {
+                    if (data == '' || data == null) {
                         return '-';
                     } else {
-                        // Konversi ke number dan format sebagai rupiah
-                        let numberValue = parseFloat(data) || 0;
-                        if (numberValue == 0) {
-                            return '-';
-                        }
-                        return 'Rp ' + formatRupiahWithDots(numberValue.toString(), '');
+                        return data;
                     }
                 }
             },
-            {
-                data: " ",
-                render: function (data, type, row, meta) {
-                    if (data == '' || data == null || data == undefined) {
-                        // Jika data tidak ada, hitung dari gross_provit dan validasi_payment
-                        let grossProvit = parseFloat(row.gross_provit) || 0;
-                        let validasiPayment = parseFloat(row.validasi_payment) || 0;
 
-                        if (validasiPayment > 0) {
-                            let persentaseMargin = (grossProvit / validasiPayment) * 100;
-                            return parseFloat(persentaseMargin.toFixed(2)) + '%';
-                        }
-                        return '-';
-                    } else {
-                        let numberValue = parseFloat(data);
-                        if (isNaN(numberValue)) {
-                            return '-';
-                        }
-                        // Data sudah dalam format persentase (contoh: 25.5 untuk 25.5%)
-                        return parseFloat(numberValue.toFixed(2)) + '%';
+            {
+                data: "-",
+                render: function (data, type, row, meta) {
+
+                    // Cek nilai pada kolom validasi_payment
+                    let payment = row.validasi_payment;
+
+                    // Kondisi belum payment
+                    if (payment == '' || payment == null || payment == undefined || payment == 0) {
+                        return '<span class="badge badge-danger">Pend Invoice</span>';
                     }
+
+                    // Kondisi sudah payment
+                    return '<span class="badge badge-success">Sudah Payment</span>';
                 }
             },
         ],

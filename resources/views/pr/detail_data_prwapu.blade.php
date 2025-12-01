@@ -327,10 +327,7 @@
 
                     <div class="text-right">
                         <button type="submit"
-                                class="btn btn-primary btn-sm mt-2"
-                                @if($isProfitSharingLocked) disabled @endif>
-                            {{ $isProfitSharingLocked ? 'Sudah Disubmit' : 'Simpan Perubahan' }}
-                        </button>
+                                class="btn btn-primary btn-sm mt-2">Simpan Perubahan</button>
                       </div>
                   </div>
                 </form>
@@ -366,6 +363,12 @@
                                                 <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Validasi Payment</span>
                                             </div>
                                             <input type="text" class="form-control font-weight-bold text-right" id="validasi_payment" name="validasi_payment" value="{{ isset($validasi_payment) && $validasi_payment !== '' ? 'Rp ' . number_format($validasi_payment, 0, ',', '.') : '' }}" @if(!in_array(Auth::user()->role, ['super_admin','admin'])) readonly @endif>
+                                        </div>
+                                        <div class="input-group mb-3" hidden>
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">TGL Bayar</span>
+                                            </div>
+                                            <input type="text" class="form-control font-weight-bold text-right" id="tgl_bayar" name="tgl_bayar" @if(!in_array(Auth::user()->role, ['super_admin','admin'])) readonly @endif>
                                         </div>
                                         </div>
 
@@ -1044,6 +1047,14 @@
   <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap4.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/js/select2.min.js" defer></script>
+
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let today = new Date().toISOString().split('T')[0];
+        document.getElementById("tgl_bayar").value = today;
+    });
+</script>
 
 
   <script>

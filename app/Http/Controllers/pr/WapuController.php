@@ -1013,6 +1013,7 @@ class WapuController extends Controller
             // Update prwapus table (validasi_payment)
             $prwapu = Wapu::findOrFail($request->id_projek);
             $prwapu->validasi_payment = $validasiPayment;
+            $prwapu->tgl_bayar = $request->tgl_bayar;
             $prwapu->save();
 
             // Hitung subtotal_price dari data prwapu_detail

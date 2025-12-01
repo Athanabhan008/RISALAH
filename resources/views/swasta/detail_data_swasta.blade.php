@@ -311,7 +311,7 @@
 
 
 
-                    <div class="text-right"> <button type="submit" class="btn btn-primary btn-sm mt-2" @if($isProfitSharingLocked) disabled @endif> {{ $isProfitSharingLocked ? 'Sudah Disubmit' : 'Simpan Perubahan' }}</button>
+                    <div class="text-right"> <button type="submit" class="btn btn-primary btn-sm mt-2">Simpan Perubahan</button>
                       </div>
                   </div>
                 </form>
