@@ -637,6 +637,7 @@
                 <h6 class="text-center font-weight-bold">SHARE MARGIN HOLDING, DIREKSI & INVESTOR</h6>
               </div>
               <div class="card-body px-0 pt-0 pb-2">
+                @php
                 $isProfitSharingLocked = $isProfitSharingLocked ?? false;
                 @endphp
                 <form id="form-update-provit-sharing" data-locked="{{ $isProfitSharingLocked ? 'true' : 'false' }}" method="POST" action="{{ url('/pr_wapu/createsharingprovit') }}">
