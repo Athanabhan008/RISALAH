@@ -841,6 +841,9 @@
                         <div class="col-md-4 mb-3">
                             <label for="Unit_price" class="form-label">Selling Price/Unit</label>
                             <input type="text" class="form-control" id="Unit_price" name="unit_price" placeholder="Harga per unit" required>
+                            <small id="passwordHelpBlock" class="form-text" style="color: red;">
+                                Jangan menggunakan tanda koma(,). JIka ada dua angka dibelakang koma(,) maka bulatkan saja.
+                              </small>
                         </div>
 
                         <div class="col-md-4 mb-3">
@@ -1057,35 +1060,6 @@
 </script>
 
 
-  <script>
-    $(document).ready(function() {
-        $('#cmb_vendor').select2({
-            placeholder: 'Pilih Vendor',
-            allowClear: true,
-            ajax: {
-                url: '{{ route("vendor.search") }}', // Buat route ini di web.php
-                dataType: 'json',
-                delay: 250,
-                data: function (params) {
-                    return {
-                        q: params.term // search term
-                    };
-                },
-                processResults: function (data) {
-                    return {
-                        results: $.map(data, function (item) {
-                            return {
-                                id: item.id,
-                                text: item.nama_vendor
-                            }
-                        })
-                    };
-                },
-                cache: true
-            }
-        });
-    });
-    </script>
 
 <script>
 window.defaultUrl = `{{ url('/pr_wapu/') }}/`;
@@ -1119,7 +1093,7 @@ $(document).ready(function() {
 
     vendorSelect.val(null).trigger('change');
 
-    $('select[name=cmb_vendor').on('select2:select', function (e) {
+    $('select[name=cmb_vendor]').on('select2:select', function (e) {
         var data = e.params.data;
         // alert(data)
         // $('#total_harga').val();
@@ -1610,33 +1584,48 @@ $('#add_insentif_fe001a, #instalasi_setting, #pph_bank_fee, #other').on('input',
 });
 
 function koleksiSelect2() {
+    // Destroy existing Select2 instance if any
+    if ($('select[name=cmb_vendor]').hasClass('select2-hidden-accessible')) {
+        $('select[name=cmb_vendor]').select2('destroy');
+    }
+
     $('select[name=cmb_vendor]').select2({
         dropdownParent: $('#form_booking'),
         allowClear: true,
-        width: '72%',
-        // height: '35px',
-        placeholder: 'Pilih Nama Vendor',
+        width: '100%',
+        placeholder: 'Nama Vendor...',
+        minimumInputLength: 0, // Allow search from the start
+        language: {
+            inputTooShort: function () {
+                return 'Ketik untuk mencari vendor...';
+            },
+            noResults: function () {
+                return 'Vendor tidak ditemukan';
+            },
+            searching: function () {
+                return 'Mencari...';
+            }
+        },
         ajax: {
             url: "{{ url('/pr_wapu/getvendor') }}",
             dataType: 'json',
+            delay: 250, // Delay in milliseconds before sending request
             data: function (params) {
                 return {
-                    q: params.term,
+                    q: params.term || '', // search term
                     page: params.page || 1
                 };
             },
             processResults: function (data) {
                 return {
-                    results: $.map(data.data, function (item) {
+                    results: $.map(data.data || data, function (item) {
                         return {
                             text: item.nama_vendor,
-                            id: item.id,
-                            // jam_keluar: item.jam_keluar,
-                            // bayaran: item.bayaran
+                            id: item.id
                         }
                     }),
                     pagination: {
-                        more: false
+                        more: (data.next_page_url !== null && data.next_page_url !== undefined)
                     }
                 };
             },

@@ -1195,8 +1195,17 @@ class WapuController extends Controller
 
     public function getvendor()
     {
+        $searchTerm = request()->get('q', '');
 
         $query = Vendor::query();
+
+        // Apply search filter if search term is provided
+        if (!empty($searchTerm)) {
+            $query->where('nama_vendor', 'like', '%' . $searchTerm . '%');
+        }
+
+        // Order by nama_vendor for better UX
+        $query->orderBy('nama_vendor', 'asc');
 
         // Apply pagination
         $result = $query->get();

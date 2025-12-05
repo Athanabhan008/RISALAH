@@ -813,10 +813,13 @@
                         <div class="col-md-4 mb-3">
                             <label for="Unit_price" class="form-label">Selling Price/Unit</label>
                             <input type="text" class="form-control" id="Unit_price" name="unit_price" placeholder="Harga per unit" required>
+                            <small id="passwordHelpBlock" class="form-text" style="color: red;">
+                                Jangan menggunakan tanda koma(,). JIka ada dua angka dibelakang koma(,) maka bulatkan saja.
+                              </small>
                         </div>
                         <div class="col-md-4 mb-3">
                             <div class="input-group-prepend">
-                                <label for="Unit_price" class="form-label">Vendor</label>
+                                <label for="cmb_vendor" class="form-label">Vendor</label>
                               </div>
 
                               <div class="d-flex align-items-center">
@@ -1049,10 +1052,9 @@ $(document).ready(function() {
     const vendorForm = $('#form_vendor');
     const vendorModal = $('#vendorModal');
 
-    $('select[name=cmb_vendor]').val(null).trigger('change');
+    vendorSelect.val(null).trigger('change');
 
-
-    $('select[name=cmb_vendor').on('select2:select', function (e) {
+    $('select[name=cmb_vendor]').on('select2:select', function (e) {
         var data = e.params.data;
         // alert(data)
         // $('#total_harga').val();
@@ -1950,31 +1952,49 @@ function showNotification(type, message) {
 }
 
 
-function collectionS2Search() {
-    $('select[name=cmb_kategori]').select2({
-        dropdownParent: $('#formModal'),
+function koleksiSelect2() {
+    // Destroy existing Select2 instance if any
+    if ($('select[name=cmb_vendor]').hasClass('select2-hidden-accessible')) {
+        $('select[name=cmb_vendor]').select2('destroy');
+    }
+
+    $('select[name=cmb_vendor]').select2({
+        dropdownParent: $('#form_booking'),
         allowClear: true,
-        width: '79%',
-        placeholder: '',
+        width: '100%',
+        placeholder: 'Nama Vendor...',
+        minimumInputLength: 0, // Allow search from the start
+        language: {
+            inputTooShort: function () {
+                return 'Ketik untuk mencari vendor...';
+            },
+            noResults: function () {
+                return 'Vendor tidak ditemukan';
+            },
+            searching: function () {
+                return 'Mencari...';
+            }
+        },
         ajax: {
-            url: "{{ url('/booking/getKategori') }}",
+            url: "{{ url('/pr_wapu/getvendor') }}",
             dataType: 'json',
+            delay: 250, // Delay in milliseconds before sending request
             data: function (params) {
                 return {
-                    q: params.term,
+                    q: params.term || '', // search term
                     page: params.page || 1
                 };
             },
             processResults: function (data) {
                 return {
-                    results: $.map(data.data, function (item) {
+                    results: $.map(data.data || data, function (item) {
                         return {
-                            text: item.nama_kategori,
+                            text: item.nama_vendor,
                             id: item.id
                         }
                     }),
                     pagination: {
-                        more: false
+                        more: (data.next_page_url !== null && data.next_page_url !== undefined)
                     }
                 };
             },
@@ -1982,55 +2002,9 @@ function collectionS2Search() {
         }
     });
 
-    // Event handler for when kategori changes
-    $('select[name=cmb_kategori]').on('select2:select', function (e) {
-        // Clear the barang dropdown and enable it
-        $('select[name=cmb_barang]').val(null).trigger('change');
-        $('select[name=cmb_barang]').prop('disabled', false);
-
-        // Clear the harga field
-        $('#harga').val('');
-    });
-
-    $('select[name=cmb_barang]').select2({
-        dropdownParent: $('#formModal'),
-        allowClear: true,
-        width: '79%',
-        placeholder: '',
-        ajax: {
-            url: "{{ url('/booking/getBarang') }}",
-            dataType: 'json',
-            data: function (params) {
-                return {
-                    id_kategori: $('#cmb_kategori').val(),
-                    q: params.term,
-                    page: params.page || 1
-                };
-            },
-            processResults: function (data) {
-                return {
-                    results: $.map(data.data, function (item) {
-                        return {
-                            text: item.nama_barang,
-                            id: item.id,
-                            harga: item.harga,
-                            jumlah: item.jumlah,
-                        }
-                    }),
-                    pagination: {
-                        more: false
-                    }
-                };
-            },
-            cache: true
-        }
-    });
-
-    $('#jumlah').on('input', function (e) {
-        var perkalian = $(this).val();
-        var harga = $('#harga_barang').val();
-
-        $('#harga_total').val(parseInt(harga) * parseInt(perkalian));
+    $('.select2-container--default .select2-selection--single').css({
+        'height': '38px', // Atur tinggi sesuai kebutuhan
+        'line-height': '38px' // Atur line-height agar teks terpusat
     });
 }
 

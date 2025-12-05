@@ -55,7 +55,7 @@
                             <i class="fa-solid fa-trash" style="margin-right: 10px;"></i> Hapus Data
                           </button>
                           <button type="button" class="btn btn-info" id="btn-detail">
-                            <i class="fa-solid fa-arrow-right" style="margin-right: 10px;"></i> Tambah Barang
+                            <i class="fa-solid fa-arrow-right" style="margin-right: 10px;"></i> Detail Projek
                           </button>
                     </div>
                 </div>
