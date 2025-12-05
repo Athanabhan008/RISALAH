@@ -2488,7 +2488,7 @@ function updateSubtotalCogs() {
 
 function updateSubtotalCost() {
     // Ambil nilai dari subtotal-po-cost-cv
-    let subtotalPoCostCVText = $('#subtotal-po-cv').val();
+    let subtotalPoCostCVText = $('#subtotal-po-cost-cv').val();
     let subtotalPoCostCV = parseFloat(subtotalPoCostCVText.replace('Rp ', '').replace(/\./g, '').replace(',', '.')) || 0;
 
     // Ambil nilai dari subtotal_cogs
