@@ -8,14 +8,18 @@ use App\Models\VwProfit;
 use App\Models\Wapu;
 use App\Models\User;
 use App\Models\Cogs;
+use App\Models\Vwgrafikprofit;
 
 class ProfitController extends Controller
 {
     public function index()
     {
+        $grafik_profit = Vwgrafikprofit::query();
+        $data_profit = $grafik_profit->get()->toArray();
         return view('profit/index',[
 
-            "active" => 'profit'
+            "active" => 'profit',
+            "grafik_profit" => $data_profit
 
         ]);
     }

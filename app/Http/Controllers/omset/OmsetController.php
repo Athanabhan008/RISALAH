@@ -6,15 +6,18 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\VwOmset;
 use App\Models\User;
+use App\Models\Vwgrafikomzet;
 
 class OmsetController extends Controller
 {
     public function index()
     {
+        $grafik_omzet = Vwgrafikomzet::query();
+        $data_omzet = $grafik_omzet->get()->toArray();
+
         return view('omset/index',[
-
-            "active" => 'omset'
-
+            "active" => 'omset',
+            "grafik_omzet" => $data_omzet
         ]);
     }
 

@@ -92,6 +92,38 @@
           </div>
         </div>
       </div>
+
+
+      <div class="row gx-3 gy-3">
+        <!-- VALIDASI PAYMENT -->
+        <div class="card mb-4 col-md-12">
+          <div class="card-header pb-0">
+            <h6>Grafik Subtotal Profit</h6>
+          </div>
+          <div class="card-body px-0 pt-0 pb-2">
+              <div class="table-responsive p-0">
+
+              </div>
+
+              <div class="row mt-3" style="margin-right: 100px;">
+                  <div class="col-12">
+                    <div class="card">
+                      <div class="card-body">
+
+                        <canvas id="grafik-profit-pertahun" width="500" height="250"></canvas>
+
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+
+          </div>
+        </div>
+
+      </div>
+
+
       <footer class="footer pt-3  ">
         <div class="container-fluid">
           <div class="row align-items-center justify-content-lg-between">
@@ -226,7 +258,52 @@
   <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap4.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
   <script src="../../admin/assets/js/plugins/bootstrap-datepicker.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/js/select2.min.js" defer></script>
+
+
+  <script>
+    const ctx = document.getElementById('grafik-profit-pertahun');
+
+    // Data dari PHP
+    const grafikprofit = @json($grafik_profit ?? []);
+
+    // Inisialisasi array data untuk 12 bulan (Januari - Desember)
+    const monthLabels = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    const monthData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+    // Mapping data dari grafik_omzet ke array monthData
+    if (grafikprofit && grafikprofit.length > 0) {
+      grafikprofit.forEach(function(item) {
+        // bulan adalah 1-12, array index adalah 0-11
+        const monthIndex = parseInt(item.bulan) - 1;
+        if (monthIndex >= 0 && monthIndex < 12) {
+          monthData[monthIndex] = parseFloat(item.jml) || 0;
+        }
+      });
+    }
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: monthLabels,
+        datasets: [{
+          label: 'Amount',
+          data: monthData,
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  </script>
+
+
 <script>
 
 console.log("kipak");

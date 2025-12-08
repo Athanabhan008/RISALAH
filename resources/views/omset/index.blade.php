@@ -89,6 +89,7 @@
                         <th style="text-align: center;">Total:</th>
                         <th style="text-align: center;" id="total-revenue">-</th>
                       </tr>
+
                     </tfoot>
                   </table>
               </div>
@@ -96,6 +97,95 @@
           </div>
         </div>
       </div>
+
+      <div class="row gx-3 gy-3">
+        <!-- VALIDASI PAYMENT -->
+        <div class="card mb-4 col-md-12">
+          <div class="card-header pb-0">
+            <h6>Subtotal Omset</h6>
+          </div>
+          <div class="card-body px-0 pt-0 pb-2">
+              <div class="table-responsive p-0">
+
+              </div>
+
+              <div class="row mt-3" style="margin-right: 100px;">
+                  <div class="col-12">
+                    <div class="card">
+                      <div class="card-body">
+
+                          <!-- Form pertama - Validasi Payment -->
+                          <form id="form_update_validasi_payment" method="POST" action="{{ url('/pr_wapu/updateValidasiPayment') }}">
+                              @csrf
+                              <input type="hidden" name="id_projek" value="{{ $id_projek ?? '' }}">
+                              <div class="row">
+                                  <div class="col-6">
+                                      <div class="input-group mb-3">
+                                          <div class="input-group-prepend">
+                                              <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Subtotal Omset</span>
+                                          </div>
+                                          <input type="text" class="form-control font-weight-bold text-right" id="subtotal_omset" name="subtotal_omset" value="{{ isset($validasi_payment) && $validasi_payment !== '' ? 'Rp ' . number_format($validasi_payment, 0, ',', '.') : '' }}" @if(!in_array(Auth::user()->role, ['super_admin','admin'])) readonly @endif>
+                                      </div>
+                                  </div>
+
+                                  <div class="col-6">
+                                      <div class="input-group mb-3">
+                                          <div class="input-group-prepend">
+                                              <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Achievement</span>
+                                          </div>
+                                          <input type="text" class="form-control font-weight-bold text-right" id="achievement" name="achievement" value="{{ isset($pph_bank_fee) && $pph_bank_fee !== '' && $pph_bank_fee !== 0 ? 'Rp ' . number_format($pph_bank_fee, 0, ',', '.') : '-' }}" readonly>
+                                      </div>
+                                  </div>
+                              </div>
+
+                              @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'manager','admin']))
+                              <div class="text-center">
+                                  <button type="submit" class="btn btn-primary btn-sm mt-2">Simpan Perubahan</button>
+                              </div>
+                              @endif
+                          </form>
+
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+
+          </div>
+        </div>
+
+      </div>
+
+
+      <div class="row gx-3 gy-3">
+        <!-- VALIDASI PAYMENT -->
+        <div class="card mb-4 col-md-12">
+          <div class="card-header pb-0">
+            <h6>Grafik Subtotal Omset</h6>
+          </div>
+          <div class="card-body px-0 pt-0 pb-2">
+              <div class="table-responsive p-0">
+
+              </div>
+
+              <div class="row mt-3" style="margin-right: 100px;">
+                  <div class="col-12">
+                    <div class="card">
+                      <div class="card-body">
+
+                        <canvas id="grafik-omset-pertahun" width="500" height="250"></canvas>
+
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+
+          </div>
+        </div>
+
+      </div>
+
       <footer class="footer pt-3  ">
         <div class="container-fluid">
           <div class="row align-items-center justify-content-lg-between">
@@ -112,74 +202,10 @@
           </div>
         </div>
       </footer>
+
+
     </div>
   </main>
-
-  <div class="modal fade" id="formModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Form - Data Projek</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-            <form id="form_sound">
-                @csrf
-                <div class="modal-body">
-                    <input type="hidden" name="_type" value="create">
-                    <input type="hidden" name="id" id="id" value="">
-
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                          <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Nama Client</span>
-                        </div>
-                        <input type="text" name="nama_client" id="nama_client" class="form-control" style="border: 1px solid black;" required>
-                    </div>
-
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                          <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Nama Projek</span>
-                        </div>
-                        <input type="text" name="nama_projek" id="nama_projek" class="form-control" style="border: 1px solid black;" required>
-                    </div>
-
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                          <label class="input-group-text" for="inputGroupSelect01">Jenis PR</label>
-                        </div>
-                        <select class="custom-select" name="jenis_pr" id="inputGroupSelect01" required>
-                          <option selected>Choose...</option>
-                          <option value="pemerintah">Pemerintah</option>
-                          <option value="swasta">Swasta</option>
-                          <option value="non_ppn">Non PPN</option>
-                        </select>
-                      </div>
-
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                          <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Nomor PR</span>
-                        </div>
-                        <input type="text" name="nomor_pr" id="nomor_pr" class="form-control" style="border: 1px solid black;" readonly>
-                        <div class="input-group-append">
-                          <button type="button" class="btn btn-outline-secondary" id="btn-generate-pr">
-                            <i class="fa fa-refresh"></i> Generate
-                          </button>
-                        </div>
-                    </div>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-                    <button type="submit" class="btn btn-success">Simpan</button>
-                </div>
-            </form>
-        </div>
-      </div>
-    </div>
-  </div>
-
 
   <div class="modal fade" id="formFilter" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -222,9 +248,53 @@
   <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap4.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
   <script src="../../admin/assets/js/plugins/bootstrap-datepicker.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/js/select2.min.js" defer></script>
-<script>
 
+
+  <script>
+    const ctx = document.getElementById('grafik-omset-pertahun');
+
+    // Data dari PHP
+    const grafikOmset = @json($grafik_omzet ?? []);
+
+    // Inisialisasi array data untuk 12 bulan (Januari - Desember)
+    const monthLabels = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    const monthData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+    // Mapping data dari grafik_omzet ke array monthData
+    if (grafikOmset && grafikOmset.length > 0) {
+      grafikOmset.forEach(function(item) {
+        // bulan adalah 1-12, array index adalah 0-11
+        const monthIndex = parseInt(item.bulan) - 1;
+        if (monthIndex >= 0 && monthIndex < 12) {
+          monthData[monthIndex] = parseFloat(item.jml) || 0;
+        }
+      });
+    }
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: monthLabels,
+        datasets: [{
+          label: 'Amount',
+          data: monthData,
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  </script>
+
+
+<script>
 console.log("kipak");
 
 window.defaultUrl = '{{ url('/omset/') }}/';
@@ -559,7 +629,8 @@ function viewDatatable() {
             });
 
             // Update footer dengan total yang sudah diformat
-            $(api.column(5).footer()).html(totalRevenue > 0 ? 'Rp ' + formatRupiahWithDots(totalRevenue.toString(), '') : '-');
+            var formattedRevenue = totalRevenue > 0 ? 'Rp ' + formatRupiahWithDots(totalRevenue.toString(), '') : '-';
+            $(api.column(5).footer()).html(formattedRevenue);
             $(api.column(6).footer()).html(totalProfit > 0 ? 'Rp ' + formatRupiahWithDots(totalProfit.toString(), '') : '-');
 
             // Hitung persentase: total-profit dibagi total-revenue
@@ -569,6 +640,18 @@ function viewDatatable() {
                 totalPersentase = parseFloat(persentase.toFixed(2)) + '%';
             }
             $(api.column(7).footer()).html(totalPersentase);
+
+            // PEMBAGIAN ANTARA KOLOM SUBTOTAL OMSET DENGAN TARGET OMSET 3.000.000.000
+            if (formattedRevenue === '-') {
+                $('#subtotal_omset').val('');
+                $('#achievement').val('-');
+            } else {
+                $('#subtotal_omset').val(formattedRevenue);
+
+                var achievementPercentage = (totalRevenue / 3000000000) * 100;
+                var formattedAchievement = achievementPercentage > 0 ? achievementPercentage.toFixed(2) + '%' : '-';
+                $('#achievement').val(formattedAchievement);
+            }
         },
         columnDefs: [{
             searchable: false,
@@ -737,82 +820,6 @@ function showNotification(type, message) {
         text: message,
         icon: type, // 'success', 'error', 'warning', 'info'
         confirmButtonText: 'OK'
-    });
-}
-
-function collectionS2Search() {
-    $('select[name=cmb_sales]').select2({
-        dropdownParent: $('#formFilter'),
-        allowClear: true,
-        width: '72.5%',
-        placeholder: 'Pilih Sales...',
-        ajax: {
-            url: "{{ url('/profit/getSales') }}",
-            dataType: 'json',
-            data: function (params) {
-                return {
-                    q: params.term,
-                    page: params.page || 1
-                };
-            },
-            processResults: function (data) {
-                return {
-                    results: $.map(data.data, function (item) {
-                        return {
-                            text: item.name,
-                            id: item.id
-                        }
-                    }),
-                    pagination: {
-                        more: false
-                    }
-                };
-            },
-            cache: true
-        }
-    });
-
-     // Event handler for when sales dipilih
-     $('select[name=cmb_sales]').on('select2:select', function (e) {
-        var data = e.params.data;
-        $('#cmb_sales').val(data.id);
-    });
-
-     // Event handler for when sales di-clear
-     $('select[name=cmb_sales]').on('select2:clear', function (e) {
-        $('#cmb_sales').val('');
-    });
-}
-
-
-// Event handler for when a barang is selected
-
-// Fungsi untuk generate nomor PR
-function generateNomorPR() {
-    $.ajax({
-        url: '{{ route("pr_wapu.generate_nomor_pr") }}',
-        type: 'GET',
-        dataType: 'json',
-        success: function(response) {
-            if (response.success) {
-                $('#nomor_pr').val(response.nomor_pr);
-            } else {
-                Swal.fire({
-                    title: 'Error',
-                    text: response.message || 'Gagal generate nomor PR',
-                    icon: 'error',
-                    confirmButtonText: 'OK'
-                });
-            }
-        },
-        error: function(xhr, status, error) {
-            Swal.fire({
-                title: 'Error',
-                text: 'Terjadi kesalahan saat generate nomor PR',
-                icon: 'error',
-                confirmButtonText: 'OK'
-            });
-        }
     });
 }
 
