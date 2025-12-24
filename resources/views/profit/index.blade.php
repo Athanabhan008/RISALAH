@@ -51,9 +51,15 @@
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div class="ml-auto">
                         @if(Auth::user() && Auth::user()->role === 'super_admin' || Auth::user() && Auth::user()->role == 'admin' || Auth::user() && Auth::user()->role == 'manager')
+
+                        <button type="button" class="btn btn-primary" id="btn-reset-filter">
+                            <i class="fa-solid fa-rotate-right fa-lg" style="margin-right: 10px"></i>Reset Filter
+                        </button>
+
                             <button type="button" class="btn btn-warning" id="btn-filter" data-toggle="modal" data-target="#formFilter">
                                 <i class="fa-solid fa-book fa-lg" style="margin-right: 10px"></i>Filter Profit
                               </button>
+
                         @endif
                     </div>
                 </div>
@@ -238,7 +244,6 @@
 
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-warning" id="btn-reset-filter">Reset Filter</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
                     <button type="button" class="btn btn-success submit-filter" data-dismiss="modal">Simpan</button>
                 </div>
@@ -312,6 +317,7 @@ window.defaultUrl = '{{ url('/profit/') }}/';
 
 let modal = $("#formModal");
 let table;
+const currentYear = moment().year();
 
 $('.yearmonthpicker').datepicker({
     format: "yyyy-mm",
@@ -590,7 +596,6 @@ function viewDatatable() {
         ajax: {
             url: "{{ route('profit/datatable') }}",
             type: "post",
-            dataSrc: "",  // penting untuk non-serverSide
             data: function (d) {
                 var formData = $("#form_filter").serializeArray();
                 $.each(formData, function (key, val) {
@@ -602,7 +607,13 @@ function viewDatatable() {
                     d['cmb_sales'] = selectedSales;
                 }
                 d['_token'] = '{{ csrf_token() }}';
-            }
+            },
+            dataSrc: function (json) {
+                // Tampilkan hanya data pada tahun berjalan di sisi client
+                return (json || []).filter(function (row) {
+                    return moment(row.created_at).year() === currentYear;
+                });
+            }  //
         },
 
         dom: 't',
@@ -656,7 +667,7 @@ function viewDatatable() {
                 }
             },
             {
-                data: "tgl_bayar",
+                data: "created_at",
                 render: function (data, type, row, meta) {
                     if (data == '' || data == null) {
                         return '-';

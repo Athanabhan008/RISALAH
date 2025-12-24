@@ -75,6 +75,46 @@
     .grand-total-row:hover {
         background-color: #e3f2fd !important;
     }
+
+    /* Styling untuk scroll pada DataTables */
+    .dataTables_scrollBody {
+        overflow-y: auto !important;
+        overflow-x: auto !important;
+    }
+
+    .dataTables_scrollHead {
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+    }
+
+    .dataTables_wrapper .dataTables_scroll {
+        clear: both;
+    }
+
+    /* Memastikan header tetap terlihat saat scroll */
+    .dataTables_scrollHead table {
+        margin-bottom: 0 !important;
+        border-collapse: separate !important;
+    }
+
+    /* Memastikan scroll bar terlihat */
+    .dataTables_scrollBody::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    .dataTables_scrollBody::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    .dataTables_scrollBody::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+    }
+
+    .dataTables_scrollBody::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
 </style>
 
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
@@ -136,12 +176,13 @@
                                     </div>
                                 </div>
 
-                                <div class="table-responsive p-0">
+                                <div class="p-0" style="overflow: visible;">
                                     <table id="datatable" class="table table-striped table-bordered basic-datatables">
                                         <thead style="background-color: #1E3135; color: white;">
                                             <tr>
                                             <th style="color: white;" class="text-uppercase text-xxs font-weight-bolder opacity-7">No</th>
                                             <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nama Client</th>
+                                            <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nama Projek</th>
                                             <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nomor PR</th>
                                             <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Divisi</th>
                                             <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Profit Holding</th>
@@ -374,19 +415,6 @@ $(document).ready(function() {
         });
 
     });
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     $('button[data-target="#formModal"]').on('click', function() {
@@ -663,13 +691,18 @@ function viewDatatable(callback) {
                 d['_token'] = '{{ csrf_token() }}';
             }
         },
-        dom: 't<"d-flex justify-content-end mt-3"p>',
-        pagingType: "simple_numbers",
+        dom: 't', // Hapus paging dari dom
+        paging: false, // Nonaktifkan paging
         "bInfo" : false,
         destroy: true,
         serverSide: true,
         processing: true,
-        responsive: true,
+        responsive: false, // Disable responsive karena menggunakan scrollX
+        scrollY: "500px", // Tinggi scroll untuk menampilkan ~10 baris data sekaligus
+        scrollX: true, // Aktifkan scroll horizontal
+        scrollCollapse: false, // Jangan collapse scroll jika data sedikit
+        pageLength: 10000, // Memuat semua data sekaligus (jumlah besar untuk memuat semua)
+        lengthChange: false, // Sembunyikan dropdown untuk mengubah jumlah data per halaman
         select: {
             style: 'single'
         },
@@ -681,7 +714,8 @@ function viewDatatable(callback) {
         // Modifikasi drawCallback untuk menambahkan row total di antara data
         drawCallback: function(settings) {
             var api = this.api();
-            var data = api.rows({page: 'current'}).data();
+            // Ambil semua data, bukan hanya data dari halaman saat ini (karena paging dinonaktifkan)
+            var data = api.rows().data();
 
             // Hapus row total yang sudah ada sebelumnya
             $('.total-row').remove();
@@ -828,6 +862,16 @@ function viewDatatable(callback) {
             },
             {
                 data: "nama_client",
+                render: function (data, type, row, meta) {
+                    if (data == '' || data == null) {
+                        return '-';
+                    } else {
+                        return data;
+                    }
+                }
+            },
+            {
+                data: "nama_projek",
                 render: function (data, type, row, meta) {
                     if (data == '' || data == null) {
                         return '-';
@@ -1011,7 +1055,7 @@ function createTotalRow(divisi, totals) {
 
     var totalRow = $('<tr class="total-row" style="background-color: #f8f9fa; font-weight: bold; border-top: 2px solid #dee2e6; border-bottom: 1px solid #dee2e6;">');
 
-    totalRow.append('<td colspan="4" style="color: #6c757d; font-style: italic;">TOTAL '+ divisi +'</td>');
+    totalRow.append('<td colspan="5" style="color: #6c757d; font-style: italic;">TOTAL '+ divisi +'</td>');
     totalRow.append('<td style="text-align: right; color: #28a745; font-weight: bold;">' + formatRupiah(totals.profit_holding) + '</td>');
     totalRow.append('<td style="text-align: right; color: #28a745; font-weight: bold;">' + formatRupiah(totals.profit_leader) + '</td>');
     totalRow.append('<td style="text-align: right; color: #28a745; font-weight: bold;">' + formatRupiah(totals.profit_dirutama) + '</td>');
@@ -1029,7 +1073,7 @@ function createGrandTotalRow(grandTotal) {
 
     var grandTotalRow = $('<tr class="grand-total-row" style="background-color: #e3f2fd; font-weight: bold; border-top: 3px solid #2196f3; border-bottom: 2px solid #2196f3;">');
 
-    grandTotalRow.append('<td colspan="4" style="color: #1976d2; font-style: italic; font-size: 14px; font-weight: bold;">GRAND TOTAL</td>');
+    grandTotalRow.append('<td colspan="5" style="color: #1976d2; font-style: italic; font-size: 14px; font-weight: bold;">GRAND TOTAL</td>');
     grandTotalRow.append('<td style="text-align: right; color: #1976d2; font-weight: bold; font-size: 14px;">' + formatRupiah(grandTotal.profit_holding) + '</td>');
     grandTotalRow.append('<td style="text-align: right; color: #1976d2; font-weight: bold; font-size: 14px;">' + formatRupiah('-') + '</td>');
     grandTotalRow.append('<td style="text-align: right; color: #1976d2; font-weight: bold; font-size: 14px;">' + formatRupiah(grandTotal.profit_dirutama) + '</td>');

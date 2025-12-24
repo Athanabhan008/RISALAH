@@ -301,6 +301,7 @@ window.defaultUrl = '{{ url('/omset/') }}/';
 
 let modal = $("#formModal");
 let table;
+const currentYear = moment().year();
 
 $('.yearmonthpicker').datepicker({
     format: "yyyy-mm",
@@ -579,7 +580,6 @@ function viewDatatable() {
         ajax: {
             url: "{{ route('omset/datatable') }}",
             type: "post",
-            dataSrc: "",  // penting untuk non-serverSide
             data: function (d) {
                 var formData = $("#form_filter").serializeArray();
                 $.each(formData, function (key, val) {
@@ -591,7 +591,13 @@ function viewDatatable() {
                     d['cmb_sales'] = selectedSales;
                 }
                 d['_token'] = '{{ csrf_token() }}';
-            }
+            },
+            dataSrc: function (json) {
+                // Tampilkan hanya data pada tahun berjalan di sisi client
+                return (json || []).filter(function (row) {
+                    return moment(row.created_at).year() === currentYear;
+                });
+            }  // penting untuk non-serverSide
         },
 
         dom: 't',

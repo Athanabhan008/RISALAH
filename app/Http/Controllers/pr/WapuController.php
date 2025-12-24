@@ -906,7 +906,7 @@ class WapuController extends Controller
             $request->validate([
                 'id_projek' => 'required|string|max:255',
                 'profit_holding' => 'required|string|max:255',
-                'profit_leader' => 'required|string|max:255',
+                // 'profit_leader' => 'required|string|max:255',
                 'profit_dirutama' => 'required|string|max:255',
                 'profit_sim' => 'required|string|max:255',
                 'profit_keuangan' => 'required|string|max:255',
@@ -914,7 +914,7 @@ class WapuController extends Controller
             ], [
                 'id_projek.required' => 'Id Projek wajib diisi',
                 'profit_holding.required' => 'Profit Holding wajib diisi',
-                'profit_leader.reuired' => 'Profit Leader Wajib Diisi',
+                // 'profit_leader.reuired' => 'Profit Leader Wajib Diisi',
                 'profit_dirutama.required' => 'Profit Dirutama Wajib Diisi',
                 'profit_sim.required' => 'Profit SIM Wajib Diisi',
                 'profit_keuangan.required' => 'Profit Keuangan Wajib Diisi',

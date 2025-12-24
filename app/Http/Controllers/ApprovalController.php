@@ -63,10 +63,18 @@ class ApprovalController extends Controller
 
         $total = $query->count();
 
-        // Apply pagination
-        $results = $query->offset($start)
-                        ->limit($length)
-                        ->get();
+        // Apply pagination - jika length adalah -1, null, atau sangat besar (> 10000), ambil semua data tanpa pagination
+        // Juga handle jika length adalah 0 atau tidak valid
+        if ($length == -1 || $length === null || $length === '' || $length > 10000 || $length <= 0) {
+            // Ambil semua data tanpa pagination
+            $results = $query->get();
+        } else {
+            // Apply pagination normal dengan validasi
+            $start = $start ?? 0;
+            $results = $query->offset($start)
+                            ->limit((int)$length)
+                            ->get();
+        }
 
         return response()->json([
             'draw' => $draw,

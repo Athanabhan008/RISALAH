@@ -3,41 +3,6 @@
 @section('content')
 
 @push('css')
-<link rel="stylesheet" href="../../admin/assets/css/style.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
-<style>
-  /* main {
-    overflow-x: hidden;
-    background-color: #d9d9d9bc;
-  } */
-
-  .main-content {
-    overflow-x: hidden;
-    max-width: 100vw;
-  }
-
-  .container-fluid {
-    padding-right: 15px;
-    padding-left: 15px;
-    width: 100%;
-    overflow-x: hidden;
-  }
-
-  .table-responsive {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    max-width: 100%;
-  }
-
-  .swiper-pagination {
-    position: relative;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    text-align: center;
-    margin-top: 15px;
-  }
-</style>
 
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg overflow-hidden">
     <!-- Navbar -->
@@ -46,264 +11,16 @@
       </div>
     </nav>
     <!-- End Navbar -->
-      <div class="row g-0">
-        <div class="col-12">
-          <div class="row g-3">
-
-            <h4>Pemerintahan</h4>
-            <div class="col-lg-6 col-md-6 col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="swiper">
-                            <div class="slider-wrapper">
-                                <div class="card-list swiper-wrapper">
-                                    <div class="card-item swiper-slide">
-                                        <i class="fa-solid fa-money-bill-trend-up icon-wrapper"></i>
-                                        <h5 class="text-white font-weight-bolder mb-0" style="margin-top: -5px">
-                                        </h5>
-                                        <span class="text-white text-sm">Pemasukkan Hari Ini</span>
-                                      </div>
-                                      <div class="card-item swiper-slide">
-                                        <i class="fa-solid fa-money-bill-trend-up icon-wrapper"></i>
-                                        <h5 class="text-white font-weight-bolder mb-0" style="margin-top: -5px">
-                                        </h5>
-                                        <span class="text-white text-sm">Pemasukkan Bulan Ini</span>
-                                      </div>
-                                      <div class="card-item swiper-slide">
-                                        <i class="fa-solid fa-money-bill-trend-up icon-wrapper"></i>
-                                        <h5 class="text-white font-weight-bolder mb-0" style="margin-top: -5px">
-                                        </h5>
-                                        <span class="text-white text-sm">Pemasukkan Tahun Ini</span>
-                                    </div>
-                                </div>
-                                <div class="swiper-pagination"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-    <div class="col-lg-6 col-md-6 col-12">
-        <div class="card">
-            <div class="card-body">
-                <div class="swiper">
-                    <div class="slider-wrapper">
-                        <div class="card-list swiper-wrapper">
-                            <div class="card-item swiper-slide">
-                                <i class="fa-solid fa-money-bill-trend-up icon-wrapper"></i>
-                                <h5 class="text-white font-weight-bolder mb-0" style="margin-top: -5px">
-                                    357
-                                </h5>
-                                <span class="text-white text-sm">Pemasukkan Bulan Ini</span>
-                            </div>
-                            <div class="card-item swiper-slide">
-                                <i class="fa-solid fa-money-bill-trend-up icon-wrapper"></i>
-                                <h5 class="text-white font-weight-bolder mb-0" style="margin-top: -5px">
-                                    357
-                                </h5>
-                                <span class="text-white text-sm">Pemasukkan Bulan Ini</span>
-                            </div>
-                            <div class="card-item swiper-slide">
-                                <i class="fa-solid fa-money-bill-trend-up icon-wrapper"></i>
-                                <h5 class="text-white font-weight-bolder mb-0" style="margin-top: -5px">
-                                    357
-                                </h5>
-                                <span class="text-white text-sm">Pemasukkan Bulan Ini</span>
-                            </div>
-                        </div>
-                        <div class="swiper-pagination"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-          </div>
-        </div>
-      </div>
-
-
-      <div class="row g-0">
-        <div class="col-12">
-          <div class="row g-3">
-
-            <h4>Swasta</h4>
-            <div class="col-lg-6 col-md-6 col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="swiper">
-                            <div class="slider-wrapper">
-                                <div class="card-list swiper-wrapper">
-                                    <div class="card-item swiper-slide">
-                                        <i class="fa-solid fa-money-bill-trend-up icon-wrapper"></i>
-                                        <h5 class="text-white font-weight-bolder mb-0" style="margin-top: -5px">
-                                        </h5>
-                                        <span class="text-white text-sm">Pemasukkan Hari Ini</span>
-                                    </div>
-                                    <div class="card-item swiper-slide">
-                                        <i class="fa-solid fa-money-bill-trend-up icon-wrapper"></i>
-                                        <h5 class="text-white font-weight-bolder mb-0" style="margin-top: -5px">
-                                        </h5>
-                                        <span class="text-white text-sm">Pemasukkan Bulan Ini</span>
-                                    </div>
-                                    <div class="card-item swiper-slide">
-                                        <i class="fa-solid fa-money-bill-trend-up icon-wrapper"></i>
-                                        <h5 class="text-white font-weight-bolder mb-0" style="margin-top: -5px">
-                                        </h5>
-                                        <span class="text-white text-sm">Pemasukkan Tahun Ini</span>
-                                    </div>
-                                </div>
-                                <div class="swiper-pagination"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-    <div class="col-lg-6 col-md-6 col-12">
-        <div class="card">
-            <div class="card-body">
-                <div class="swiper">
-                    <div class="slider-wrapper">
-                        <div class="card-list swiper-wrapper">
-                            <div class="card-item swiper-slide">
-                                <i class="fa-solid fa-money-bill-trend-up icon-wrapper"></i>
-                                <h5 class="text-white font-weight-bolder mb-0" style="margin-top: -5px">
-                                    357
-                                </h5>
-                                <span class="text-white text-sm">Pemasukkan Bulan Ini</span>
-                            </div>
-                            <div class="card-item swiper-slide">
-                                <i class="fa-solid fa-money-bill-trend-up icon-wrapper"></i>
-                                <h5 class="text-white font-weight-bolder mb-0" style="margin-top: -5px">
-                                    357
-                                </h5>
-                                <span class="text-white text-sm">Pemasukkan Bulan Ini</span>
-                            </div>
-                            <div class="card-item swiper-slide">
-                                <i class="fa-solid fa-money-bill-trend-up icon-wrapper"></i>
-                                <h5 class="text-white font-weight-bolder mb-0" style="margin-top: -5px">
-                                    357
-                                </h5>
-                                <span class="text-white text-sm">Pemasukkan Bulan Ini</span>
-                            </div>
-                        </div>
-                        <div class="swiper-pagination"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-          </div>
-        </div>
-      </div>
-
-
-      <div class="row g-0">
-        <div class="col-12">
-          <div class="row g-3">
-
-            <h4>Non PPN</h4>
-            <div class="col-lg-6 col-md-6 col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="swiper">
-                            <div class="slider-wrapper">
-                                <div class="card-list swiper-wrapper ">
-                                    <div class="card-item swiper-slide">
-                                        <i class="fa-solid fa-money-bill-trend-up icon-wrapper"></i>
-                                        <h5 class="text-white font-weight-bolder mb-0" style="margin-top: -5px">
-                                            357
-                                        </h5>
-                                        <span class="text-white text-sm">Pemasukkan Bulan Ini</span>
-                                    </div>
-                                    <div class="card-item swiper-slide">
-                                        <i class="fa-solid fa-money-bill-trend-up icon-wrapper"></i>
-                                        <h5 class="text-white font-weight-bolder mb-0" style="margin-top: -5px">
-                                            357
-                                        </h5>
-                                        <span class="text-white text-sm">Pemasukkan Bulan Ini</span>
-                                    </div>
-                                    <div class="card-item swiper-slide">
-                                        <i class="fa-solid fa-money-bill-trend-up icon-wrapper"></i>
-                                        <h5 class="text-white font-weight-bolder mb-0" style="margin-top: -5px">
-                                            357
-                                        </h5>
-                                        <span class="text-white text-sm">Pemasukkan Bulan Ini</span>
-                                    </div>
-                                </div>
-                                <div class="swiper-pagination"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-    <div class="col-lg-6 col-md-6 col-12">
-        <div class="card">
-            <div class="card-body">
-                <div class="swiper">
-                    <div class="slider-wrapper">
-                        <div class="card-list swiper-wrapper">
-                            <div class="card-item swiper-slide">
-                                <i class="fa-solid fa-money-bill-trend-up icon-wrapper"></i>
-                                <h5 class="text-white font-weight-bolder mb-0" style="margin-top: -5px">
-                                    357
-                                </h5>
-                                <span class="text-white text-sm">Pemasukkan Bulan Ini</span>
-                            </div>
-                            <div class="card-item swiper-slide">
-                                <i class="fa-solid fa-money-bill-trend-up icon-wrapper"></i>
-                                <h5 class="text-white font-weight-bolder mb-0" style="margin-top: -5px">
-                                    357
-                                </h5>
-                                <span class="text-white text-sm">Pemasukkan Bulan Ini</span>
-                            </div>
-                            <div class="card-item swiper-slide">
-                                <i class="fa-solid fa-money-bill-trend-up icon-wrapper"></i>
-                                <h5 class="text-white font-weight-bolder mb-0" style="margin-top: -5px">
-                                    357
-                                </h5>
-                                <span class="text-white text-sm">Pemasukkan Bulan Ini</span>
-                            </div>
-                        </div>
-                        <div class="swiper-pagination"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-          </div>
-        </div>
-      </div>
-
 
       <div class="row my-4">
         <div class="col-12">
-          <div class="card">
-            <div class="card-header pb-0">
-              <div class="row">
-                <div class="col-lg-6 col-7">
-                  <h6>Overview Penjualan</h6>
-                </div>
-                <div class="col-lg-6 col-5 my-auto text-end">
-                  <div class="dropdown float-lg-end pe-4">
-                    <a class="cursor-pointer" id="dropdownTable" data-bs-toggle="dropdown" aria-expanded="false">
-                      <i class="fa fa-ellipsis-v text-secondary"></i>
-                    </a>
-                    <ul class="dropdown-menu px-2 py-3 ms-sm-n4 ms-n5" aria-labelledby="dropdownTable">
-                      <li><a class="dropdown-item border-radius-md" href="javascript:;">Action</a></li>
-                      <li><a class="dropdown-item border-radius-md" href="javascript:;">Another action</a></li>
-                      <li><a class="dropdown-item border-radius-md" href="javascript:;">Something else here</a></li>
-                    </ul>
-                  </div>
-                </div>
               </div>
             </div>
-            <div class="card-body px-0 pb-2">
-              <div class="table-responsive overflow-hidden">
                 <!-- Grafik Overview Penjualan -->
-                    <div style="height: 300px;" class="container">
-                        <canvas id="salesChart"></canvas>
+                    <div class="container">
+                        <img src="../../admin/assets/img/illustrations/image.jpg" width="500px" alt="main_logo" style="display: block; margin-left:auto; margin-right:auto; margin-top: 20px;">
+                        <h3 style="text-align: center; color:#0c2e8a; margin-top: 20px;">Selamat Datang Di Sistem Aplikasi PR MBS</h3>
                     </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -317,7 +34,7 @@
                   document.write(new Date().getFullYear())
                 </script>,
                 made with <i class="fa fa-heart"></i> by
-                <a href="https://www.creative-tim.com" class="font-weight-bold" target="_blank">Argana</a>
+                <a href="https://www.creative-tim.com" class="font-weight-bold" target="_blank">Kodeks Digital</a>
                 for a better web.
               </div>
             </div>

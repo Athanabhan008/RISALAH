@@ -1189,9 +1189,9 @@ $(document).ready(function() {
         $("select[name=jenis_ppn]").val(selected.jenis_ppn);
 
 
-        if ($("select[name=cmb_vendor] option[value='" + selected.id_vendor + "']").length === 0) {
-             var newOption = new Option(selected.nama_vendor, selected.id_vendor, false, true);
-            $("select[name=cmb_vendor]").append(newOption).trigger('change');
+        if (vendorSelect.find("option[value='" + selected.id_vendor + "']").length === 0) {
+        var newOption = new Option(selected.nama_vendor, selected.id_vendor, true, true);
+        vendorSelect.append(newOption);
         } else {
             $("select[name=cmb_vendor]").val(selected.id_vendor).trigger('change');
         }
@@ -2774,8 +2774,19 @@ $('#form-update-provit-sharing').on('submit', function(e) {
     }
 
     var originalText = submitButton.text();
-    submitButton.prop('disabled', true).text('Menyimpan...');
+    // submitButton.prop('disabled', true).text('Menyimpan...');
 
+    Swal.fire({
+            title: 'Apakah anda yakin?',
+            text: "Data yang disimpan tidak akan bisa diubah lagi!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, Simpan!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
     $.ajax({
         url: form.attr('action'),
         type: 'POST',
@@ -2798,8 +2809,10 @@ $('#form-update-provit-sharing').on('submit', function(e) {
             if (!lockedState) {
                 submitButton.prop('disabled', false).text(originalText);
             }
-        }
-    });
+              }
+          });
+         }
+    })
 });
 
 $('#form_update_validasi_payment').on('submit', function(e) {

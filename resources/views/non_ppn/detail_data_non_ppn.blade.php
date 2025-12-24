@@ -353,6 +353,14 @@
                                             </div>
                                             <input type="text" class="form-control font-weight-bold text-right" id="validasi_payment" name="validasi_payment" value="{{ isset($validasi_payment) && $validasi_payment !== '' ? 'Rp ' . number_format($validasi_payment, 0, ',', '.') : '' }}" @if(!in_array(Auth::user()->role, ['super_admin','admin'])) readonly @endif>
                                         </div>
+
+                                        <div class="input-group mb-3" hidden>
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">TGL Bayar</span>
+                                            </div>
+                                            <input type="text" class="form-control font-weight-bold text-right" id="tgl_bayar" name="tgl_bayar" @if(!in_array(Auth::user()->role, ['super_admin','admin'])) readonly @endif>
+                                        </div>
+
                                         </div>
 
                                     <div class="col-6">
@@ -2698,8 +2706,20 @@ $('#form-update-provit-sharing').on('submit', function(e) {
         return;
     }
 
-    var originalText = submitButton.text();
-    submitButton.prop('disabled', true).text('Menyimpan...');
+    // var originalText = submitButton.text();
+    // submitButton.prop('disabled', true).text('Menyimpan...');
+
+    Swal.fire({
+            title: 'Apakah anda yakin?',
+            text: "Data yang disimpan tidak akan bisa diubah lagi!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, Simpan!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
 
     $.ajax({
         url: form.attr('action'),
@@ -2722,9 +2742,11 @@ $('#form-update-provit-sharing').on('submit', function(e) {
             var lockedState = form.data('locked') === true || form.data('locked') === 'true';
             if (!lockedState) {
                 submitButton.prop('disabled', false).text(originalText);
-            }
+                    }
+                }
+            });
         }
-    });
+    })
 });
 
 $('#form_update_validasi_payment').on('submit', function(e) {
