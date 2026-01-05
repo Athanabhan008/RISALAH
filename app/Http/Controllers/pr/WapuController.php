@@ -274,8 +274,12 @@ class WapuController extends Controller
         $user = Auth::user();
         $idSales = $user->id;
 
-        // Ambil nomor PR terakhir milik sales ini
+        // Tahun saat ini
+        $tahun = date('Y');
+
+        // Ambil nomor PR terakhir milik sales ini yang memiliki tahun yang sama
         $lastPr = Wapu::where('id_sales', $idSales)
+            ->where('nomor_pr', 'LIKE', '%/' . $tahun)
             ->orderByDesc('id')
             ->first();
 
@@ -286,6 +290,7 @@ class WapuController extends Controller
             $lastNumber = isset($parts[1]) ? (int)$parts[1] : 0;
             $newNumber = $lastNumber + 1;
         } else {
+            // Jika tidak ada PR di tahun ini, mulai dari 1
             $newNumber = 1;
         }
 
@@ -303,9 +308,6 @@ class WapuController extends Controller
         $romawi = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
         $bulanRomawi = $romawi[$bulan];
 
-        // Tahun
-        $tahun = date('Y');
-
         // Gabungkan format
         $nomorPr = "{$namaUser}/{$nomorUrut}/{$namaPerusahaan}/{$bulanRomawi}/{$tahun}";
 
@@ -313,33 +315,6 @@ class WapuController extends Controller
             'success' => true,
             'nomor_pr' => $nomorPr
         ]);
-    }
-
-    private function numberToRoman($number) {
-        $romans = [
-            1000 => 'M',
-            900 => 'CM',
-            500 => 'D',
-            400 => 'CD',
-            100 => 'C',
-            90 => 'XC',
-            50 => 'L',
-            40 => 'XL',
-            10 => 'X',
-            9 => 'IX',
-            5 => 'V',
-            4 => 'IV',
-            1 => 'I'
-        ];
-
-        $result = '';
-        foreach ($romans as $value => $roman) {
-            while ($number >= $value) {
-                $result .= $roman;
-                $number -= $value;
-            }
-        }
-        return $result;
     }
 
 
