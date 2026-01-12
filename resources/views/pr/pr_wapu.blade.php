@@ -40,14 +40,23 @@
                 <h6>Data PR</h6>
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div class="ml-auto">
+
+                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#formModal">
+                            <i class="fa-solid fa-plus fa-lg" style="margin-right: 10px"></i>Tambah Data
+                        </button>
+
                         @if(Auth::user() && Auth::user()->role === 'super_admin' || Auth::user() && Auth::user()->role == 'admin' || Auth::user() && Auth::user()->role == 'manager')
-                            <button type="button" class="btn btn-warning" id="btn-filter" data-toggle="modal" data-target="#formFilter">
+                            <button type="button" class="btn btn-primary" id="btn-filter" data-toggle="modal" data-target="#formFilter">
                                 <i class="fa-solid fa-book fa-lg" style="margin-right: 10px"></i>Filter PR
                               </button>
                         @endif
-                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#formModal">
-                            <i class="fa-solid fa-plus fa-lg" style="margin-right: 10px"></i>Tambah Data
-                          </button>
+
+                        @if(Auth::user() && Auth::user()->role === 'sales')
+                            <button type="button" class="btn btn-primary" id="btn-filter" data-toggle="modal" data-target="#formFilterPR">
+                                <i class="fa-solid fa-book fa-lg" style="margin-right: 10px"></i>Filter PR
+                              </button>
+                        @endif
+
                           <button type="button" class="btn btn-warning" id="btn-edit" data-toggle="modal" data-target="#formModal">
                             <i class="fa-solid fa-pencil" style="margin-right: 10px;"></i> Ubah Data
                           </button>
@@ -191,6 +200,37 @@
                           <span class="input-group-text" style="width: 120px; height: 35px; background-color: rgb(222, 222, 222);">Nama Sales</span>
                         </div>
                         <select name="cmb_sales" id="cmb_sales" class="bg-danger"></select>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-success submit-filter" data-dismiss="modal">Simpan</button>
+                </div>
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="formFilterPR" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Form - FIlter PR</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <form id="form_filterPR">
+                @csrf
+                <div class="modal-body">
+                    <input type="hidden" name="_type" value="create">
+                    <input type="hidden" name="id" id="id" value="">
+
+                    <div class="input-group mb-3">
+                        <input type="text" name="periode_start" id="periode_start" class="form-control form-control-lg pl-3 yearmonthpicker" placeholder="Pilih Bulan (YYYYMM)" autocomplete="off">
                     </div>
 
                 </div>
@@ -472,6 +512,7 @@ $(document).ready(function() {
     });
 
     collectionS2Search();
+    collectionS2SearchPR();
 
 });
 
@@ -482,6 +523,7 @@ function viewDatatable() {
             "type": "post",
             "data": function (d) {
                 var formData = $("#form_filter").serializeArray();
+                var formData = $("#form_filterPR").serializeArray();
                 $.each(formData, function (key, val) {
                     d[val.name] = val.value;
                 });
@@ -498,7 +540,8 @@ function viewDatatable() {
         select: {
             style: 'single'
         },
-        aaSorting: [],
+        // Urutkan data terbaru di paling atas (berdasarkan kolom created_at / index ke-1)
+        order: [[1, 'desc']],
         columnDefs: [{
             searchable: false,
             targets: [0]
@@ -655,6 +698,47 @@ function showNotification(type, message) {
 function collectionS2Search() {
     $('select[name=cmb_sales]').select2({
         dropdownParent: $('#formFilter'),
+        allowClear: true,
+        width: '72.5%',
+        placeholder: '',
+        ajax: {
+            url: "{{ url('/pr_wapu/getSales') }}",
+            dataType: 'json',
+            data: function (params) {
+                return {
+                    q: params.term,
+                    page: params.page || 1
+                };
+            },
+            processResults: function (data) {
+                return {
+                    results: $.map(data.data, function (item) {
+                        return {
+                            text: item.name,
+                            id: item.id
+                        }
+                    }),
+                    pagination: {
+                        more: false
+                    }
+                };
+            },
+            cache: true
+        }
+    });
+
+     // Event handler for when kategori changes
+     $('select[name=cmb_sales]').on('select2:select', function (e) {
+        var data = e.params.data;
+
+        $('#cmb_sales').val(data.id);
+    });
+}
+
+
+function collectionS2SearchPR() {
+    $('select[name=cmb_sales]').select2({
+        dropdownParent: $('#formFilterPR'),
         allowClear: true,
         width: '72.5%',
         placeholder: '',
