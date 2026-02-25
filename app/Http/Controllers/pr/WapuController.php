@@ -274,8 +274,12 @@ class WapuController extends Controller
         $user = Auth::user();
         $idSales = $user->id;
 
-        // Ambil nomor PR terakhir milik sales ini
+        // Tahun saat ini
+        $tahun = date('Y');
+
+        // Ambil nomor PR terakhir milik sales ini yang memiliki tahun yang sama
         $lastPr = Wapu::where('id_sales', $idSales)
+            ->where('nomor_pr', 'LIKE', '%/' . $tahun)
             ->orderByDesc('id')
             ->first();
 
@@ -286,6 +290,7 @@ class WapuController extends Controller
             $lastNumber = isset($parts[1]) ? (int)$parts[1] : 0;
             $newNumber = $lastNumber + 1;
         } else {
+            // Jika tidak ada PR di tahun ini, mulai dari 1
             $newNumber = 1;
         }
 
@@ -302,9 +307,6 @@ class WapuController extends Controller
         $bulan = date('n');
         $romawi = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
         $bulanRomawi = $romawi[$bulan];
-
-        // Tahun
-        $tahun = date('Y');
 
         // Gabungkan format
         $nomorPr = "{$namaUser}/{$nomorUrut}/{$namaPerusahaan}/{$bulanRomawi}/{$tahun}";
