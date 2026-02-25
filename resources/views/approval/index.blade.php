@@ -165,6 +165,9 @@
 
                                 <div class="text-right px-4">
                                     <div class="btn-group">
+
+                                        <button onclick="cetakPDF()" id="btn_pdf" type="submit" class="btn btn-danger mr-3">Cetak PDF <i class="fa-solid fa-file-pdf"></i></button>
+
                                         <button type="button" class="btn btn-success" id="btn_approve">
                                             <i class="fas fa-check-circle"></i>
                                             <?php if ($user['role'] == 'admin') { ?>
@@ -281,11 +284,17 @@
   <script src="../../admin/assets/js/plugins/bootstrap-datepicker.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+
+  <script>
+
+    </script>
+
+
 <script>
 
 console.log("kipak");
 
-window.defaultUrl = '{{ url('/pr_wapu/') }}/';
+window.defaultUrl = '{{ url('/approval/') }}/';
 
 let modal = $("#formModal");
 let table;
@@ -601,6 +610,32 @@ $(document).ready(function() {
             }
         });
     });
+
+
+    window.cetakPDF = function() {
+    const ps = ($('#periode_start').val() || '').trim();
+    const pe = ($('#periode_end').val() || '').trim();
+
+    // Validasi sama seperti tombol Cek Data
+    if (!ps || !pe) {
+        Swal.fire('Peringatan', 'Silakan pilih bulan mulai dan bulan akhir.', 'warning');
+        return;
+    }
+    if (ps.length !== 6 || pe.length !== 6 || !/^\d{6}$/.test(ps) || !/^\d{6}$/.test(pe)) {
+        Swal.fire('Peringatan', 'Format periode harus YYYYMM.', 'warning');
+        return;
+    }
+    if (ps > pe) {
+        Swal.fire('Peringatan', 'Periode mulai tidak boleh lebih besar dari periode akhir.', 'warning');
+        return;
+    }
+
+    const url = "{{ route('approval/cetakpdf') }}" +
+        "?periode_start=" + encodeURIComponent(ps) +
+        "&periode_end=" + encodeURIComponent(pe);
+
+    window.open(url, '_blank');
+}
 
 
     $("#btn-detail").on("click", function () {

@@ -1478,6 +1478,26 @@ $.ajax({
 
     // Event handler ketika modal akan ditutup
     $('#formModal').on('hide.bs.modal', function () {
+
+        // Reset seluruh form
+        $('#form_booking')[0].reset();
+        // Reset select2
+        $('#cmb_kategori').val(null).trigger('change.select2');
+        $('#cmb_barang').val(null).trigger('change.select2');
+        $('#cmb_vendor').val(null).trigger('change.select2');
+        // Reset pilihan Jenis PPN
+        $('#inputGroupSelect01').val('').trigger('change');
+        // Kosongkan input readonly
+        $('#total_price').val('');
+        $('#unit_price_cv').val('');
+        $('#total_po_cv').val('');
+        $('#total_cost').val('');
+        $('#margin').val('');
+        $('#persentase').val('');
+        // Kembalikan _type ke create dan kosongkan id
+        $("input[name=_type]").val("create");
+        $("input[name=id]").val("");
+
         closeModal();
     });
 
@@ -2721,10 +2741,51 @@ $('#form-update-provit-sharing').on('submit', function(e) {
         }).then((result) => {
             if (result.isConfirmed) {
 
+
+                function stripCurrencyFormat(value) {
+        if (!value || value === '' || value === '-') {
+            return '0';
+        }
+        // Hapus "Rp ", spasi, titik (pemisah ribuan), dan karakter non-digit kecuali tanda minus dan koma
+        var numericValue = value.toString()
+            .replace(/Rp\s*/gi, '')  // Hapus "Rp " (case insensitive)
+            .replace(/\./g, '')       // Hapus titik (pemisah ribuan)
+            .replace(/\s+/g, '')      // Hapus semua spasi
+            .trim();
+
+        // Jika kosong setelah dihapus, return 0
+        if (numericValue === '' || numericValue === '-') {
+            return '0';
+        }
+
+        return numericValue;
+    }
+
+    // Buat data form dengan memproses nilai currency
+    var formData = {};
+    form.find('input, select, textarea').each(function() {
+        var $field = $(this);
+        var name = $field.attr('name');
+        var value = $field.val();
+
+        if (name && name !== '') {
+            // Field yang berisi currency format (profit sharing fields)
+            var currencyFields = ['profit_holding', 'profit_leader', 'profit_dirutama', 'profit_sim', 'profit_keuangan', 'total_profit'];
+            if (currencyFields.includes(name)) {
+                formData[name] = stripCurrencyFormat(value);
+            } else {
+                formData[name] = value || '';
+            }
+        }
+    });
+
+    // Tambahkan CSRF token
+    formData['_token'] = $('input[name="_token"]', form).val() || $('meta[name="csrf-token"]').attr('content');
+
     $.ajax({
         url: form.attr('action'),
         type: 'POST',
-        data: form.serialize(),
+        data: formData,
         success: function(res) {
             var successMessage = (res && res.message) ? res.message : 'Data berhasil diupdate!';
             Swal.fire('Sukses', successMessage, 'success');

@@ -6,6 +6,8 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/css/select2.min.css" integrity="sha512-xrbX64SIXOxo5cMQEDUQ3UyKsCreOEq1Im90z3B7KPoxLJ2ol/tCT0aBhuIzASfmBVdODioUdUPbt5EDEXmD9g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker3.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/rowgroup/1.4.1/css/rowGroup.bootstrap4.min.css">
+
 
 
 <style>
@@ -57,8 +59,17 @@
                         </button>
 
                         <button type="button" class="btn btn-warning" id="btn-filter" data-toggle="modal" data-target="#formFilter">
-                            <i class="fa-solid fa-book fa-lg" style="margin-right: 10px"></i>Filter Omset
+                            <i class="fa-solid fa-book fa-lg" style="margin-right: 10px"></i>Filter Bulan
                         </button>
+
+                        <button type="button" class="btn btn-success" id="btn-filter" data-toggle="modal" data-target="#formFiltertahun">
+                            <i class="fa-solid fa-book fa-lg" style="margin-right: 10px"></i>Filter Tahun
+                        </button>
+
+                        <button onclick="exportAllPDF()" id="btn_export_all_pdf" type="button" class="btn btn-danger mr-3">
+                            <i class="fa-solid fa-file-pdf mr-2"></i>Cetak PDF
+                        </button>
+
 
                         @endif
                     </div>
@@ -71,6 +82,7 @@
                       <tr>
                         <th style="color: white;" class="text-uppercase text-xxs font-weight-bolder opacity-7">No</th>
                         <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Tanggal DO</th>
+                        <th style="display:none">Bulan</th>
                         <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nama Customer</th>
                         <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Jenis Barang</th>
                         <th style="color: white;" class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">Nomor PR</th>
@@ -117,14 +129,13 @@
                           <!-- Form pertama - Validasi Payment -->
                           <form id="form_update_validasi_payment" method="POST" action="{{ url('/pr_wapu/updateValidasiPayment') }}">
                               @csrf
-                              <input type="hidden" name="id_projek" value="{{ $id_projek ?? '' }}">
                               <div class="row">
                                   <div class="col-6">
                                       <div class="input-group mb-3">
                                           <div class="input-group-prepend">
                                               <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Subtotal Omset</span>
                                           </div>
-                                          <input type="text" class="form-control font-weight-bold text-right" id="subtotal_omset" name="subtotal_omset" value="{{ isset($validasi_payment) && $validasi_payment !== '' ? 'Rp ' . number_format($validasi_payment, 0, ',', '.') : '' }}" @if(!in_array(Auth::user()->role, ['super_admin','admin'])) readonly @endif>
+                                          <input type="text" class="form-control font-weight-bold text-right" id="subtotal_omset" name="subtotal_omset" value="{{ isset($validasi_payment) && $validasi_payment !== '' ? 'Rp ' . number_format($validasi_payment, 0, ',', '.') : '' }}" @if(!in_array(Auth::user()->role, ['super_admin','admin'])) @endif readonly>
                                       </div>
                                   </div>
 
@@ -137,6 +148,37 @@
                                       </div>
                                   </div>
                               </div>
+
+                              <div class="row">
+                                <div class="col-12">
+                                    <div class="input-group mb-3">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Target Omset</span>
+                                        </div>
+                                        <input type="text" class="form-control font-weight-bold text-right" id="target_omset" name="target_omset" value="3.000.000.000,00 " @if(!in_array(Auth::user()->role, ['super_admin','admin'])) @endif readonly>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="input-group mb-3">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Minus Target</span>
+                                        </div>
+                                        <input type="text" class="form-control font-weight-bold text-right" style="color: red;" id="minus_target" name="minus_target" @if(!in_array(Auth::user()->role, ['super_admin','admin'])) @endif readonly>
+                                    </div>
+                                </div>
+
+                                <div class="col-6">
+                                    <div class="input-group mb-3">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" style=" height: 35px; background-color: rgb(222, 222, 222);">Persentase Minus</span>
+                                        </div>
+                                        <input type="text" class="form-control font-weight-bold text-right" style="color: red;" id="persentase_minus" name="persentase_minus" readonly>
+                                    </div>
+                                </div>
+                            </div>
 
                               @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'manager','admin']))
                               <div class="text-center">
@@ -238,6 +280,39 @@
     </div>
   </div>
 
+
+  <div class="modal fade" id="formFiltertahun" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Form Filter Tahun</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <form id="form_filter_tahun">
+                @csrf
+                <div class="modal-body">
+                    <input type="hidden" name="_type" value="create">
+                    <input type="hidden" name="id" id="id" value="">
+
+                    <div class="input-group mb-3">
+                        <input type="text" name="created_at" id="created_at" class="form-control form-control-lg pl-3 yearpicker" placeholder="Pilih Tahun (YYYY)" autocomplete="off">
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-success submit-filter" data-dismiss="modal">Simpan</button>
+                </div>
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
   @push('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
@@ -249,53 +324,70 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
   <script src="../../admin/assets/js/plugins/bootstrap-datepicker.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.datatables.net/rowgroup/1.4.1/js/dataTables.rowGroup.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/js/select2.min.js" defer></script>
 
 
   <script>
     const ctx = document.getElementById('grafik-omset-pertahun');
-
-    // Data dari PHP
-    const grafikOmset = @json($grafik_omzet ?? []);
-
-    // Inisialisasi array data untuk 12 bulan (Januari - Desember)
     const monthLabels = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-    const monthData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    let omsetChart;
 
-    // Mapping data dari grafik_omzet ke array monthData
-    if (grafikOmset && grafikOmset.length > 0) {
-      grafikOmset.forEach(function(item) {
-        // bulan adalah 1-12, array index adalah 0-11
-        const monthIndex = parseInt(item.bulan) - 1;
+    // Hitung total omset per bulan dari data tabel yang sedang tampil
+    function buildMonthData(rows = []) {
+      const monthData = Array(12).fill(0);
+
+      rows.forEach(function(item) {
+        const amount = parseFloat(item.validasi_payment) || 0;
+        const dateValue = item.created_at;
+
+        if (!dateValue || amount <= 0) return;
+
+        const monthIndex = moment(dateValue).month(); // 0-11
         if (monthIndex >= 0 && monthIndex < 12) {
-          monthData[monthIndex] = parseFloat(item.jml) || 0;
+          monthData[monthIndex] += amount;
+        }
+      });
+
+      return monthData;
+    }
+
+    // Render / perbarui grafik berdasarkan data tabel
+    function renderOmsetChart(rows = []) {
+      const monthData = buildMonthData(rows);
+
+      if (omsetChart) {
+        omsetChart.data.datasets[0].data = monthData;
+        omsetChart.update();
+        return;
+      }
+
+      omsetChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: monthLabels,
+          datasets: [{
+            label: 'Amount',
+            data: monthData,
+            borderWidth: 1,
+            backgroundColor: 'rgba(75, 192, 192, 0.4)',
+            borderColor: 'rgba(75, 192, 192, 1)'
+          }]
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
         }
       });
     }
-
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: monthLabels,
-        datasets: [{
-          label: 'Amount',
-          data: monthData,
-          borderWidth: 1
-        }]
-      },
-      options: {
-        scales: {
-          y: {
-            beginAtZero: true
-          }
-        }
-      }
-    });
   </script>
 
 
 <script>
-console.log("kipak");
+// console.log("kipak");
 
 window.defaultUrl = '{{ url('/omset/') }}/';
 
@@ -306,6 +398,13 @@ const currentYear = moment().year();
 $('.yearmonthpicker').datepicker({
     format: "yyyy-mm",
     minViewMode: "months",
+    startView: "years",
+    autoclose: true
+});
+
+$('.yearpicker').datepicker({
+    format: "yyyy",
+    minViewMode: "years",
     startView: "years",
     autoclose: true
 });
@@ -338,9 +437,18 @@ $(document).ready(function() {
     });
 
     $('.submit-filter').on('click', function() {
+        // Jika submit dari form filter bulan, reset filter tahun
+        if ($(this).closest('#form_filter').length > 0) {
+            $('#form_filter_tahun input[name="created_at"]').val('');
+        }
+        // Jika submit dari form filter tahun, reset filter bulan
+        if ($(this).closest('#form_filter_tahun').length > 0) {
+            $('#form_filter input[name="created_at"]').val('');
+        }
+
         // Reload datatable dengan filter baru
-        if (table) {
-            table.ajax.reload(null, false); // false = tetap di halaman saat ini
+        if (tableDetail) {
+            tableDetail.ajax.reload(null, false); // false = tetap di halaman saat ini
         } else {
             viewDatatable();
         }
@@ -349,211 +457,30 @@ $(document).ready(function() {
     // Reset filter
     $('#btn-reset-filter').on('click', function() {
         $('#form_filter')[0].reset();
+        $('#form_filter_tahun')[0].reset();
         $('#cmb_sales').val(null).trigger('change');
-        $('#created_at').val('');
+        $('#form_filter input[name="created_at"]').val('');
+        $('#form_filter_tahun input[name="created_at"]').val('');
 
         // Reload datatable tanpa filter
-        if (table) {
-            table.ajax.reload(null, false);
+        if (tableDetail) {
+            tableDetail.ajax.reload(null, false);
         } else {
             viewDatatable();
         }
     });
 
-    $('#btn-generate-pr').on('click', function() {
-        generateNomorPR();
-    });
 
-    $('select[name=cmb_laundry').on('select2:select', function (e) {
-        var data = e.params.data;
-        // alert(data)
-        $('#harga').val(data.harga);
-    });
-
-    $("#btn-edit").on("click", function () {
-        let selected = table.row('.selected').data();
-
-        console.log(selected);
-        if (_.isEmpty(selected) ||  selected == undefined) {
-            Swal.fire({
-                title: 'Peringatan',
-                text: 'Pilih Data Terlebih Dahulu',
-                icon: 'warning',
-                confirmButtonText: 'OK'
-            });
-            return false;
-        }
-
-        modal.find("input[name=_type]").val("update");
-        modal.find("input[name=id]").val(selected.id);
-        modal.find("input[name=nama_projek]").val(selected.nama_projek);
-        modal.find("input[name=nama_client]").val(selected.nama_client);
-        modal.find("select[name=jenis_pr]").val(selected.jenis_pr);
-
-        // Sembunyikan field nomor_pr dan tombol generate saat mode edit
-        $('.input-group:has(#nomor_pr)').hide();
-        $('#btn-generate-pr').hide();
-
-        resetErrors();
-        modal.modal("show");
-    });
-
-
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
-    modal.find("form").on("submit", function(ev) {
-        ev.preventDefault();
-
-        let submitButton = $(this).find("[type=submit]");
-        let originalContent = submitButton.html();
-        submitButton.html('<i class="fa fa-spin fa-spinner"></i> Menyimpan...');
-        submitButton.prop("disabled", true);
-
-        let type = $("[name=_type]").val();
-        let id = $("[name=id]").val();
-        let url = type == "create" ? defaultUrl + "create" : defaultUrl + "update/" + id;
-
-        $.ajax({
-            url: url,
-            type: 'POST',
-            data: $(this).serialize(),
-            dataType: 'json',
-            success: function(response) {
-                // Reset form terlebih dahulu
-                $('#form_sound')[0].reset();
-
-                // Reload table
-                table.ajax.reload();
-
-                // Tutup modal menggunakan helper function
-                closeModal();
-
-                // Tampilkan SweetAlert
-                Swal.fire({
-                    title: 'Sukses',
-                    text: response.message,
-                    icon: 'success',
-                    confirmButtonText: 'OK'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        table.ajax.reload();
-                    }
-                });
-            },
-            error: function(jqXHR) {
-                if (jqXHR && jqXHR.responseJSON && jqXHR.responseJSON.errors) {
-                    let errors = jqXHR.responseJSON.errors;
-                    for (let field in errors) {
-                        let el = $([name="${field}"]);
-                        el.addClass("is-invalid");
-                        el.next('.invalid-feedback').text(errors[field]);
-                    }
-                }
-                alert('Terjadi kesalahan saat menyimpan data');
-            },
-            complete: function() {
-                submitButton.html(originalContent);
-                submitButton.prop("disabled", false);
-            }
-        });
-    });
-
-    // Tambahkan event handler untuk tombol delete
-    $("#btn-delete").on("click", function () {
-        let selected = table.row('.selected').data();
-
-        if (_.isEmpty(selected) ||  selected == undefined) {
-            Swal.fire({
-                title: 'Peringatan',
-                text: 'Pilih Data Terlebih Dahulu',
-                icon: 'warning',
-                confirmButtonText: 'OK'
-            });
-            return false;
-        }
-
-        // Konfirmasi delete dengan SweetAlert
-        Swal.fire({
-            title: 'Apakah anda yakin?',
-            text: "Data yang dihapus tidak dapat dikembalikan!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Ya, hapus!',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Kirim request delete
-                $.ajax({
-                    url: defaultUrl + "delete/" + selected.id,
-                    type: 'POST',
-                    "headers": {'X-CSRF-TOKEN': $('meta[name="csrf_token"]').attr('content')},
-                    success: function(response) {
-                        if(typeof Swal !== 'undefined') {
-                            Swal.fire({
-                                title: 'Sukses!',
-                                text: response.message,
-                                icon: 'success',
-                                confirmButtonText: 'OK'
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    table.ajax.reload();
-                                }
-                            });
-                        } else {
-                            alert(response.message);
-                            table.ajax.reload();
-                        }
-                        $('#form_sound')[0].reset();
-                    },
-                    error: function(jqXHR) {
-                        let message = 'Terjadi kesalahan saat menghapus data';
-                        if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
-                            message = jqXHR.responseJSON.message;
-                        }
-                        Swal.fire('Error!', message, 'error');
-                    }
-                });
-            }
-        });
-    });
-
-
-    $("#btn-detail").on("click", function () {
-        let selected = table.row('.selected').data();
-
-        if (_.isEmpty(selected) || selected == undefined) {
-            Swal.fire({
-                title: 'Peringatan',
-                text: 'Pilih Data Terlebih Dahulu',
-                icon: 'warning',
-                confirmButtonText: 'OK'
-            });
-            return false;
-        }
-
-        if (selected.jenis_pr === 'pemerintah') {
-            window.location.href = defaultUrl + "detail_data_prwapu?id_projek=" + selected.id;
-        } else if (selected.jenis_pr === 'swasta') {
-            window.location.href = defaultUrl + "detail_data_swasta?id_projek=" + selected.id;
-        } else if (selected.jenis_pr === 'non_ppn') {
-            window.location.href = defaultUrl + "detail_data_non_ppn?id_projek=" + selected.id;
-        }  else {
-            Swal.fire({
-                title: 'Peringatan',
-                text: 'Jenis PR tidak dikenali!',
-                icon: 'warning',
-                confirmButtonText: 'OK'
-            });
-        }
-    });
-
-
-
+// Fungsi Export Semua Data (tanpa filter)
+window.exportAllPDF = function() {
+    // Ambil tahun dari form filter
+    const yearValue = $('#form_filter_tahun input[name="created_at"]').val();
+    let url = "{{ route('omset/cetakpdf') }}";
+    if (yearValue) {
+        url += '?created_at=' + encodeURIComponent(yearValue);
+    }
+    window.open(url, '_blank');
+}
     // Tambahkan event handler untuk tombol close
     $('.close, .btn-secondary').click(function() {
         closeModal();
@@ -568,23 +495,71 @@ $(document).ready(function() {
 
 });
 
+function collectionS2Search() {
+    $('select[name=cmb_sales]').select2({
+        dropdownParent: $('#formFilter'),
+        allowClear: true,
+        width: '72.5%',
+        placeholder: '',
+        ajax: {
+            url: "{{ url('/omset/getSales') }}",
+            dataType: 'json',
+            data: function (params) {
+                return {
+                    q: params.term,
+                    page: params.page || 1
+                };
+            },
+            processResults: function (data) {
+                return {
+                    results: $.map(data.data, function (item) {
+                        return {
+                            text: item.name,
+                            id: item.id
+                        }
+                    }),
+                    pagination: {
+                        more: false
+                    }
+                };
+            },
+            cache: true
+        }
+    });
+
+     // Event handler for when kategori changes
+     $('select[name=cmb_sales]').on('select2:select', function (e) {
+        var data = e.params.data;
+
+        $('#cmb_sales').val(data.id);
+    });
+}
+
+let tableDetail;
 function viewDatatable() {
     tableDetail = $(".basic-datatables").DataTable({
         scrollY: '400px',
         scrollX: true,
         pageLength: 10,
         paging: false,
-        serverSide: false,      // FIX
-        processing: false,      // FIX
+        serverSide: false,
+        processing: false,
 
         ajax: {
             url: "{{ route('omset/datatable') }}",
             type: "post",
             data: function (d) {
-                var formData = $("#form_filter").serializeArray();
-                $.each(formData, function (key, val) {
-                    d[val.name] = val.value;
-                });
+                // Ambil data dari form filter bulan
+                var filterBulan = $('#form_filter input[name="created_at"]').val();
+                // Ambil data dari form filter tahun
+                var filterTahun = $('#form_filter_tahun input[name="created_at"]').val();
+
+                // Prioritaskan filter bulan jika ada, jika tidak gunakan filter tahun
+                if (filterBulan) {
+                    d['created_at'] = filterBulan;
+                } else if (filterTahun) {
+                    d['created_at'] = filterTahun;
+                }
 
                 var selectedSales = $('#cmb_sales').val();
                 if (selectedSales) {
@@ -593,11 +568,19 @@ function viewDatatable() {
                 d['_token'] = '{{ csrf_token() }}';
             },
             dataSrc: function (json) {
-                // Tampilkan hanya data pada tahun berjalan di sisi client
-                return (json || []).filter(function (row) {
-                    return moment(row.created_at).year() === currentYear;
-                });
-            }  // penting untuk non-serverSide
+                // Jika ada filter, return semua data yang sudah difilter di server
+                // Jika tidak ada filter, tampilkan data tahun berjalan
+                var filterBulan = $('#form_filter input[name="created_at"]').val();
+                var filterTahun = $('#form_filter_tahun input[name="created_at"]').val();
+                if (filterBulan || filterTahun) {
+                    return json || [];
+                } else {
+                    // Tampilkan hanya data pada tahun berjalan di sisi client
+                    return (json || []).filter(function (row) {
+                        return moment(row.created_at).year() === currentYear;
+                    });
+                }
+            }
         },
 
         dom: 't',
@@ -606,11 +589,18 @@ function viewDatatable() {
         responsive: true,
         select: { style: 'single' },
         aaSorting: [],
-
         columnDefs: [{
             searchable: false,
             targets: [0]
         }],
+        initComplete: function () {
+            const rows = this.api().rows({ filter: 'applied' }).data().toArray();
+            renderOmsetChart(rows);
+        },
+        drawCallback: function () {
+            const rows = this.api().rows({ filter: 'applied' }).data().toArray();
+            renderOmsetChart(rows);
+        },
 
         footerCallback: function (row, data, start, end, display) {
             var api = this.api();
@@ -651,19 +641,32 @@ function viewDatatable() {
             if (formattedRevenue === '-') {
                 $('#subtotal_omset').val('');
                 $('#achievement').val('-');
+                $('#minus_target').val('');
+                $('#persentase_minus').val('-');
             } else {
                 $('#subtotal_omset').val(formattedRevenue);
 
                 var achievementPercentage = (totalRevenue / 3000000000) * 100;
                 var formattedAchievement = achievementPercentage > 0 ? achievementPercentage.toFixed(2) + '%' : '-';
                 $('#achievement').val(formattedAchievement);
+
+                // Hitung minus target
+                var minusTarget = totalRevenue - 3000000000;
+                var formattedMinusTarget = 'Rp ' + formatRupiahWithDots(minusTarget.toString(), '');
+                $('#minus_target').val(formattedMinusTarget);
+
+                // Perhitungan persentase minus: (minusTarget / 3.000.000.000)*100
+                var persentaseMinus = ((minusTarget / 3000000000) * 100);
+                var persentaseMinusText = persentaseMinus !== 0 ? persentaseMinus.toFixed(2) + '%' : '-';
+                $('#persentase_minus').val(persentaseMinusText);
             }
         },
         columnDefs: [{
             searchable: false,
             targets: [0]
         }],
-        columns: [{
+        columns: [
+            {
                 "data": "id",
                 render: function (data, type, row, meta) {
                     return meta.row + meta.settings._iDisplayStart + 1 + ".";
@@ -677,6 +680,14 @@ function viewDatatable() {
                     } else {
                         return moment(data).format('DD-MM-YYYY');
                     }
+                }
+            },
+            {
+                data: "created_at",
+                visible: false,
+                render: function (data, type, row, meta) {
+                    if (!data) return '-';
+                    return moment(data).format('MMMM');
                 }
             },
             {
@@ -809,6 +820,7 @@ function viewDatatable() {
         }
     });
 }
+
 
 // Tambahkan fungsi helper untuk handle modal
 function closeModal() {

@@ -269,43 +269,59 @@
 
   <script>
     const ctx = document.getElementById('grafik-profit-pertahun');
-
-    // Data dari PHP
-    const grafikprofit = @json($grafik_profit ?? []);
-
-    // Inisialisasi array data untuk 12 bulan (Januari - Desember)
     const monthLabels = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-    const monthData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    let omsetChart;
 
-    // Mapping data dari grafik_omzet ke array monthData
-    if (grafikprofit && grafikprofit.length > 0) {
-      grafikprofit.forEach(function(item) {
-        // bulan adalah 1-12, array index adalah 0-11
-        const monthIndex = parseInt(item.bulan) - 1;
+    // Hitung total omset per bulan dari data tabel yang sedang tampil
+    function buildMonthData(rows = []) {
+      const monthData = Array(12).fill(0);
+
+      rows.forEach(function(item) {
+        const amount = parseFloat(item.validasi_payment) || 0;
+        const dateValue = item.created_at;
+
+        if (!dateValue || amount <= 0) return;
+
+        const monthIndex = moment(dateValue).month(); // 0-11
         if (monthIndex >= 0 && monthIndex < 12) {
-          monthData[monthIndex] = parseFloat(item.jml) || 0;
+          monthData[monthIndex] += amount;
+        }
+      });
+
+      return monthData;
+    }
+
+    // Render / perbarui grafik berdasarkan data tabel
+    function renderOmsetChart(rows = []) {
+      const monthData = buildMonthData(rows);
+
+      if (omsetChart) {
+        omsetChart.data.datasets[0].data = monthData;
+        omsetChart.update();
+        return;
+      }
+
+      omsetChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: monthLabels,
+          datasets: [{
+            label: 'Amount',
+            data: monthData,
+            borderWidth: 1,
+            backgroundColor: 'rgba(75, 192, 192, 0.4)',
+            borderColor: 'rgba(75, 192, 192, 1)'
+          }]
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
         }
       });
     }
-
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: monthLabels,
-        datasets: [{
-          label: 'Amount',
-          data: monthData,
-          borderWidth: 1
-        }]
-      },
-      options: {
-        scales: {
-          y: {
-            beginAtZero: true
-          }
-        }
-      }
-    });
   </script>
 
 
@@ -355,8 +371,15 @@ $(document).ready(function() {
 
     $('.submit-filter').on('click', function() {
         // Reload datatable dengan filter baru
-        if (table) {
-            table.ajax.reload(null, false); // false = tetap di halaman saat ini
+        if ($(this).closest('#form_filter').length > 0) {
+            $('#form_filter_tahun input[name="created_at"]').val('');
+        }
+        // Jika submit dari form filter tahun, reset filter bulan
+        if ($(this).closest('#form_filter_tahun').length > 0) {
+            $('#form_filter input[name="created_at"]').val('');
+        }
+        if (tableDetail) {
+            tableDetail.ajax.reload(null, false); // false = tetap di halaman saat ini
         } else {
             viewDatatable();
         }
@@ -367,10 +390,12 @@ $(document).ready(function() {
         $('#form_filter')[0].reset();
         $('#cmb_sales').val(null).trigger('change');
         $('#tgl_bayar').val('');
+        $('#form_filter input[name="created_at"]').val('');
+        $('#form_filter_tahun input[name="created_at"]').val('');
 
         // Reload datatable tanpa filter
-        if (table) {
-            table.ajax.reload(null, false);
+        if (tableDetail) {
+            tableDetail.ajax.reload(null, false);
         } else {
             viewDatatable();
         }
@@ -584,6 +609,7 @@ $(document).ready(function() {
 
 });
 
+let tableDetail;
 function viewDatatable() {
     tableDetail = $(".basic-datatables").DataTable({
         scrollY: '400px',
@@ -597,10 +623,16 @@ function viewDatatable() {
             url: "{{ route('profit/datatable') }}",
             type: "post",
             data: function (d) {
-                var formData = $("#form_filter").serializeArray();
-                $.each(formData, function (key, val) {
-                    d[val.name] = val.value;
-                });
+                var filterBulan = $('#form_filter input[name="created_at"]').val();
+                // Ambil data dari form filter tahun
+                var filterTahun = $('#form_filter_tahun input[name="created_at"]').val();
+
+                // Prioritaskan filter bulan jika ada, jika tidak gunakan filter tahun
+                if (filterBulan) {
+                    d['created_at'] = filterBulan;
+                } else if (filterTahun) {
+                    d['created_at'] = filterTahun;
+                }
 
                 var selectedSales = $('#cmb_sales').val();
                 if (selectedSales) {
@@ -609,10 +641,18 @@ function viewDatatable() {
                 d['_token'] = '{{ csrf_token() }}';
             },
             dataSrc: function (json) {
+
+                var filterBulan = $('#form_filter input[name="created_at"]').val();
+                var filterTahun = $('#form_filter_tahun input[name="created_at"]').val();
+                if (filterBulan || filterTahun) {
+                    return json || [];
+                } else {
+
                 // Tampilkan hanya data pada tahun berjalan di sisi client
                 return (json || []).filter(function (row) {
                     return moment(row.created_at).year() === currentYear;
                 });
+                }
             }  //
         },
 
@@ -622,6 +662,14 @@ function viewDatatable() {
         responsive: true,
         select: { style: 'single' },
         aaSorting: [],
+        initComplete: function () {
+            const rows = this.api().rows({ filter: 'applied' }).data().toArray();
+            renderOmsetChart(rows);
+        },
+        drawCallback: function () {
+            const rows = this.api().rows({ filter: 'applied' }).data().toArray();
+            renderOmsetChart(rows);
+        },
         footerCallback: function (row, data, start, end, display) {
             var api = this.api();
 

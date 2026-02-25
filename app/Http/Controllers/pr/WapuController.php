@@ -25,23 +25,21 @@ use Illuminate\Support\Facades\Log;
 class WapuController extends Controller
 {
     public function index()
-    {
-        $user = auth()->user();
-        if ($user->id_role == 1) {
-            $pr_wapu = DB::select("CALL sp_data_prwapu(0)");
-        } else {
+{
+    $user = auth()->user();
 
-            $pr_wapu = DB::select("CALL sp_data_prwapu($user->id)");
-        }
-
-
-        return view('pr/pr_wapu',[
-
-            'pr_wapu' => $pr_wapu,
-            "active" => 'pr_wapu'
-
-        ]);
+    if ($user->id_role == 1) {
+        $pr_wapu = DB::select("CALL sp_data_prwapu(0)");
+    } else {
+        $pr_wapu = DB::select("CALL sp_data_prwapu(?)", [$user->id]);
     }
+
+    // JANGAN di-sort lagi di Laravel
+    return view('pr/pr_wapu', [
+        'pr_wapu' => $pr_wapu,
+        'active'  => 'pr_wapu'
+    ]);
+}
 
     public function search(Request $request)
 {
@@ -60,7 +58,7 @@ class WapuController extends Controller
         $cmb_sales = request()->get('cmb_sales');
 
         $user = auth()->user();
-        $query = Wapu::query();
+        $query = Wapu::query()->orderBy('created_at', 'desc');
 
         // Filter berdasarkan bulan (periode_start)
         if ($periode_start) {

@@ -99,6 +99,8 @@ Route::middleware(['UserAkses:manager,admin,super_admin'])->group(function() {
     Route::get('/approval/getshift',                                    [ApprovalController::class, 'getshift'])->name('sound/getshift');
     Route::post('/approval/getshift',                                   [ApprovalController::class, 'getshift'])->name('sound/getshift');
     Route::post('/approval/setApprove',                                 [ApprovalController::class, 'setApprove'])->name('approval/setApprove');
+    Route::get('/approval/cetakpdf',                                    [ApprovalController::class, 'cetakPDF'])->name('approval/cetakpdf');
+    Route::post('/approval/cetakpdf',                                   [ApprovalController::class, 'cetakPDF'])->name('approval/cetakpdf');
 });
 
 //PRWAPU
@@ -152,42 +154,6 @@ Route::middleware(['UserAkses:sales,admin,super_admin,manager'])->group(function
     Route::get('/vendor/search',                                       [WapuController::class, 'search'])->name('vendor.search');
 
 });
-
-////SWASTA
-Route::middleware(['UserAkses:sales,admin,super_admin'])->group(function() {
-    // Route::get('/manager',[ManagerController::class, 'index']);
-    // Route::get('/swasta',                                              [WapuController::class, 'index']);
-    // Route::get('/swasta/getSales',                                     [SwastaController::class, 'getSales'])->name('swasta/getSales');
-    // Route::post('/swasta/getSales',                                    [SwastaController::class, 'getSales'])->name('swasta/getSales');
-    // Route::get('/swasta/datatable',                                    [SwastaController::class, 'datatable'])->name('swasta/datatable');
-    // Route::post('/swasta/datatable',                                   [SwastaController::class, 'datatable'])->name('create');
-    // Route::get('/swasta/create',                                       [SwastaController::class, 'create'])->name('create');
-    // Route::post('/swasta/create',                                      [SwastaController::class, 'create'])->name('create');
-    // Route::get('/swasta/update/{id}',                                  [SwastaController::class, 'update'])->name('update');
-    // Route::post('/swasta/update/{id}',                                 [SwastaController::class, 'update'])->name('update');
-    // Route::get('/swasta/delete/{id}',                                  [SwastaController::class, 'delete'])->name('delete');
-    // Route::post('/swasta/delete/{id}',                                 [SwastaController::class, 'delete'])->name('delete');
-    // Route::get('/swasta/generate-nomor-pr',                            [SwastaController::class, 'generateNomorPR'])->name('swasta.generate_nomor_pr');
-    // // Route::get('/swasta/detail_data_swasta',                           [SwastaController::class, 'detail_data_swasta']);
-    // Route::get('/swasta/datatabledetail',                              [SwastaController::class, 'datatabledetail'])->name('swasta/datatabledetail');
-    // Route::post('/swasta/datatabledetail',                             [SwastaController::class, 'datatabledetail'])->name('swasta/datatabledetail');
-    // Route::get('/swasta/detailCreate',                                 [SwastaController::class, 'detailCreate'])->name('detailCreate');
-    // Route::post('/swasta/detailCreate',                                [SwastaController::class, 'detailCreate'])->name('detailCreate');
-    // Route::get('/swasta/datatablecogs',                                [SwastaController::class, 'datatabledetailcogs'])->name('swasta/datatablecogs');
-    // Route::post('/swasta/datatablecogs',                               [SwastaController::class, 'datatabledetailcogs'])->name('create');
-    // Route::get('/swasta/deletedetail/{id}',                            [SwastaController::class, 'deletedetail'])->name('deletedetail');
-    // Route::post('/swasta/deletedetail/{id}',                           [SwastaController::class, 'deletedetail'])->name('deletedetail');
-    // Route::get('/swasta/createcogs',                                   [SwastaController::class, 'createCogs'])->name('createcogs');
-    // Route::post('/swasta/createcogs',                                  [SwastaController::class, 'createCogs'])->name('createcogs');
-    // Route::post('/swasta/updateTotalPpn',                              [SwastaController::class, 'updateTotalPpn'])->name('swasta.updateTotalPpn');
-    // Route::post('/swasta/updateincentive',                             [SwastaController::class, 'updateIncentive'])->name('swasta.updateincentive');
-    // Route::post('/swasta/updateValidasiPayment',                       [SwastaController::class, 'updateValidasiPayment'])->name('swasta/updateValidasiPayment');
-    // Route::post('/swasta/total_cogs',                                  [SwastaController::class, 'getTotalCogs']);
-
-    // Route::get('/swasta/detailUpdateCogs/{id}',                        [SwastaController::class, 'detailUpdateCogs'])->name('swasta/detailUpdateCogs');
-    // Route::post('/swasta/detailUpdateCogs/{id}',                       [SwastaController::class, 'detailUpdateCogs'])->name('swasta/detailUpdateCogs');
-});
-
 
 Route::middleware(['UserAkses:admin,super_admin'])->group(function() {
     // Route::get('/manager',[ManagerController::class, 'index']);
@@ -285,10 +251,8 @@ Route::middleware(['UserAkses:admin,super_admin'])->group(function() {
     Route::post('/omset/getPr',                                              [OmsetController::class, 'getPr'])->name('omset/getPr');
     Route::get('/omset/create',                                              [OmsetController::class, 'create'])->name('create');
     Route::post('/omset/create',                                             [OmsetController::class, 'create'])->name('create');
-    Route::get('/omset/cetakCV',                                             [OmsetController::class, 'cetakCV'])->name('omset/cetakCV');
-    Route::post('/omset/cetakCV',                                            [OmsetController::class, 'cetakCV'])->name('omset/cetakCV');
-    Route::get('/omset/cetakPT',                                             [OmsetController::class, 'cetakPT'])->name('omset/cetakPT');
-    Route::post('/omset/cetakPT',                                            [OmsetController::class, 'cetakPT'])->name('omset/cetakPT');
+    Route::get('/omset/cetakpdf',                                            [OmsetController::class, 'cetakPDF'])->name('omset/cetakpdf');
+    Route::post('/omset/cetakpdf',                                           [OmsetController::class, 'cetakPDF'])->name('omset/cetakpdf');
 
 });
 

@@ -25,6 +25,7 @@ class Wapu extends Model
         'subtotal_sp2d',
         'jumlah_ppn',
         'total_vat',
+        'tgl_bayar',
         'total_margin'
     ];
 
