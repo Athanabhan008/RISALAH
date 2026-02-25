@@ -9,6 +9,16 @@ class SesiController extends Controller
 {
     public function index()
     {
+        if (Auth::check()) {
+            if (Auth::user()->role == 'manager' || Auth::user()->role == 'super_admin' || Auth::user()->role == 'admin') {
+                return redirect('/manager');
+            } elseif (Auth::user()->role == 'sales') {
+                return redirect('/sales');
+            } elseif (Auth::user()->role == 'teknisi') {
+                return redirect('/teknisi');
+            }
+        }
+
         return view('login.login');
     }
     public function login(Request $request)
