@@ -941,7 +941,7 @@ function viewDatatable(callback) {
                     if (data == '' || data == null) {
                         return '-';
                     } else {
-                        return data;
+                        return formatRupiah(data);
                     }
                 }
             },
@@ -951,7 +951,7 @@ function viewDatatable(callback) {
                     if (data == '' || data == null) {
                         return '-';
                     } else {
-                        return data;
+                        return formatRupiah(data);
                     }
                 }
             },
@@ -961,7 +961,7 @@ function viewDatatable(callback) {
                     if (data == '' || data == null) {
                         return '-';
                     } else {
-                        return data;
+                        return formatRupiah(data);
                     }
                 }
             },
@@ -971,7 +971,7 @@ function viewDatatable(callback) {
                     if (data == '' || data == null) {
                         return '-';
                     } else {
-                        return data;
+                        return formatRupiah(data);
                     }
                 }
             },
@@ -981,7 +981,7 @@ function viewDatatable(callback) {
                     if (data == '' || data == null) {
                         return '-';
                     } else {
-                        return data;
+                        return formatRupiah(data);
                     }
                 }
             },
@@ -991,7 +991,7 @@ function viewDatatable(callback) {
                     if (data == '' || data == null) {
                         return '-';
                     } else {
-                        return data;
+                        return formatRupiah(data);
                     }
                 }
             },
@@ -1211,12 +1211,33 @@ function generateNomorPR() {
 
 // Fungsi untuk format rupiah
 function formatRupiah(angka) {
-    if (!angka || angka === null || angka === undefined || isNaN(angka)) {
+    if (angka === null || angka === undefined || angka === '') {
         return 'Rp 0';
     }
 
-    // Pastikan angka berupa number
-    var numValue = typeof angka === 'number' ? angka : parseFloat(angka);
+    // Jika sudah berupa number, gunakan langsung
+    var numValue;
+    if (typeof angka === 'number') {
+        numValue = angka;
+    } else {
+        // Konversi ke string dan bersihkan karakter non-numeric
+        var stringValue = angka.toString();
+
+        // Hapus semua karakter non-numeric kecuali koma dan titik
+        var cleanValue = stringValue.replace(/[^0-9.,]/g, '');
+
+        // Jika tidak ada koma, berarti titik adalah pemisah ribuan (format Indonesia)
+        if (cleanValue.indexOf(',') === -1) {
+            // Hapus semua titik karena ini pemisah ribuan
+            cleanValue = cleanValue.replace(/\./g, '');
+        } else {
+            // Jika ada koma, berarti koma adalah pemisah desimal
+            // Ganti koma dengan titik untuk parsing, hapus titik ribuan
+            cleanValue = cleanValue.replace(/\./g, '').replace(',', '.');
+        }
+
+        numValue = parseFloat(cleanValue);
+    }
 
     if (isNaN(numValue)) {
         return 'Rp 0';
