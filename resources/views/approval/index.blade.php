@@ -1001,15 +1001,12 @@ function viewDatatable(callback) {
                     // Convert to string untuk memastikan perbandingan yang konsisten
                     const isPengajuanAdmin = String(row.is_pengajuan_admin || 0);
                     const isApprove = String(row.is_approve || 0);
-                    const isTerbayarkan = String(row.is_terbayarkan || 0);
 
                     // Prioritas: is_approve lebih tinggi dari is_pengajuan_admin
                     if (isApprove === "1") {
-                        return '<span class="badge badge-success">Approve</span>';
+                        return '<span class="badge badge-success">Terbayarkan</span>';
                     } else if (isPengajuanAdmin === "1") {
                         return '<span class="badge badge-warning">Pending</span>';
-                    } else if (isTerbayarkan === "1") {
-                        return '<span class="badge badge-danger">Terbayarkan</span>';
                     } else {
                         return '<span class="badge badge-secondary">-</span>';
                     }

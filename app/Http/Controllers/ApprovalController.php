@@ -102,25 +102,17 @@ class ApprovalController extends Controller
             $id_user = $user['id'];
             $nama_user = $user['name'];
 
-            // Dukungan rentang bulan atau 1 bulan
+            // Dukungan rentang bulan atau 1 bulan (mengikuti filter di datatable)
             $periode_start = $request->input('periode_start');
             $periode_end = $request->input('periode_end');
             $periodeSingle = $request->input('periode_pr');
 
+            $query = VwSharingprofit::query();
+
             if ($periode_start && $periode_end) {
-                $yearS = substr($periode_start, 0, 4);
-                $monthS = substr($periode_start, 4, 2);
-                $yearE = substr($periode_end, 0, 4);
-                $monthE = substr($periode_end, 4, 2);
-
-                $startDate = \Carbon\Carbon::createFromFormat('Y-m', "$yearS-$monthS")->startOfMonth();
-                $endDate = \Carbon\Carbon::createFromFormat('Y-m', "$yearE-$monthE")->endOfMonth();
+                $query->whereBetween('periode', [$periode_start, $periode_end]);
             } elseif ($periodeSingle) {
-                $year = substr($periodeSingle, 0, 4);
-                $month = substr($periodeSingle, 4, 2);
-
-                $startDate = \Carbon\Carbon::createFromFormat('Y-m', "$year-$month")->startOfMonth();
-                $endDate = \Carbon\Carbon::createFromFormat('Y-m', "$year-$month")->endOfMonth();
+                $query->where('periode', $periodeSingle);
             } else {
                 return response()->json([
                     'success' => false,
@@ -128,34 +120,45 @@ class ApprovalController extends Controller
                 ], 422);
             }
 
-            $prwapusData = Wapu::whereBetween('tgl_bayar', [$startDate, $endDate])->get();
+            // Ikuti juga filter user seperti di datatable (untuk non manager/admin/super_admin)
+            $userObj = auth()->user();
+            if (!in_array($userObj->role, ['super_admin', 'admin', 'manager'])) {
+                $query->where('id_sales', $userObj->id);
+            }
 
-            foreach ($prwapusData as $prwapu) {
-                $sharingProfit = SharingProfitModel::where('id_projek', $prwapu->id)->first();
+            // Ambil daftar id_projek dari view yang tampil di datatable
+            $projekIds = $query->pluck('id_projek')->filter()->unique();
 
-                if ($sharingProfit) {
+            if ($projekIds->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data tidak ditemukan untuk periode tersebut'
+                ], 404);
+            }
 
-                    if ($user['role'] == 'admin') {
-                        $sharingProfit->update([
-                            'is_pengajuan_admin' => 1,
-                            'id_admin' => $id_user,
-                            'nama_admin' => $nama_user
-                        ]);
-                    } else {
-                        $sharingProfit->update([
-                            'is_approve' => 1,
-                            'id_approve' => $id_user,
-                            'user_approve' => $nama_user
-                        ]);
-                    }
+            // Ambil semua sharing_profit yang terkait dan update statusnya
+            $sharingProfits = SharingProfitModel::whereIn('id_projek', $projekIds)->get();
 
+            foreach ($sharingProfits as $sharingProfit) {
+                if ($user['role'] == 'admin') {
+                    $sharingProfit->update([
+                        'is_pengajuan_admin' => 1,
+                        'id_admin' => $id_user,
+                        'nama_admin' => $nama_user
+                    ]);
+                } else {
+                    $sharingProfit->update([
+                        'is_approve' => 1,
+                        'id_approve' => $id_user,
+                        'user_approve' => $nama_user
+                    ]);
                 }
             }
 
             return response()->json([
                 'success' => true,
                 'message' => 'Data berhasil diupdate',
-                'data' => $sharingProfit ?? null
+                'data' => $sharingProfits
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
