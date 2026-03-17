@@ -20,7 +20,7 @@ class ManagerController extends Controller
         //BOOKING
 
 
-        return view('manager.dashboard', [
+        return view('menu.index', [
             "active" => 'manager'
         ]);
     }

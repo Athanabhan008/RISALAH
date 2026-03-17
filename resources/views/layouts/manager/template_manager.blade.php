@@ -78,116 +78,15 @@
     <hr class="horizontal dark mt-0">
     <div class="collapse navbar-collapse h-100 w-auto" id="sidenav-collapse-main">
       <ul class="navbar-nav h-100">
-        @if(Auth::user()->role === 'teknisi')
-          <!-- Menu khusus untuk role teknisi - hanya Quality Control -->
-          <li class="nav-item">
-            <a class="nav-link {{ ($active === "qc") ? 'active' : '' }}" href="{{ url('/qc') }}">
-              <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                <i class="fa-solid fa-screwdriver-wrench" style="color: {{ ($active === "qc") ? 'white' : 'black' }};"></i>
-              </div>
-              <span class="nav-link-text ms-1">Quality Control</span>
-            </a>
-          </li>
-        @else
-          <!-- Menu untuk role selain teknisi -->
-          @if(Auth::user()->role !== 'sales')
-          <li class="nav-item">
-              <a class="nav-link {{ ($active === "manager") ? 'active' : '' }}" href="{{ url('/manager') }}">
+
+        <li class="nav-item">
+              <a class="nav-link {{ ($active === "menu") ? 'active' : '' }}" href="{{ url('/menu') }}">
                 <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                  <i class="fa-solid fa-house" style="color: {{ ($active === "manager") ? 'white' : 'black' }};"></i>
+                  <i class="fa-solid fa-folder" style="color: {{ ($active === "menu") ? 'white' : 'black' }};"></i>
                 </div>
-                <span class="nav-link-text ms-1">Dashboard</span>
+                <span class="nav-link-text ms-1">Menu</span>
               </a>
-            </li>
-          @endif
-
-
-            <li class="nav-item">
-              <a class="nav-link {{ ($active === "pr_wapu") ? 'active' : '' }}" href="{{ url('/pr_wapu') }}">
-                <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                  <i class="fa-solid fa-folder" style="color: {{ ($active === "pr_wapu") ? 'white' : 'black' }};"></i>
-                </div>
-                <span class="nav-link-text ms-1">PR</span>
-              </a>
-            </li>
-
-            @if(Auth::user()->role !== 'sales')
-              <li class="nav-item">
-                  <a class="nav-link {{ ($active === "po") ? 'active' : '' }}" href="{{ url('/po_vendor') }}">
-                    <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                      <i class="fa-solid fa-file-invoice" style="color: {{ ($active === "po") ? 'white' : 'black' }};"></i>
-                    </div>
-                    <span class="nav-link-text ms-1">PO Vendor</span>
-                  </a>
-                </li>
-
-                <li class="nav-item">
-                  <a class="nav-link {{ ($active === "do") ? 'active' : '' }}" href="{{ url('/delivery_order') }}">
-                    <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                      <i class="fa-solid fa-boxes-stacked" style="color: {{ ($active === "do") ? 'white' : 'black' }};"></i>
-                    </div>
-                    <span class="nav-link-text ms-1">Delivery Order</span>
-                  </a>
-                </li>
-
-                <li class="nav-item">
-                  <a class="nav-link {{ ($active === "invoice") ? 'active' : '' }}" href="{{ url('/invoice') }}">
-                    <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                      <i class="fa-solid fa-file-invoice-dollar" style="color: {{ ($active === "invoice") ? 'white' : 'black' }};"></i>
-                    </div>
-                    <span class="nav-link-text ms-1">Invoice</span>
-                  </a>
-                </li>
-
-                <li class="nav-item">
-                  <a class="nav-link {{ ($active === "qc") ? 'active' : '' }}" href="{{ url('/qc') }}">
-                    <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                      <i class="fa-solid fa-screwdriver-wrench" style="color: {{ ($active === "qc") ? 'white' : 'black' }};"></i>
-                    </div>
-                    <span class="nav-link-text ms-1">Quality Control</span>
-                  </a>
-                </li>
-
-                @if(Auth::user()->role !== 'admin')
-                <li class="nav-item">
-                  <a class="nav-link {{ ($active === "user") ? 'active' : '' }}" href="{{ url('/user') }}">
-                    <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                      <i class="fa-solid fa-users" style="color: {{ ($active === "user") ? 'white' : 'black' }};"></i>
-                    </div>
-                    <span class="nav-link-text ms-1">User</span>
-                  </a>
-                </li>
-                @endif
-
-                <li class="nav-item">
-                  <a class="nav-link {{ ($active === "approval") ? 'active' : '' }}" href="{{ url('/approval') }}">
-                    <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                      <i class="fa-solid fa-list-check" style="color: {{ ($active === "approval") ? 'white' : 'black' }};"></i>
-                    </div>
-                    <span class="nav-link-text ms-1">Approval</span>
-                  </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link {{ ($active === "omset") ? 'active' : '' }}" href="{{ url('/omset') }}">
-                      <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="fa-solid fa-hand-holding-dollar" style="color: {{ ($active === "omset") ? 'white' : 'black' }};"></i>
-                      </div>
-                      <span class="nav-link-text ms-1">Laporan Omset</span>
-                    </a>
-                  </li>
-
-                  <li class="nav-item">
-                    <a class="nav-link {{ ($active === "profit") ? 'active' : '' }}" href="{{ url('/profit') }}">
-                      <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="fa-solid fa-sack-dollar" style="color: {{ ($active === "profit") ? 'white' : 'black' }};"></i>
-                      </div>
-                      <span class="nav-link-text ms-1">Laporan Profit</span>
-                    </a>
-                  </li>
-
-                @endif
-        @endif
+        </li>
 
         <li class="nav-item">
           <a class="nav-link" href="#" onclick="confirmLogout()">
